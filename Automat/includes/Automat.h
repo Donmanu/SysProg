@@ -12,6 +12,7 @@ class Automat {
 public:
 	Automat();
 	virtual ~Automat();
+	void test();
 };
 
 #endif /* Automat_H_ */
