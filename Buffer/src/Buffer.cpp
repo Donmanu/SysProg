@@ -7,12 +7,147 @@
 
 #include "../includes/Buffer.h"
 
-
-Buffer::Buffer() {
-	// TODO Auto-generated constructor stub
-
+/*
+ * the constructor takes a file as input parameter,
+ * initializes the variables and calls the allocateMemory()
+ * functions for both buffers and calls the openFile()
+ * and readFile() functions.
+ *
+ * @input: the file to be opened.
+ */
+Buffer::Buffer(char *file_name) {
+	buffer_current = NULL;
+	buffer_previous = NULL;
+	current_char = '\0';
+	bytes_read = 0;
+	file_handle = 0;
+	position = 0;
+	buffer_swapped_back = false;
+	this->allocateMemory(&buffer_current);
+	this->allocateMemory(&buffer_previous);
+	this->openFile(file_name);
+	this->readFile(&buffer_current);
 }
 
+/*
+ * the destructor deletes the two buffers
+ * and closes the file
+ */
 Buffer::~Buffer() {
-	// TODO Auto-generated destructor stub
+	printf("freeing memory and closing file...");
+	delete(buffer_current);
+	delete(buffer_previous);
+	close(file_handle);
+}
+
+/*
+ * this function takes the address of a buffer as input
+ * parameter and allocates memory of the size{BUFFER_SIZE}
+ * with the posix_memalign method.
+ *
+ * @input: the address of the buffer.
+ * @error: memory could not be allocated.
+ */
+void Buffer::allocateMemory(char **buffer) {
+	printf("Allocating memory...\n");
+	int res = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
+	if (res == -1) {
+		perror("Error allocating memory!");
+		exit(EXIT_SUCCESS);
+	}
+}
+
+/*
+ * this function takes a filename{file_name} as input
+ * parameter and tries to open this file and saves the
+ * result in the file handle{file_handle}.
+ *
+ * @input: the file to be opened.
+ * @error: file could not be opened.
+ */
+void Buffer::openFile(char *file_name) {
+	printf("opening File...\n");
+	file_handle = open(file_name, O_DIRECT);
+	if(file_handle == -1) {
+		perror("Error opening File!\n");
+		exit(EXIT_SUCCESS);
+	}
+}
+
+/*
+ * this function takes the address of a buffer as input
+ * parameter and reads the next block of characters from
+ * the file and stores them in the input buffer.
+ *
+ * @input: the address of the buffer.
+ * @error: file could not be read.
+ */
+void Buffer::readFile(char **buffer) {
+	printf("reading File...\n");
+	bytes_read = read(file_handle, buffer_current, BUFFER_SIZE);
+	if (bytes_read == -1) {
+		perror("Error reading File!\n");
+		exit(EXIT_SUCCESS);
+	}
+}
+
+/*
+ * this method increments the position{position} for
+ * each call and returns the current character{current_char}
+ * the buffers will be swapped and the previous buffer
+ * will be overwritten with the next block of characters
+ * from the file.
+ *
+ * @return: current character{current_char}
+ */
+char Buffer::getChar() {
+	printf("getting char...\n");
+	if(position < BUFFER_SIZE) {
+		current_char = buffer_current[position];
+		position++;
+	} else {
+		this->swapBuffer();
+		memset(buffer_current, 0, BUFFER_SIZE);
+		this->readFile(&buffer_current);
+		current_char = buffer_current[position];
+	}
+	return current_char;
+}
+
+/*
+ * this function decrements the position{position}
+ * or sets the previous buffer{buffer_previous} as the
+ * current buffer{buffer_current} if the position{position}
+ * is zero. Throws an error if the buffer was already
+ * swapped and the buffer would have to be swapped again.
+ */
+char Buffer::ungetChar() {
+	if(position > 0) {
+		position--;
+	} else if (!buffer_swapped_back) {
+		this->swapBuffer();
+		position = BUFFER_SIZE - 1;
+		buffer_swapped_back = true;
+	} else {
+		printf("current char: %c, current position: %i\n", buffer_current[position], position);
+		perror("can't go back two buffers, exiting...");
+		exit(EXIT_SUCCESS);
+	}
+
+	return buffer_current[position];
+}
+
+/*
+ * this function sets the current buffer{buffer_current}
+ * as the previous buffer{buffer_previous} and sets
+ * the position{position} to zero and the flag that
+ * indicates if the buffer had to be swapped due to
+ * ungetChar() to false.
+ */
+void Buffer::swapBuffer() {
+	char *buffer_temp = buffer_previous;
+	buffer_previous = buffer_current;
+	buffer_current = buffer_temp;
+	position = 0;
+	buffer_swapped_back = false;
 }
