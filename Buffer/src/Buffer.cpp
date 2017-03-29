@@ -34,7 +34,7 @@ Buffer::Buffer(char *file_name) {
  * and closes the file
  */
 Buffer::~Buffer() {
-	printf("freeing memory and closing file...");
+	printf("[B] freeing memory and closing file ...\n");
 	delete(buffer_current);
 	delete(buffer_previous);
 	close(file_handle);
@@ -49,7 +49,7 @@ Buffer::~Buffer() {
  * @error: memory could not be allocated.
  */
 void Buffer::allocateMemory(char **buffer) {
-	printf("Allocating memory...\n");
+	printf("[B] allocating memory ...\n");
 	int res = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
 	if (res == -1) {
 		perror("Error allocating memory!");
@@ -66,7 +66,7 @@ void Buffer::allocateMemory(char **buffer) {
  * @error: file could not be opened.
  */
 void Buffer::openFile(char *file_name) {
-	printf("opening File...\n");
+	printf("[B] opening file %s ...\n", file_name);
 	file_handle = open(file_name, O_DIRECT);
 	if(file_handle == -1) {
 		perror("Error opening File!\n");
@@ -83,7 +83,7 @@ void Buffer::openFile(char *file_name) {
  * @error: file could not be read.
  */
 void Buffer::readFile(char **buffer) {
-	printf("reading File...\n");
+	printf("[B] reading file ...\n");
 	bytes_read = read(file_handle, buffer_current, BUFFER_SIZE);
 	if (bytes_read == -1) {
 		perror("Error reading File!\n");
@@ -101,7 +101,7 @@ void Buffer::readFile(char **buffer) {
  * @return: current character{current_char}
  */
 char Buffer::getChar() {
-	printf("getting char...\n");
+	// Debug spam: printf("getting char... \n");
 	if(position < BUFFER_SIZE) {
 		current_char = buffer_current[position];
 		position++;
@@ -129,7 +129,7 @@ char Buffer::ungetChar() {
 		position = BUFFER_SIZE - 1;
 		buffer_swapped_back = true;
 	} else {
-		printf("current char: %c, current position: %i\n", buffer_current[position], position);
+		printf("[B] Error! Current char: %c, current position: %i\n", buffer_current[position], position);
 		perror("can't go back two buffers, exiting...");
 		exit(EXIT_SUCCESS);
 	}
@@ -145,6 +145,7 @@ char Buffer::ungetChar() {
  * ungetChar() to false.
  */
 void Buffer::swapBuffer() {
+	printf("[B] swapping buffers ...\n");
 	char *buffer_temp = buffer_previous;
 	buffer_previous = buffer_current;
 	buffer_current = buffer_temp;
