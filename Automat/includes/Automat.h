@@ -5,13 +5,13 @@
  *      Author: knad0001
  */
 
+#ifndef Automat_H_
+#define Automat_H_
+
 #include <unistd.h>
 #include "State.h"
 #include "../../Scanner/includes/IScanner.h"
 #include "../../Scanner/includes/Token.h"
-
-#ifndef Automat_H_
-#define Automat_H_
 
 class State;
 

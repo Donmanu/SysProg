@@ -8,35 +8,11 @@
 #ifndef SCANNER_INCLUDES_TOKEN_H_
 #define SCANNER_INCLUDES_TOKEN_H_
 
-enum TokenType {
-	TokenUnknown,
-	TokenInteger,
-	TokenIdentifier,
-	TokenPlus,
-	TokenMinus,
-	TokenColon,
-	TokenStar,
-	TokenLessThan,
-	TokenGreaterThan,
-	TokenEquals,
-	TokenColonEquals,
-	TokenEqualsColonEquals,
-	TokenExclamationMark,
-	TokenAndAnd,
-	TokenSemiColon,
-	TokenBracketsOpen,
-	TokenBracketsClose,
-	TokenSquareBracketsOpen,
-	TokenSquareBracketsClose,
-	TokenCurlyBracketsOpen,
-	TokenCurlyBracketsClose,
-	TokenIf,
-	TokenWhile
-};
+#include "TokenType.h"
 
 class Token {
 	public:
-		TokenType type;
+		TokenType::Type type;
 		int line;
 		int column;
 };

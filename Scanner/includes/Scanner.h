@@ -6,28 +6,29 @@
  */
 
 #include "Token.h"
+#include "IScanner.h"
 
 #ifndef SCANNER_H_
 #define SCANNER_H_
 
 class ScannerInterface {
 	public:
-		ScannerInterface();
-		virtual ~ScannerInterface();
+		ScannerInterface() {}
+		virtual ~ScannerInterface() {}
 
-		virtual Token nextToken() = 0;
+		virtual void nextToken() = 0; //Token nextToken() = 0;
 		virtual void freeToken() = 0;
 };
 
-class Scanner : public ScannerInterface, IScanner {
+class Scanner : public ScannerInterface, public IScanner {
 public:
 	Scanner();
 	virtual ~Scanner();
 
-	Token nextToken();
+	void nextToken(); //Token nextToken();
 	void freeToken();
 
-	void mkToken(TokenType token_type);
+	void mkToken(TokenType::Type token_type);
 	void ungetChar(int count);
 	void stop();
 };
