@@ -5,12 +5,12 @@
  *      Author: donmanu
  */
 
-#ifndef AUTOMAT_INCLUDES_STATE_H_
-#define AUTOMAT_INCLUDES_STATE_H_
-
 #include "Automat.h"
 #include <stdio.h>
 #include <string>
+
+#ifndef AUTOMAT_INCLUDES_STATE_H_
+#define AUTOMAT_INCLUDES_STATE_H_
 
 class Automat;
 

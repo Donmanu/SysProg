@@ -9,6 +9,7 @@
 #define SCANNER_INCLUDES_TOKEN_H_
 
 enum TokenType {
+	TokenUnknown,
 	TokenInteger,
 	TokenIdentifier,
 	TokenPlus,
@@ -34,7 +35,10 @@ enum TokenType {
 };
 
 class Token {
-
+	public:
+		TokenType type;
+		int line;
+		int column;
 };
 
 #endif /* SCANNER_INCLUDES_TOKEN_H_ */
