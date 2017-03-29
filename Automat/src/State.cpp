@@ -271,6 +271,7 @@ State* StateSingleSign::makeState() {
 }
 
 void StateSingleSign::read(char c, Automat* m) {
+	printf("State: Single Sign\n");
 	switch (c) {
 		case ' ':
 		case '\n':
@@ -291,6 +292,7 @@ State* StateAnd::makeState() {
 }
 
 void StateAnd::read(char c, Automat* m) {
+	printf("State: And\n");
 	switch (c) {
 		case '&':
 			m->setCurrentState(StateStart::makeState());
@@ -310,11 +312,16 @@ State* StateColon::makeState() {
 }
 
 void StateColon::read(char c, Automat* m) {
+	printf("State: Colon\n");
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
 			m->setLastFinalState(StateColon::makeState()); //TODO: state_sign?
 			m->incrementCounter();
+			break;
+		case '*':
+			m->setCurrentState(StateCommentBegin::makeState());
+			m->setLastFinalState(StateColon::makeState());
 			break;
 		case ' ':
 		case '\n':
@@ -335,6 +342,7 @@ State* StateEquals::makeState() {
 }
 
 void StateEquals::read(char c, Automat* m) {
+	printf("State: Equals\n");
 	switch (c) {
 		case ':':
 			m->setCurrentState(StateEqualsColon::makeState());
@@ -360,6 +368,7 @@ State* StateEqualsColon::makeState() {
 }
 
 void StateEqualsColon::read(char c, Automat* m) {
+	printf("State: Equals Colon");
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
@@ -378,29 +387,6 @@ void StateEqualsColon::read(char c, Automat* m) {
 	}
 }
 
-StateSlash StateSlash::instance;
-
-State* StateSlash::makeState() {
-	return &instance;
-}
-
-void StateSlash::read(char c, Automat* m) {
-	switch (c) {
-		case '*':
-			m->setCurrentState(StateCommentBegin::makeState());
-			break;
-		case ' ':
-		case '\n':
-		case '\t':
-			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken(); ??
-			break;
-		default:
-			m->setCurrentState(StateError::makeState());
-			m->getCurrentState()->read(c, m);
-	}
-}
-
 StateCommentBegin StateCommentBegin::instance;
 
 State* StateCommentBegin::makeState() {
@@ -408,6 +394,7 @@ State* StateCommentBegin::makeState() {
 }
 
 void StateCommentBegin::read(char c, Automat* m) {
+	printf("State: Comment Begin\n");
 	if (c == '*') {
 		m->setCurrentState(StateCommentEnd::makeState());
 	}
@@ -420,8 +407,9 @@ State* StateCommentEnd::makeState() {
 }
 
 void StateCommentEnd::read(char c, Automat* m) {
+	printf("State: Comment End\n");
 	switch (c) {
-		case '/':
+		case ':':
 			m->setCurrentState(StateStart::makeState());
 			break;
 		default:

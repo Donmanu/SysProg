@@ -12,6 +12,8 @@
 #include "State.h"
 #include "../../Scanner/includes/IScanner.h"
 
+class State;
+
 class Automat {
 public:
 	Automat();

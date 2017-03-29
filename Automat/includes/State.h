@@ -133,15 +133,6 @@ private:
 };
 */
 
-class StateSlash: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
-
-private:
-	static StateSlash instance;
-};
-
 class StateCommentBegin: public State {
 public:
 	void read(char c, Automat* m);
