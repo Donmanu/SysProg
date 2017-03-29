@@ -37,7 +37,7 @@ OBJS = $(OBJDIR)/Scanner.o \
 ##	
 ##	
 ### compilieren der source-files
-#$(OBJDIR)/Scanner.o :  $(SRCDIR)/Scanner.cpp $(HEADERDIR)/Scanner.h
+#$(OBJDIR)/Scanner.o :  $(SRCDIR)/Scanner.cpp $(HEADERDIR)/Scanner.h $(HEADERDIR)/IScanner.h $(HEADERDIR)/TokenType.h $(HEADERDIR)/Token.h
 #	@echo "g++ $*.cpp"
 #	g++ -g  -c -Wall  -o $(OBJDIR)/Scanner.o  $(SRCDIR)/Scanner.cpp
 #	cp $(OBJDIR)/Scanner.o $(PROJECTOBJDIR)/Scanner

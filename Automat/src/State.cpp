@@ -88,21 +88,33 @@ void StateStart::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		case '+':
+			m->getScanner()->mkToken(TokenType::TokenPlus);
 		case '-':
+			m->getScanner()->mkToken(TokenType::TokenMinus);
 		case '*':
+			m->getScanner()->mkToken(TokenType::TokenStar);
 		case '<':
+			m->getScanner()->mkToken(TokenType::TokenLessThan);
 		case '>':
+			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
 		case '(':
+			m->getScanner()->mkToken(TokenType::TokenBracketsOpen);
 		case ')':
+			m->getScanner()->mkToken(TokenType::TokenBracketsClose);
 		case '[':
+			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
 		case ']':
+			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
 		case '{':
+			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsOpen);
 		case '}':
+			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsClose);
 		case '!':
-		case '?':
+			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
 		case ';':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
+			m->getScanner()->mkToken(TokenType::TokenSemiColon);
 			m->incrementCounter();
 			break;
 		case '&':
@@ -140,7 +152,7 @@ void StateError::read(char c, Automat* m) {
 	printf("State: Error\n");
 	m->setCurrentState(StateStart::makeState());
 	if (m->getScanner() != NULL) {
-		m->ungetChar(m->getCounter());
+		m->getScanner()->ungetChar(m->getCounter());
 	}
 }
 
@@ -170,7 +182,7 @@ void StateNumber::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
+			m->getScanner()->mkToken(TokenType::TokenInteger);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -256,7 +268,7 @@ void StateIdentifier::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
+			m->getScanner()->mkToken(TokenType::TokenIdentifier);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -277,7 +289,6 @@ void StateSingleSign::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -296,7 +307,8 @@ void StateAnd::read(char c, Automat* m) {
 	switch (c) {
 		case '&':
 			m->setCurrentState(StateStart::makeState());
-			m->setLastFinalState(StateAnd::makeState()); //TODO: state_sign?
+			m->setLastFinalState(StateAnd::makeState());
+			m->getScanner()->mkToken(TokenType::TokenAndAnd);
 			m->incrementCounter();
 			break;
 		default:
@@ -316,7 +328,8 @@ void StateColon::read(char c, Automat* m) {
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
-			m->setLastFinalState(StateColon::makeState()); //TODO: state_sign?
+			m->setLastFinalState(StateColon::makeState());
+			m->getScanner()->mkToken(TokenType::TokenColonEquals);
 			m->incrementCounter();
 			break;
 		case '*':
@@ -327,7 +340,7 @@ void StateColon::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
+			m->getScanner()->mkToken(TokenType::TokenColon);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -353,7 +366,7 @@ void StateEquals::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
+			m->getScanner()->mkToken(TokenType::TokenEquals);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -372,14 +385,9 @@ void StateEqualsColon::read(char c, Automat* m) {
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
-			m->setLastFinalState(StateEqualsColon::makeState()); //TODO: state_sign?
+			m->setLastFinalState(StateEqualsColon::makeState());
+			m->getScanner()->mkToken(TokenType::TokenEqualsColonEquals);
 			m->incrementCounter();
-			break;
-		case ' ':
-		case '\n':
-		case '\t':
-			m->setCurrentState(StateStart::makeState());
-			//TODO: m->mkToken();
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -426,7 +434,7 @@ State* StateUnknown::makeState() {
 void StateUnknown::read(char c, Automat* m){
 	printf("reading in state unknown");
 	m->setCurrentState(StateStart::makeState());
-	//TODO: m->mkToken();
+	m->getScanner()->mkToken(TokenType::TokenUnknown);
 }
 
 std::string StateUnknown::toString() {

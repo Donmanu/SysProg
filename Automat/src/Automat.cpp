@@ -17,14 +17,6 @@ Automat::~Automat() {
 	// TODO Auto-generated destructor stub
 }
 
-void Automat::mkToken() {
-	this->scanner->mkToken();
-}
-
-void Automat::ungetChar(int counter) {
-	this->scanner->ungetChar(counter);
-}
-
 void Automat::setScanner(IScanner* scanner) {
 	this->scanner = scanner;
 }

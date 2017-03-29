@@ -10,10 +10,30 @@
 
 Scanner::Scanner() {
 	// TODO Auto-generated constructor stub
-	Automat* automat = new Automat();
+//	Automat* automat = new Automat();
 
 }
 
 Scanner::~Scanner() {
 	// TODO Auto-generated destructor stub
+}
+
+void Scanner::nextToken() {
+
+}
+
+void Scanner::freeToken() {
+
+}
+
+void Scanner::mkToken(TokenType::Type token_type) {
+
+}
+
+void Scanner::ungetChar(int count) {
+
+}
+
+void Scanner::stop() {
+
 }

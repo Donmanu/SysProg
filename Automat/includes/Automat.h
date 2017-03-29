@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "State.h"
 #include "../../Scanner/includes/IScanner.h"
+#include "../../Scanner/includes/Token.h"
 
 class State;
 
@@ -18,8 +19,6 @@ class Automat {
 public:
 	Automat();
 	virtual ~Automat();
-	void mkToken();
-	void ungetChar(int counter);
 	void setScanner(IScanner* scanner);
 	void setCurrentState(State* state);
 	void setLastFinalState(State* state);

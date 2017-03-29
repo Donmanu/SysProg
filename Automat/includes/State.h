@@ -9,6 +9,7 @@
 #define AUTOMAT_INCLUDES_STATE_H_
 
 #include "Automat.h"
+#include "../../Scanner/includes/TokenType.h"
 #include <stdio.h>
 #include <string>
 
