@@ -20,146 +20,141 @@ class State {
 		State() {}
 		virtual ~State() {}
 		virtual void read(char c, Automat* m) = 0;
-//		virtual std::string toString() = 0;
 };
 
 class StateStart : public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateStart instance;
+	private:
+		static StateStart instance;
 };
 
 class StateError: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateError instance;
+	private:
+		static StateError instance;
 };
 
 class StateNumber: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateNumber instance;
+	private:
+		static StateNumber instance;
 };
 
 class StateIdentifier: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateIdentifier instance;
+	private:
+		static StateIdentifier instance;
 };
 
 class StateSingleSign: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateSingleSign instance;
+	private:
+		static StateSingleSign instance;
 };
 
 class StateAnd: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateAnd instance;
+	private:
+		static StateAnd instance;
 };
 
-/*
 class StateAndAnd: public State {
-	void read(char c, Automat *m);
-	static State* makeState();
+	public:
+		void read(char c, Automat *m);
+		static State* makeState();
 
-private:
-	static StateAndAnd instance;
+	private:
+		static StateAndAnd instance;
 };
-*/
 
 class StateColon: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateColon instance;
+	private:
+		static StateColon instance;
 };
 
-/*
 class StateColonEquals: public State {
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateColonEquals instance;
+	private:
+		static StateColonEquals instance;
 };
-*/
 
 class StateEquals: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateEquals instance;
+	private:
+		static StateEquals instance;
 };
 
 class StateEqualsColon: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateEqualsColon instance;
+	private:
+		static StateEqualsColon instance;
 };
 
-/*
 class StateEqualsColonEquals: public State {
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateEqualsColonEquals instance;
+	private:
+		static StateEqualsColonEquals instance;
 };
-*/
 
 class StateCommentBegin: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateCommentBegin instance;
+	private:
+		static StateCommentBegin instance;
 };
 
 class StateCommentEnd: public State {
-public:
-	void read(char c, Automat* m);
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateCommentEnd instance;
+	private:
+		static StateCommentEnd instance;
 };
 
 class StateUnknown: public State {
-public:
-	void read(char c, Automat* m);
-	std::string toString();
-	static State* makeState();
+	public:
+		void read(char c, Automat* m);
+		static State* makeState();
 
-private:
-	static StateUnknown instance;
+	private:
+		static StateUnknown instance;
 };
 
 #endif /* AUTOMAT_INCLUDES_STATE_H_ */

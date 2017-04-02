@@ -7,7 +7,7 @@
 # -g --> debug Informationen erzeugen
 # -o --> name des output-files
 
-makeTestAutomat: StateTarget AutomatTarget TestAutomatTarget  
+makeTestAutomat: StateTarget AutomatTarget TestAutomatTarget
 	g++ -g objs/State.o objs/Automat.o debug/TestAutomat.o -o debug/AutomatTest
 	
 

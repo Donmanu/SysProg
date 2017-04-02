@@ -17,104 +17,93 @@ void StateStart::read(char c, Automat* m) {
 	m->resetCounter();
 	printf("State: Start\n");
 	switch (c) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
+		case 48 ... 57:
 			m->setCurrentState(StateNumber::makeState());
 			m->setLastFinalState(StateNumber::makeState());
 			m->incrementCounter();
-			break;
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j':
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o':
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't':
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-		case 'G':
-		case 'H':
-		case 'I':
-		case 'J':
-		case 'K':
-		case 'L':
-		case 'M':
-		case 'N':
-		case 'O':
-		case 'P':
-		case 'Q':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'U':
-		case 'V':
-		case 'W':
-		case 'X':
-		case 'Y':
-		case 'Z':
+		break;
+		case 65 ... 90:
+		case 97 ... 122:
 			m->setCurrentState(StateIdentifier::makeState());
 			m->setLastFinalState(StateIdentifier::makeState());
 			m->incrementCounter();
 			break;
 		case '+':
-			m->getScanner()->mkToken(TokenType::TokenPlus);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenPlus);
+			m->incrementCounter();
+			break;
 		case '-':
-			m->getScanner()->mkToken(TokenType::TokenMinus);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenMinus);
+			m->incrementCounter();
+			break;
 		case '*':
-			m->getScanner()->mkToken(TokenType::TokenStar);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenStar);
+			m->incrementCounter();
+			break;
 		case '<':
-			m->getScanner()->mkToken(TokenType::TokenLessThan);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenLessThan);
+			m->incrementCounter();
+			break;
 		case '>':
-			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
+			m->incrementCounter();
+			break;
 		case '(':
-			m->getScanner()->mkToken(TokenType::TokenBracketsOpen);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenBracketsOpen);
+			m->incrementCounter();
+			break;
 		case ')':
-			m->getScanner()->mkToken(TokenType::TokenBracketsClose);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenBracketsClose);
+			m->incrementCounter();
+			break;
 		case '[':
-			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
+			m->incrementCounter();
+			break;
 		case ']':
-			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
+			m->incrementCounter();
+			break;
 		case '{':
-			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsOpen);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsOpen);
+			m->incrementCounter();
+			break;
 		case '}':
-			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsClose);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsClose);
+			m->incrementCounter();
+			break;
 		case '!':
-			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
+			m->setCurrentState(StateSingleSign::makeState());
+			m->setLastFinalState(StateSingleSign::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
+			m->incrementCounter();
+			break;
 		case ';':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			m->getScanner()->mkToken(TokenType::TokenSemiColon);
+//			m->getScanner()->mkToken(TokenType::TokenSemiColon);
 			m->incrementCounter();
 			break;
 		case '&':
@@ -165,24 +154,16 @@ State* StateNumber::makeState() {
 void StateNumber::read(char c, Automat* m) {
 	printf("State: Number\n");
 	switch (c) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
+		case 48 ... 57:
 			m->setCurrentState(StateNumber::makeState());
+			m->setLastFinalState(StateNumber::makeState());
 			m->incrementCounter();
 			break;
 		case ' ':
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			m->getScanner()->mkToken(TokenType::TokenInteger);
+//			m->getScanner()->mkToken(TokenType::TokenInteger);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -199,68 +180,9 @@ State* StateIdentifier::makeState() {
 void StateIdentifier::read(char c, Automat* m) {
 	printf("State: Identifier\n");
 	switch (c) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j':
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o':
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't':
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-		case 'G':
-		case 'H':
-		case 'I':
-		case 'J':
-		case 'K':
-		case 'L':
-		case 'M':
-		case 'N':
-		case 'O':
-		case 'P':
-		case 'Q':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'U':
-		case 'V':
-		case 'W':
-		case 'X':
-		case 'Y':
-		case 'Z':
+		case 48 ... 57:
+		case 65 ... 90:
+		case 97 ... 122:
 			m->setCurrentState(StateIdentifier::makeState());
 			m->incrementCounter();
 			break;
@@ -268,7 +190,7 @@ void StateIdentifier::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			m->getScanner()->mkToken(TokenType::TokenIdentifier);
+//			m->getScanner()->mkToken(TokenType::TokenIdentifier);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -308,7 +230,7 @@ void StateAnd::read(char c, Automat* m) {
 		case '&':
 			m->setCurrentState(StateStart::makeState());
 			m->setLastFinalState(StateAnd::makeState());
-			m->getScanner()->mkToken(TokenType::TokenAndAnd);
+//			m->getScanner()->mkToken(TokenType::TokenAndAnd);
 			m->incrementCounter();
 			break;
 		default:
@@ -329,7 +251,7 @@ void StateColon::read(char c, Automat* m) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
 			m->setLastFinalState(StateColon::makeState());
-			m->getScanner()->mkToken(TokenType::TokenColonEquals);
+//			m->getScanner()->mkToken(TokenType::TokenColonEquals);
 			m->incrementCounter();
 			break;
 		case '*':
@@ -340,12 +262,22 @@ void StateColon::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			m->getScanner()->mkToken(TokenType::TokenColon);
+//			m->getScanner()->mkToken(TokenType::TokenColon);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
 			m->getCurrentState()->read(c, m);
 	}
+}
+
+StateColonEquals StateColonEquals::instance;
+
+State* StateColonEquals::makeState() {
+	return &instance;
+}
+
+void StateColonEquals::read(char c, Automat* m) {
+	printf("State: Colon Equals\n");
 }
 
 StateEquals StateEquals::instance;
@@ -366,7 +298,7 @@ void StateEquals::read(char c, Automat* m) {
 		case '\n':
 		case '\t':
 			m->setCurrentState(StateStart::makeState());
-			m->getScanner()->mkToken(TokenType::TokenEquals);
+//			m->getScanner()->mkToken(TokenType::TokenEquals);
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
@@ -385,14 +317,24 @@ void StateEqualsColon::read(char c, Automat* m) {
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
-			m->setLastFinalState(StateEqualsColon::makeState());
-			m->getScanner()->mkToken(TokenType::TokenEqualsColonEquals);
+			m->setLastFinalState(StateEqualsColonEquals::makeState());
+//			m->getScanner()->mkToken(TokenType::TokenEqualsColonEquals);
 			m->incrementCounter();
 			break;
 		default:
 			m->setCurrentState(StateError::makeState());
 			m->getCurrentState()->read(c, m);
 	}
+}
+
+StateEqualsColonEquals StateEqualsColonEquals::instance;
+
+State* StateEqualsColonEquals::makeState() {
+	return &instance;
+}
+
+void StateEqualsColonEquals::read(char c, Automat* m) {
+	printf("State: Equals Colon Equals\n");
 }
 
 StateCommentBegin StateCommentBegin::instance;
@@ -434,9 +376,5 @@ State* StateUnknown::makeState() {
 void StateUnknown::read(char c, Automat* m){
 	printf("reading in state unknown");
 	m->setCurrentState(StateStart::makeState());
-	m->getScanner()->mkToken(TokenType::TokenUnknown);
-}
-
-std::string StateUnknown::toString() {
-	return "StateUnknown";
+//	m->getScanner()->mkToken(TokenType::TokenUnknown);
 }
