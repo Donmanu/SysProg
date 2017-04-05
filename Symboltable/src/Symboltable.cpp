@@ -9,7 +9,8 @@
 
 Symboltable::Symboltable() {
 	// TODO Auto-generated constructor stub
-	entries = new StringTab[SYMBOL_TABLE_SIZE];
+	entries = new SymTabEntry[SYMBOL_TABLE_SIZE];
+	string_table = new StringTab();
 	table_size = SYMBOL_TABLE_SIZE;
 	free_space = SYMBOL_TABLE_SIZE;
 }
@@ -17,6 +18,7 @@ Symboltable::Symboltable() {
 Symboltable::~Symboltable() {
 	// TODO Auto-generated destructor stub
 	delete(entries);
+	delete(string_table);
 }
 
 Key Symboltable::insert(char* lexem, int value) {
@@ -35,21 +37,22 @@ void Symboltable::initSymbols() {
 
 void Symboltable::resize() {
 	int new_table_size = table_size + SYMBOL_TABLE_SIZE;
-	StringTab* temp = new StringTab[new_table_size];
+	SymTabEntry* temp = new SymTabEntry[new_table_size];
 	memcpy(temp, entries, new_table_size);
 	table_size = new_table_size;
 	free_space += SYMBOL_TABLE_SIZE;
+	delete[] entries;
 	entries = temp; // TODO: check this
 }
 
 int Symboltable::hash(char* lexem) {
-	int value = 0;
+	int hash = 0;
 	int i = 0;
 
 	while (lexem != '\0') {
-		value += lexem[i];
+		hash += SALT * lexem[i];
 		i++;
 	}
 
-	return value % table_size;
+	return hash % table_size;
 }

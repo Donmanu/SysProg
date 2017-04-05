@@ -24,17 +24,16 @@ class Key {
 
 class Information {
 	public:
-		Information(char* lexem, int value);
+		Information(char* lexem, int* value);
 		virtual ~Information();
 		bool compareLexem(char* lexem);
 		char* getLexem();
-		int getValue();
-		void setLexem(char* lexem);
-		void setValue(int value);
+		int* getValue();
+		void setValue(int* value);
 
 	private:
 		char *lexem;
-		int value;
+		int *value;
 
 };
 

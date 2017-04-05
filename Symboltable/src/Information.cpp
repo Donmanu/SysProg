@@ -25,7 +25,7 @@ void Key::setInformation(Information* information) {
 
 
 
-Information::Information(char* lexem, int value) {
+Information::Information(char* lexem, int* value) {
 	this->lexem = lexem;
 	this->value = value;
 }
@@ -35,25 +35,17 @@ Information::~Information() {
 }
 
 bool Information::compareLexem(char* lexem) {
-	if (strcmp(this->lexem, lexem) == 0) {
-		return true;
-	} else {
-		return false;
-	}
+	return !strcmp(this->lexem, lexem);
 }
 
 char* Information::getLexem(){
 	return this->lexem;
 }
 
-int Information::getValue() {
+int* Information::getValue() {
 	return this->value;
 }
 
-void Information::setLexem(char* lexem) {
-	this->lexem = lexem;
-}
-
-void Information::setValue(int value) {
+void Information::setValue(int* value) {
 	this->value = value;
 }

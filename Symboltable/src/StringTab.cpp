@@ -7,26 +7,14 @@
 
 #include "StringTab.h"
 
-StringTabNode::StringTabNode(Information* information) {
-	this->information = information;
-	this->key = NULL;
+StringTabNode::StringTabNode(char* lexem) {
 	this->next = NULL;
-	this->lexem = information->getLexem();
+	this->lexem = lexem;
 }
 
 StringTabNode::~StringTabNode() {
-	delete(this->information);
-	delete(this->key);
 	delete(this->next);
 	delete(this->lexem);
-}
-
-Key* StringTabNode::getKey() {
-	return this->key;
-}
-
-Information* StringTabNode::getInformation() {
-	return this->information;
 }
 
 StringTabNode* StringTabNode::getNext() {
@@ -41,6 +29,6 @@ char* StringTabNode::getLexem() {
 	return this->lexem;
 }
 
-int StringTabNode::getSize() {
+int StringTabNode::getLexemLength() {
 	return strlen(this->lexem);
 }

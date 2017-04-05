@@ -10,6 +10,17 @@
 #ifndef SYMBOLTABLE_H_
 #define SYMBOLTABLE_H_
 
+class SymTabEntry {
+	public:
+		SymTabEntry();
+		virtual ~SymTabEntry();
+		Information* getInformation();
+
+	private:
+		Information* information;
+
+};
+
 class Symboltable {
 	public:
 		Symboltable();
@@ -21,10 +32,12 @@ class Symboltable {
 		void initSymbols();
 		void resize();
 		int hash(char* lexem);
-		StringTab* entries;
+		StringTab string_table;
+		SymTabEntry* entries;
 		int table_size;
 		int free_space;
 		const int SYMBOL_TABLE_SIZE = 128;
+		const int SALT = 31;
 
 };
 

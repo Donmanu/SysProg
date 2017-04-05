@@ -12,18 +12,14 @@
 
 class StringTabNode {
 	public:
-		StringTabNode(Information* information);
+		StringTabNode(char* lexem);
 		virtual ~StringTabNode();
-		Key* getKey();
-		Information* getInformation();
 		StringTabNode* getNext();
 		void setNext(StringTabNode* next);
 		char* getLexem();
-		int getSize();
+		int getLexemLength();
 
 	private:
-		Key* key;
-		Information* information;
 		StringTabNode* next;
 		char lexem[];
 
@@ -34,12 +30,12 @@ class StringTab {
 		StringTab();
 		virtual ~StringTab();
 		char* insert(char* lexem, int size);
-		StringTabNode* getEntry();
+		StringTabNode* getNode();
 		int getNodeCount();
 
 	private:
 		void resize();
-		StringTabNode* entries;
+		StringTabNode* first_node;
 		int node_count;
 		int table_size;
 		int free_space;
