@@ -5,7 +5,7 @@
  *      Author: donmanu
  */
 
-#include "Information.h"
+#include "../includes/Information.h"
 
 Key::Key() {
 	this->information = NULL;

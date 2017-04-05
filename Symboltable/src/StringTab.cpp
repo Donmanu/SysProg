@@ -5,7 +5,7 @@
  *      Author: donmanu
  */
 
-#include "StringTab.h"
+#include "../includes/StringTab.h"
 
 StringTabNode::StringTabNode(char* lexem) {
 	this->next = NULL;

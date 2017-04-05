@@ -12,7 +12,7 @@
 
 class StringTabNode {
 	public:
-		StringTabNode(char* lexem);
+		StringTabNode(char* lexem); // TODO: insert parameter lexem
 		virtual ~StringTabNode();
 		StringTabNode* getNext();
 		void setNext(StringTabNode* next);
@@ -21,7 +21,7 @@ class StringTabNode {
 
 	private:
 		StringTabNode* next;
-		char lexem[];
+		char *lexem;
 
 };
 
@@ -39,8 +39,7 @@ class StringTab {
 		int node_count;
 		int table_size;
 		int free_space;
-		const int STRING_TABLE_SIZE = 128;
+		static const int STRING_TABLE_SIZE = 128;
 };
-
 
 #endif /* SYMBOLTABLE_INCLUDES_STRINGTAB_H_ */

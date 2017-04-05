@@ -10,17 +10,6 @@
 #ifndef SYMBOLTABLE_H_
 #define SYMBOLTABLE_H_
 
-class SymTabEntry {
-	public:
-		SymTabEntry();
-		virtual ~SymTabEntry();
-		Information* getInformation();
-
-	private:
-		Information* information;
-
-};
-
 class Symboltable {
 	public:
 		Symboltable();
@@ -36,8 +25,19 @@ class Symboltable {
 		SymTabEntry* entries;
 		int table_size;
 		int free_space;
-		const int SYMBOL_TABLE_SIZE = 128;
-		const int SALT = 31;
+		static const int SYMBOL_TABLE_SIZE = 128;
+		static const int SALT = 31;
+
+};
+
+class SymTabEntry {
+	public:
+		SymTabEntry();
+		virtual ~SymTabEntry();
+		Information* getInformation();
+
+	private:
+		Information* information;
 
 };
 

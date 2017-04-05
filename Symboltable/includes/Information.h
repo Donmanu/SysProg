@@ -6,21 +6,10 @@
  */
 
 #include <unistd.h>
+#include <string.h>
 
 #ifndef SYMBOLTABLE_INCLUDES_INFORMATION_H_
 #define SYMBOLTABLE_INCLUDES_INFORMATION_H_
-
-class Key {
-	public:
-		Key();
-		virtual ~Key();
-		Information* getInformation();
-		void setInformation(Information* information);
-
-	private:
-		Information* information;
-
-};
 
 class Information {
 	public:
@@ -34,6 +23,18 @@ class Information {
 	private:
 		char *lexem;
 		int *value;
+
+};
+
+class Key {
+	public:
+		Key();
+		virtual ~Key();
+		Information* getInformation();
+		void setInformation(Information* information);
+
+	private:
+		Information* information;
 
 };
 

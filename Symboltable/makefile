@@ -28,43 +28,52 @@ OBJS = $(OBJDIR)/Symboltable.o \
 # Variante mit geringen Makefile-Kenntnissen
 
 ## Linken der Object-Files
-#makeTestSymboltable: $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o
-#	g++ -g $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o -o $(BINDIR)/SymboltableTest
+makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o
+	g++ -g $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o -o $(BINDIR)/SymboltableTest
 #   cp $(OBJDIR)/Symboltable.o ../projectOBJs
 #
 #	
 ## compilieren der Source-files
 #
-#$(OBJDIR)/Symboltable.o :  $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
-#	@echo "g++ $*.cpp"
-#	g++ -g  -c -Wall  -o $(OBJDIR)/Symboltable.o  $(SRCDIR)/Symboltable.cpp
+
+$(OBJDIR)/Information.o : $(SRCDIR)/Information.cpp $(HEADERDIR)/Information.h
+	@echo "g++ $*.cpp"
+	g++ -g -c -Wall	-o $(OBJDIR)/Information.o $(SRCDIR)/Information.cpp
+
+$(OBJDIR)/StringTab.o : $(SRCDIR)/StringTab.cpp $(HEADERDIR)/StringTab.h
+	@echo "g++ $*.cpp"
+	g++ -g -c -Wall -o  $(OBJDIR)/StringTab.o $(SRCDIR)/StringTab.cpp
+
+$(OBJDIR)/Symboltable.o : $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
+	@echo "g++ $*.cpp"
+	g++ -g  -c -Wall  -o $(OBJDIR)/Symboltable.o  $(SRCDIR)/Symboltable.cpp
 #
 #
-#$(OBJDIR)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(SRCDIR)/Symboltable.h
-#	@echo "g++ $*.cpp"
-#	g++ -g  -c -Wall  -o $(OBJDIR)/TestSymboltable.o  $(SRCDIR)/TestSymboltable.cpp
+$(OBJDIR)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(SRCDIR)/Symboltable.h
+	@echo "g++ $*.cpp"
+	g++ -g  -c -Wall  -o $(OBJDIR)/TestSymboltable.o $(SRCDIR)/TestSymboltable.cpp
 #
 
 
 # Variante mit guten Makefile-Kenntnissen
 
-makeTestSymboltable: SymboltableTarget TestSymboltableTarget
-	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
+#makeTestSymboltable: SymboltableTarget TestSymboltableTarget
+#	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
 
-SymboltableTarget: $(OBJS)
+#SymboltableTarget: $(OBJS)
 
 # $@ name des object files = name auf der linken Seite vom Doppelpunkt des Targets
 # $< erste abhaengigkeit, $< das erste Element in der Liste der Abhaengigkeiten
 # $@ --> linke Seite vom Doppelpunkt
 # $^ --> rechte Seite vom Doppelpunkt
 
-$(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
-	g++ -g  -c -Wall  $<  -o $@
+#$(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
+#	g++ -g  -c -Wall  $<  -o $@
 
 
 
-TestSymboltableTarget: $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Symboltable.h
-	g++ -g  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o  
+#TestSymboltableTarget: $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Symboltable.h
+#	g++ -g  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o  
 	
 
 
