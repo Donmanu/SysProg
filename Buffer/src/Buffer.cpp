@@ -22,7 +22,7 @@ Buffer::Buffer(char *file_name) {
 	bytes_read = 0;
 	file_handle = 0;
 	position = 0;
-	buffer_swapped_back = false;
+	buffer_swapped_back = true;  // regard buffers as if back-swapped initially!
 	this->allocateMemory(&buffer_current);
 	this->allocateMemory(&buffer_previous);
 	this->openFile(file_name);
@@ -50,10 +50,10 @@ Buffer::~Buffer() {
  */
 void Buffer::allocateMemory(char **buffer) {
 	printf("[B] allocating memory ...\n");
-	int res = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
-	if (res == -1) {
+	errno = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
+	if (errno) { // EINVAL (error: invalid alignment, not a power of 2) or ENOMEM (error: no memory)
 		perror("Error allocating memory!");
-		exit(EXIT_SUCCESS);
+		throw errno;
 	}
 }
 
@@ -68,9 +68,10 @@ void Buffer::allocateMemory(char **buffer) {
 void Buffer::openFile(char *file_name) {
 	printf("[B] opening file %s ...\n", file_name);
 	file_handle = open(file_name, O_DIRECT);
-	if(file_handle == -1) {
+	if (file_handle == -1) {
+		errno = ENOENT; // error: no entity
 		perror("Error opening File!\n");
-		exit(EXIT_SUCCESS);
+		throw errno;
 	}
 }
 
@@ -86,31 +87,34 @@ void Buffer::readFile(char **buffer) {
 	printf("[B] reading file ...\n");
 	bytes_read = read(file_handle, buffer_current, BUFFER_SIZE);
 	if (bytes_read == -1) {
-		perror("Error reading File!\n");
-		exit(EXIT_SUCCESS);
+		errno = EBADFD; // error: bad file descriptor
+		perror("[B] Error reading File!\n");
+		throw errno;
 	}
 }
 
 /*
  * this method increments the position{position} for
  * each call and returns the current character{current_char}
- * the buffers will be swapped and the previous buffer
+ *
+ * If needed, the buffers will be swapped and the previous buffer
  * will be overwritten with the next block of characters
  * from the file.
  *
  * @return: current character{current_char}
  */
 char Buffer::getChar() {
-	// Debug spam: printf("getting char... \n");
-	if(position < BUFFER_SIZE) {
+	//printf("getting char ... \n");    Debug spam ...
+	if (position < BUFFER_SIZE) {
 		current_char = buffer_current[position];
-		position++;
 	} else {
 		this->swapBuffer();
+		position = 0;
 		memset(buffer_current, 0, BUFFER_SIZE);
 		this->readFile(&buffer_current);
 		current_char = buffer_current[position];
 	}
+	position++;
 	return current_char;
 }
 
@@ -122,16 +126,17 @@ char Buffer::getChar() {
  * swapped and the buffer would have to be swapped again.
  */
 char Buffer::ungetChar() {
-	if(position > 0) {
+	if (position > 0) {
 		position--;
 	} else if (!buffer_swapped_back) {
 		this->swapBuffer();
 		position = BUFFER_SIZE - 1;
 		buffer_swapped_back = true;
 	} else {
-		printf("[B] Error! Current char: %c, current position: %i\n", buffer_current[position], position);
-		perror("can't go back two buffers, exiting...");
-		exit(EXIT_SUCCESS);
+		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", buffer_current[position], position); // won't get printed?? TODO
+		errno = ENOBUFS; // error: no buffer space
+		perror("[B] can't go back two buffers");
+		throw errno;
 	}
 
 	return buffer_current[position];
@@ -145,10 +150,9 @@ char Buffer::ungetChar() {
  * ungetChar() to false.
  */
 void Buffer::swapBuffer() {
-	printf("[B] swapping buffers ...\n");
+	printf("[B] %swapping buffers ...\n", buffer_swapped_back ? "Un-s" : "S"); // Un-Swapping or Swapping?
 	char *buffer_temp = buffer_previous;
 	buffer_previous = buffer_current;
 	buffer_current = buffer_temp;
-	position = 0;
 	buffer_swapped_back = false;
 }
