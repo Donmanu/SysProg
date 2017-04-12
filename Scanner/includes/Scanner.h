@@ -22,7 +22,7 @@ class ScannerInterface {
 
 class Scanner : public ScannerInterface, public IScanner {
 public:
-	Scanner();
+	Scanner(char*);
 	virtual ~Scanner();
 
 	void nextToken(); //Token nextToken();
@@ -31,6 +31,10 @@ public:
 	void mkToken(TokenType::Type token_type);
 	void ungetChar(int count);
 	void stop();
+private:
+	Automat* automat;
+	Buffer* buffer;
+	Symboltable* symTable;
 };
 
 #endif /* SCANNER_H_ */

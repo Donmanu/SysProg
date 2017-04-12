@@ -7,15 +7,20 @@
 
 #include "../includes/Scanner.h"
 #include "../../Automat/includes/Automat.h"
+#include "../../Buffer/includes/Buffer.h"
+#include "../../Symboltable/includes/Symboltable.h"
 
-Scanner::Scanner() {
-	// TODO Auto-generated constructor stub
-//	Automat* automat = new Automat();
-
+Scanner::Scanner(char* filename) {
+	this->automat = new Automat(this);
+	this->buffer = new Buffer(filename);
+	this->symTable = new Symboltable();
 }
 
 Scanner::~Scanner() {
 	// TODO Auto-generated destructor stub
+	delete this->automat;
+	delete this->buffer;
+	delete this->symTable;
 }
 
 void Scanner::nextToken() {

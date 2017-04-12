@@ -4,10 +4,11 @@
  */
 
 #include "../includes/Automat.h"
+#include "../../Scanner/includes/IScanner.h"
 
-Automat::Automat() {
+Automat::Automat(IScanner* s) {
 	// TODO Auto-generated constructor stub
-	this->scanner = NULL;
+	this->scanner = s;
 	this->state_current = NULL;
 	this->last_final_state = NULL;
 	this->counter = 0;
@@ -15,6 +16,7 @@ Automat::Automat() {
 
 Automat::~Automat() {
 	// TODO Auto-generated destructor stub
+	// Don't delete the scanner!
 }
 
 void Automat::setScanner(IScanner* scanner) {

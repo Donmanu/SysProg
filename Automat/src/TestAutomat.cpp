@@ -5,7 +5,7 @@ int main (int argc, char* argv[]) {
 	Automat* automat;
 	State* state;
 
-	automat = new Automat();
+	automat = new Automat(new Scanner());
 	state = StateStart::makeState();
 
 	char c = '#';
