@@ -60,7 +60,7 @@ $(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/In
 #makeTestSymboltable: SymboltableTarget TestSymboltableTarget
 #	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
 
-#SymboltableTarget: $(OBJS)
+SymboltableTarget: $(OBJS)
 
 # $@ name des object files = name auf der linken Seite vom Doppelpunkt des Targets
 # $< erste abhaengigkeit, $< das erste Element in der Liste der Abhaengigkeiten

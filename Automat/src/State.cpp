@@ -16,6 +16,7 @@ State* StateStart::makeState() {
 void StateStart::read(char c, Automat* m) {
 	m->resetCounter();
 	printf("State: Start\n");
+	m->column++;
 	switch (c) {
 		case 48 ... 57:
 			m->setCurrentState(StateNumber::makeState());
@@ -120,9 +121,13 @@ void StateStart::read(char c, Automat* m) {
 			m->setLastFinalState(StateEquals::makeState());
 			m->incrementCounter();
 			break;
-		case ' ':
 		case '\n':
+			m->column = 0;
+			m->line++;
+			break;
+		case ' ':
 		case '\t':
+			m->column += TAB_WIDTH - (m->column % TAB_WIDTH); // http://c-for-dummies.com/blog/?p=424
 			break;
 		default:
 			m->setCurrentState(StateUnknown::makeState());

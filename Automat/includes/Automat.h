@@ -28,12 +28,15 @@ public:
 	void incrementCounter();
 	int getCounter();
 	void resetCounter();
+	void readChar(char);
 
 private:
 	IScanner* scanner;
 	State *state_current;
 	State* last_final_state;
 	int counter;
+	int column;
+	int line;
 };
 
 #endif /* Automat_H_ */

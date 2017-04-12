@@ -12,11 +12,14 @@ Automat::Automat(IScanner* s) {
 	this->state_current = NULL;
 	this->last_final_state = NULL;
 	this->counter = 0;
+	this->column = 0;
+	this->line = 0;
 }
 
 Automat::~Automat() {
 	// TODO Auto-generated destructor stub
 	// Don't delete the scanner!
+
 }
 
 void Automat::setScanner(IScanner* scanner) {
@@ -53,4 +56,9 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this-> counter = 0;
+}
+
+void Automat::readChar(char c) {
+	// TODO Do some state changing and/or ground braking thing here ...
+	this->state_current->read(c, this); // calls makeState() ...
 }
