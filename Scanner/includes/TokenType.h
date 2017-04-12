@@ -10,7 +10,7 @@
 
 namespace TokenType {
 	enum Type {
-		TokenUnknown,
+		TokenUnknown, // a.k.a. TokenError
 		TokenInteger,
 		TokenIdentifier,
 		TokenPlus,

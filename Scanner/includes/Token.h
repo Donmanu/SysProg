@@ -10,7 +10,7 @@
 
 #include "TokenType.h"
 
-class Token {
+struct Token {
 	public:
 		TokenType::Type type;
 		int line;

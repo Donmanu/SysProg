@@ -8,6 +8,8 @@
 #ifndef AUTOMAT_INCLUDES_STATE_H_
 #define AUTOMAT_INCLUDES_STATE_H_
 
+#define TAB_WIDTH (8)
+
 #include "Automat.h"
 #include "../../Scanner/includes/TokenType.h"
 #include <stdio.h>
