@@ -7,8 +7,8 @@
 
 #include "../includes/Information.h"
 
-Key::Key() {
-	this->information = NULL;
+Key::Key(Information* information) {
+	this->information = information;
 }
 
 Key::~Key() {
@@ -23,15 +23,12 @@ void Key::setInformation(Information* information) {
 	this->information = information;
 }
 
-
-
 Information::Information(char* lexem, int value) {
 	this->lexem = lexem;
 	this->value = value;
 }
 
 Information::~Information() {
-	delete(this->lexem);
 }
 
 bool Information::compareLexem(char* lexem) {

@@ -5,6 +5,9 @@
  *      Author: knad0001
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "StringTab.h"
 
 #ifndef SYMBOLTABLE_H_
@@ -14,11 +17,18 @@ class SymTabEntry {
 	public:
 		SymTabEntry();
 		virtual ~SymTabEntry();
-		Information* getInformation();
+		bool hasNext();
+		SymTabEntry* getNext();
+		void setNext(SymTabEntry* next);
+		void setStringTabNode(StringTabNode* node);
+		char* getLexem();
+		Key* getKey();
+		void setKey(Key* key);
 
 	private:
-		Information* information;
-
+		SymTabEntry* next;
+		StringTabNode* string_tab_node;
+		Key* key;
 };
 
 class Symboltable {

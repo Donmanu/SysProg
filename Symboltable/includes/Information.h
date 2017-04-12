@@ -28,7 +28,7 @@ class Information {
 
 class Key {
 	public:
-		Key();
+		Key(Information* information);
 		virtual ~Key();
 		Information* getInformation();
 		void setInformation(Information* information);

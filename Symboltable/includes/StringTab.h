@@ -12,15 +12,12 @@
 
 class StringTabNode {
 	public:
-		StringTabNode(char* lexem); // TODO: insert parameter lexem
+		StringTabNode(char* lexem);
 		virtual ~StringTabNode();
-		StringTabNode* getNext();
-		void setNext(StringTabNode* next);
 		char* getLexem();
 		int getLexemLength();
 
 	private:
-		StringTabNode* next;
 		char *lexem;
 };
 
@@ -29,15 +26,17 @@ class StringTab {
 		StringTab();
 		virtual ~StringTab();
 		char* insert(char* lexem, int size);
-		StringTabNode* getNode();
+		StringTabNode* getFirstNode();
 		int getNodeCount();
 
 	private:
 		void resize();
 		StringTabNode* first_node;
+		char* string_table;
 		int node_count;
 		int table_size;
 		int free_space;
+		char* free_ptr;
 		static const int STRING_TABLE_SIZE = 128;
 };
 
