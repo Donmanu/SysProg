@@ -8,9 +8,7 @@ int main(int argc, char **argv) {
 
 	symboltable = new Symboltable();
 
-	printf("Test Success");
-
-	delete(symboltable);
+	printf("Test Success/n");
 
 	exit(EXIT_SUCCESS);
 }

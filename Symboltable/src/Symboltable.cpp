@@ -7,6 +7,18 @@
 
 #include "../includes/Symboltable.h"
 
+SymTabEntry::SymTabEntry() {
+	this->information = 0;
+}
+
+SymTabEntry::~SymTabEntry() {
+	delete(this->information);
+}
+
+Information* SymTabEntry::getInformation() {
+	return this->information;
+}
+
 Symboltable::Symboltable() {
 	// TODO Auto-generated constructor stub
 	entries = new SymTabEntry[SYMBOL_TABLE_SIZE];
@@ -23,12 +35,12 @@ Symboltable::~Symboltable() {
 
 Key Symboltable::insert(char* lexem, int value) {
 	// TODO: implement this
-	return Key();
+	return *(new Key());
 }
 
 Information Symboltable::lookup(Key key) {
 	// TODO: implement this
-	return Information("ABC", 3);
+	return *(new Information("ABC", 3));
 }
 
 void Symboltable::initSymbols() {

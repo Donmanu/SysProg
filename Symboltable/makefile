@@ -29,7 +29,7 @@ OBJS = $(OBJDIR)/Symboltable.o \
 
 ## Linken der Object-Files
 makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(BINDIRTEST)/TestSymboltable.o
-	g++ -g $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(BINDIRTEST)/TestSymboltable.o -o $(BINDIR)/SymboltableTest
+	g++ -g $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(BINDIRTEST)/TestSymboltable.o -o $(BINDIRTEST)/SymboltableTest
 #	cp $(OBJDIR)/Symboltable.o ../projectOBJs
 #
 #	
@@ -38,20 +38,20 @@ makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Sym
 
 $(OBJDIR)/Information.o : $(SRCDIR)/Information.cpp $(HEADERDIR)/Information.h
 	@echo "g++ $*.cpp"
-	g++ -g -c -Wall	-o $(OBJDIR)/Information.o $(SRCDIR)/Information.cpp
+	g++ -g -c -Wall $(SRCDIR)/Information.cpp -o $(OBJDIR)/Information.o
 
 $(OBJDIR)/StringTab.o : $(SRCDIR)/StringTab.cpp $(HEADERDIR)/StringTab.h
 	@echo "g++ $*.cpp"
-	g++ -g -c -Wall -o  $(OBJDIR)/StringTab.o $(SRCDIR)/StringTab.cpp
+	g++ -g -c -Wall $(SRCDIR)/StringTab.cpp -o $(OBJDIR)/StringTab.o
 
 $(OBJDIR)/Symboltable.o : $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
 	@echo "g++ $*.cpp"
-	g++ -g  -c -Wall  -o $(OBJDIR)/Symboltable.o  $(SRCDIR)/Symboltable.cpp
+	g++ -g  -c -Wall $(SRCDIR)/Symboltable.cpp -o $(OBJDIR)/Symboltable.o
 #
 #
-$(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Symboltable.h
+$(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Information.h $(HEADERDIR)/StringTab.h $(HEADERDIR)/Symboltable.h
 	@echo "g++ $*.cpp"
-	g++ -g  -c -Wall  -o $(SRCDIR)/TestSymboltable.cpp $(BINDIRTEST)/TestSymboltable.o
+	g++ -g  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o
 #
 
 
