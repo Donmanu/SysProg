@@ -25,7 +25,7 @@ void Key::setInformation(Information* information) {
 
 
 
-Information::Information(char* lexem, int* value) {
+Information::Information(char* lexem, int value) {
 	this->lexem = lexem;
 	this->value = value;
 }
@@ -42,10 +42,10 @@ char* Information::getLexem(){
 	return this->lexem;
 }
 
-int* Information::getValue() {
+int Information::getValue() {
 	return this->value;
 }
 
-void Information::setValue(int* value) {
+void Information::setValue(int value) {
 	this->value = value;
 }

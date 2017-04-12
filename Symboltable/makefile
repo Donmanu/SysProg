@@ -17,8 +17,8 @@ BINDIRTEST = debug
 ## darauf achten, dass letzte Zeile ohne "\" eingetragen wird
 
 OBJS = $(OBJDIR)/Symboltable.o \
-	#$(OBJDIR)/xx1.o \
-	#$(OBJDIR)/xxn.o
+	$(OBJDIR)/Information.o \
+	$(OBJDIR)/StringTab.o
 
 
 #
@@ -28,9 +28,9 @@ OBJS = $(OBJDIR)/Symboltable.o \
 # Variante mit geringen Makefile-Kenntnissen
 
 ## Linken der Object-Files
-makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o
-	g++ -g $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(OBJDIR)/TestSymboltable.o -o $(BINDIR)/SymboltableTest
-#   cp $(OBJDIR)/Symboltable.o ../projectOBJs
+makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(BINDIRTEST)/TestSymboltable.o
+	g++ -g $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Symboltable.o $(BINDIRTEST)/TestSymboltable.o -o $(BINDIR)/SymboltableTest
+#	cp $(OBJDIR)/Symboltable.o ../projectOBJs
 #
 #	
 ## compilieren der Source-files
@@ -49,9 +49,9 @@ $(OBJDIR)/Symboltable.o : $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
 	g++ -g  -c -Wall  -o $(OBJDIR)/Symboltable.o  $(SRCDIR)/Symboltable.cpp
 #
 #
-$(OBJDIR)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(SRCDIR)/Symboltable.h
+$(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Symboltable.h
 	@echo "g++ $*.cpp"
-	g++ -g  -c -Wall  -o $(OBJDIR)/TestSymboltable.o $(SRCDIR)/TestSymboltable.cpp
+	g++ -g  -c -Wall  -o $(SRCDIR)/TestSymboltable.cpp $(BINDIRTEST)/TestSymboltable.o
 #
 
 

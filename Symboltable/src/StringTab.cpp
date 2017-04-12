@@ -32,3 +32,31 @@ char* StringTabNode::getLexem() {
 int StringTabNode::getLexemLength() {
 	return strlen(this->lexem);
 }
+
+StringTab::StringTab() {
+	first_node = NULL;
+	node_count = 0;
+	table_size = 0;
+	free_space = 0;
+}
+
+StringTab::~StringTab() {
+	delete(first_node);
+}
+
+char* StringTab::insert(char* lexem, int size) {
+	char c = ' ';
+	return &c;
+}
+
+StringTabNode* StringTab::getNode() {
+	return this->first_node;
+}
+
+int StringTab::getNodeCount() {
+	return 0;
+}
+
+void StringTab::resize() {
+
+}

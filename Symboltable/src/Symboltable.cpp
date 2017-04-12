@@ -23,12 +23,12 @@ Symboltable::~Symboltable() {
 
 Key Symboltable::insert(char* lexem, int value) {
 	// TODO: implement this
-	return NULL;
+	return Key();
 }
 
 Information Symboltable::lookup(Key key) {
 	// TODO: implement this
-	return NULL;
+	return Information("ABC", 3);
 }
 
 void Symboltable::initSymbols() {
