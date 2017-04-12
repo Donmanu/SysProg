@@ -17,7 +17,7 @@ class State;
 
 class Automat {
 public:
-	Automat();
+	Automat(IScanner*);
 	virtual ~Automat();
 	void setScanner(IScanner* scanner);
 	void setCurrentState(State* state);
