@@ -3,13 +3,12 @@
  *
  */
 
-#include "../includes/Automat.h"
+#include "../includes/Automat.h"  // includes State.h
 #include "../../Scanner/includes/IScanner.h"
 
-Automat::Automat(IScanner* s) {
-	// TODO Auto-generated constructor stub
-	this->scanner = s;
-	this->state_current = NULL;
+Automat::Automat(IScanner* scan) {
+	this->scanner = scan;
+	this->state_current; // HOW TO FUCKING SET IT AS StateStart ??????? TODO
 	this->last_final_state = NULL;
 	this->counter = 0;
 	this->column = 0;
@@ -45,9 +44,27 @@ State* Automat::getCurrentState() {
 State* Automat::getLastFinalState() {
 	return this->last_final_state;
 }
+int Automat::getColumn() {
+	return this->column; // - counter ?? TODO
+}
+
+int Automat::getLine() {
+	return this->line;
+}
 
 void Automat::incrementCounter() {
 	this->counter += 1;
+}
+
+void Automat::incrementNewline() {
+	this->counter += 1;
+	this->line += 1;
+	this->column = 0;
+}
+
+void Automat::incrementTabulator() {
+	this->counter += 1;
+	this->column += TAB_WIDTH - (this->column % TAB_WIDTH); // http://c-for-dummies.com/blog/?p=424
 }
 
 int Automat::getCounter() {
@@ -56,6 +73,7 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this-> counter = 0;
+	// TODO what to do with line/column? column -= counter??
 }
 
 void Automat::readChar(char c) {

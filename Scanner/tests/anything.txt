@@ -1,0 +1,3 @@
+bla = 0
+blub = (bla + 21) * -1
+:* Don't worry, be happy *:

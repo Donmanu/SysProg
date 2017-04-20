@@ -1,0 +1,14 @@
+# Test files containing illegal characters:
+test_cases/test1.txt 
+
+# Test files containing specified number of chars, 100 per line (including \n):
+test_cases/test510.txt 
+test_cases/test511.txt 
+test_cases/test512.txt 
+test_cases/test513.txt 
+test_cases/test1022.txt 
+test_cases/test1023.txt 
+test_cases/test1024.txt 
+test_cases/test1025.txt 
+test_cases/test5000.txt 
+test_cases/test500000.txt 

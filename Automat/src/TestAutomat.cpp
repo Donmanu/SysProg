@@ -4,76 +4,18 @@
 int main (int argc, char* argv[]) {
 	Automat* automat;
 	State* state;
+	char* t = "empty.txt"; // param needed but not used
 
-	automat = new Automat(new Scanner());
+	automat = new Automat(new Scanner(t));
 	state = StateStart::makeState();
 
-	char c = '#';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = '9';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-	c = '9';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-	c = '9';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-	c = '9';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = 'a';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-	c = 'a';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = ':';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = ':';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = '*';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = '#';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = '*';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = ':';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char %c and counter %i\n", c, automat->getCounter());
-
-	c = 'v';
-	state->read(c, automat);
-	state = automat->getCurrentState();
-	printf("Char: %c and counter %i\n", c, automat->getCounter());
-
+	char* c = "#98765abc::**:v";
+	int i = 0;
+	do {
+		state->read(c[i++], automat);
+		state = automat->getCurrentState();
+		printf("Char %c and counter %i\n\n", c, automat->getCounter());
+	} while (*c != '\0');
 
 	delete(automat);
 }

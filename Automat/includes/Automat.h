@@ -24,15 +24,19 @@ public:
 	void setLastFinalState(State* state);
 	IScanner* getScanner();
 	State* getCurrentState();
+	int getColumn();
+	int getLine();
 	State* getLastFinalState();
 	void incrementCounter();
+	void incrementNewline();
+	void incrementTabulator();
 	int getCounter();
 	void resetCounter();
 	void readChar(char);
 
 private:
 	IScanner* scanner;
-	State *state_current;
+	State* state_current;
 	State* last_final_state;
 	int counter;
 	int column;
