@@ -16,7 +16,7 @@ SymTabEntry::SymTabEntry() {
 SymTabEntry::~SymTabEntry() {
 	delete(this->next);
 	delete(this->string_tab_node);
-	delete(this->key);
+//	delete(this->key);
 }
 
 bool SymTabEntry::hasNext() {
@@ -50,7 +50,7 @@ void SymTabEntry::setKey(Key* key) {
 Symboltable::Symboltable() {
 	// TODO Auto-generated constructor stub
 	this->entries = new SymTabEntry[SYMBOL_TABLE_SIZE];
-	this->string_table = new StringTab();
+	this->string_table = new StringTab[SYMBOL_TABLE_SIZE];
 	this->table_size = SYMBOL_TABLE_SIZE;
 	this->free_space = SYMBOL_TABLE_SIZE;
 	this->initSymbols();
@@ -58,13 +58,11 @@ Symboltable::Symboltable() {
 
 Symboltable::~Symboltable() {
 	// TODO Auto-generated destructor stub
-	delete(this->entries);
-	delete(this->string_table);
+	delete[] this->entries;
+	delete[] this->string_table;
 }
 
 Key Symboltable::insert(char* lexem, int value) {
-	// TODO: segmentation fault (core dump)
-	// -> key gets destroyed twice
 	SymTabEntry current = this->entries[this->hash(lexem)];
 
 	while (current.hasNext()) {
@@ -110,7 +108,7 @@ void Symboltable::initSymbols() {
 void Symboltable::resize() {
 	int new_table_size = this->table_size + SYMBOL_TABLE_SIZE;
 	SymTabEntry* temp = new SymTabEntry[new_table_size];
-	memcpy(temp, this->entries, new_table_size);
+	memcpy(temp, this->entries, sizeof(this->table_size));
 	this->table_size = new_table_size;
 	this->free_space += SYMBOL_TABLE_SIZE;
 	delete[] this->entries;

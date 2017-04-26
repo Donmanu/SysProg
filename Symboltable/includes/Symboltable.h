@@ -38,12 +38,14 @@ class Symboltable {
 		Key insert(char* lexem, int value);
 		Information lookup(Key key);
 
+		SymTabEntry* entries;
+
 	private:
 		void initSymbols();
 		void resize();
 		int hash(char* lexem);
 		StringTab* string_table;
-		SymTabEntry* entries;
+
 		int table_size;
 		int free_space;
 		static const int SYMBOL_TABLE_SIZE = 128;

@@ -37,7 +37,7 @@ class StringTab {
 		int table_size;
 		int free_space;
 		char* free_ptr;
-		static const int STRING_TABLE_SIZE = 128;
+		static const int STRING_TABLE_SIZE = 8;
 };
 
 #endif /* SYMBOLTABLE_INCLUDES_STRINGTAB_H_ */
