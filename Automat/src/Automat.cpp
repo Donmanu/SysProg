@@ -8,7 +8,7 @@
 
 Automat::Automat(IScanner* scan) {
 	this->scanner = scan;
-	this->state_current; // HOW TO FUCKING SET IT AS StateStart ??????? TODO
+	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
 	this->counter = 0;
 	this->column = 0;

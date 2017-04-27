@@ -12,7 +12,6 @@
 
 
 Scanner::Scanner(char* filename) {
-	State* state = StateStart::makeState();
 	this->automat = new Automat(this);
 	this->buffer = new Buffer(filename);
 	this->notoken = true;
@@ -32,10 +31,9 @@ Token Scanner::nextToken() {
 
 	while (this->notoken) {
 		c = this->buffer->getChar();
-		printf("%c", c);
+		//printf("<%c>\n", c);
 		this->automat->readChar(c); // calls mkToken(), and therefore sets notoken = false;
 	}
-	printf("!\n");
 	// TODO handle error(token)
 	return this->current_token;
 }
@@ -45,7 +43,8 @@ void Scanner::freeToken() {
 }
 
 void Scanner::mkToken(TokenType::Type type) {
-	// Called by Automat to tell the Scanner something was found.
+	// Called by Automat (i.e. its States) to tell the Scanner when something was found.
+	printf("Token found! Type %i", type);
 	this->notoken = false;
 	this->freeToken();
 	this->current_token.type = type;

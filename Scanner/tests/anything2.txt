@@ -1,0 +1,4 @@
+l = 0
+blub = (l + 21) * -1
+:* Don't worry, be happy *:
+:*
