@@ -32,7 +32,9 @@ namespace TokenType {
 		TokenCurlyBracketsOpen,
 		TokenCurlyBracketsClose,
 		TokenIf,
-		TokenWhile
+		TokenWhile,
+
+		TokenStop // Metatoken: No more tokens to come
 	};
 }
 

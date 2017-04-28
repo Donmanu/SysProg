@@ -43,11 +43,13 @@ int main(int argc, char **argv) {
 		printf("Scanning file ... %s\n", argv[1]);
 	}
 
-	/* TEST 1: scan the given file for tokens until TokenUnknown encountered */
+	/* TEST 1: scan the given file for tokens until scanner stopped by automat */
 	scanner = new Scanner(argv[1]);
 	do {
 		t = scanner->nextToken();
 		printf("Found token type %s", tokenTypeToName[t.type]);
+
+		// Write file
 		out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
 		switch (t.type) {
 		case TokenType::TokenUnknown:
@@ -56,10 +58,12 @@ int main(int argc, char **argv) {
 		default:
 			out << std::endl;
 		}
-	} while (t.type != TokenType::TokenUnknown);
 
+
+	} while (t.type != TokenType::TokenStop);
+
+	printf("Test ended. All tokens fetched.\n");
 	delete(scanner);
-
 	out.close();
 
 	printf("_done_");

@@ -10,7 +10,7 @@
 
 #include <unistd.h>
 #include "State.h"
-#include "../../Scanner/includes/IScanner.h"
+#include "../../Scanner/includes/ScannerForAutomat.h"
 #include "../../Scanner/includes/Token.h"
 
 //class State;

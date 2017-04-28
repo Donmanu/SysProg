@@ -24,6 +24,10 @@ Scanner::~Scanner() {
 	delete this->buffer;
 }
 
+void Scanner::sayHello() {
+	printf("Hello!\n");
+}
+
 Token Scanner::nextToken() {
 	char c;
 
@@ -65,5 +69,8 @@ void Scanner::ungetChar(int count) {
 }
 
 void Scanner::stop() {
-	// ?? What to do here? Delete everything?
+	this->notoken = false; // next call to nextToken() will return:
+	this->current_token.type = TokenType::TokenStop;
+	this->current_token.line = this->automat->getLine();
+	this->current_token.column = this->automat->getColumn();
 }

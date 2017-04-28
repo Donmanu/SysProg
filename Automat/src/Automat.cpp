@@ -3,8 +3,7 @@
  *
  */
 
-#include "../includes/Automat.h"  // includes State.h
-#include "../../Scanner/includes/IScanner.h"
+#include "../includes/Automat.h"  // includes State.h, IScanner.h, etc
 
 Automat::Automat(IScanner* scan) {
 	this->scanner = scan;
@@ -78,5 +77,7 @@ void Automat::resetCounter() {
 
 void Automat::readChar(char c) {
 	// TODO Do some state changing and/or ground braking thing here ...
-	this->state_current->read(c, this); // calls makeState() ...
+	this->state_current->read(c, this); // calls this->setState() ...
+	if (c == '\0')
+		this->scanner->stop(); // actually, our states are designed to handle '\0'. TODO?
 }
