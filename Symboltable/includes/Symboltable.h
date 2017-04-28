@@ -16,6 +16,7 @@
 class SymTabEntry {
 	public:
 		SymTabEntry();
+		SymTabEntry(Key* key, StringTabNode* node);
 		virtual ~SymTabEntry();
 		bool hasNext();
 		SymTabEntry* getNext();
@@ -48,7 +49,7 @@ class Symboltable {
 
 		int table_size;
 		int free_space;
-		static const int SYMBOL_TABLE_SIZE = 128;
+		static const int SYMBOL_TABLE_SIZE = 8;
 		static const int SALT = 31;
 
 };

@@ -25,11 +25,6 @@ int StringTabNode::getLexemLength() {
 StringTab::StringTab() {
 	this->first_node = NULL;
 	this->string_table = new char[STRING_TABLE_SIZE];
-
-	for (int i = 0; i < STRING_TABLE_SIZE; i++) {
-		this->string_table[i] = NULL;
-	}
-
 	this->node_count = 0;
 	this->table_size = STRING_TABLE_SIZE;
 	this->free_space = STRING_TABLE_SIZE;
@@ -43,18 +38,18 @@ StringTab::~StringTab() {
 
 char* StringTab::insert(char* lexem, int size) {
 	// TODO: re-think this
-	char* tmp = this->free_ptr;
-	if (this->free_space < size) {
+	//char* tmp = this->free_ptr;
+	while (this->free_space < size) {
 		this->resize();
 	}
 
 	this->node_count++;
-	memcpy(tmp, lexem, sizeof(size + 1));
+	memcpy(this->free_ptr, lexem, size);
 	this->free_ptr[size] = '\0';
 	this->free_ptr += size + 1;
 	this->free_space -= size + 1;
 
-	return tmp;
+	return this->free_ptr;
 }
 
 StringTabNode* StringTab::getFirstNode() {
@@ -66,11 +61,12 @@ int StringTab::getNodeCount() {
 }
 
 void StringTab::resize() {
-	int new_table_size = this->table_size + STRING_TABLE_SIZE;
+	int new_table_size = this->table_size * 2;
 	char* temp = new char[new_table_size];
-	memcpy(temp, this->string_table, sizeof(this->table_size));
+	memcpy(temp, this->string_table, this->table_size);
+	this->free_space += this->table_size;
 	this->table_size = new_table_size;
-	this->free_space += STRING_TABLE_SIZE;
 	delete[] this->string_table;
 	this->string_table = temp;
+	this->free_ptr = &(this->string_table[this->table_size - this->free_space]);
 }

@@ -13,9 +13,15 @@ SymTabEntry::SymTabEntry() {
 	this->key = NULL;
 }
 
+SymTabEntry::SymTabEntry(Key* key, StringTabNode* node) {
+	this->next = NULL;
+	this->string_tab_node = node;
+	this->key = key;
+}
+
 SymTabEntry::~SymTabEntry() {
-	delete(this->next);
-	delete(this->string_tab_node);
+//	delete(this->next);
+//	delete(this->string_tab_node);
 //	delete(this->key);
 }
 
@@ -63,25 +69,24 @@ Symboltable::~Symboltable() {
 }
 
 Key Symboltable::insert(char* lexem, int value) {
-	SymTabEntry current = this->entries[this->hash(lexem)];
-
-	while (current.hasNext()) {
-		if (current.getKey() == NULL) {
-			current = *(current.getNext());
-		} else {
-			return *(current.getKey());
-		}
-	}
+//	SymTabEntry current = this->entries[0]; //this->hash(lexem)];
+	SymTabEntry* current = &(this->entries[0]);
 
 	Information* information = new Information(lexem, value);
 	Key* key = new Key(information);
-
 	StringTabNode* node = new StringTabNode(lexem);
-	SymTabEntry* next = new SymTabEntry();
 
-	next->setKey(key);
-	next->setStringTabNode(node);
-	current.setNext(next);
+	if (current->getKey() == NULL) {
+		current->setKey(key);
+		current->setStringTabNode(node);
+		this->entries[0] = *current;
+	} else {
+		while (current->hasNext()) {
+			current = current->getNext();
+		}
+		SymTabEntry* next = new SymTabEntry(key, node);
+		current->setNext(next);
+	}
 
 	this->string_table->insert(lexem, node->getLexemLength());
 
@@ -94,21 +99,16 @@ Information Symboltable::lookup(Key key) {
 
 void Symboltable::initSymbols() {
 	// TODO: replace value parameters with something useful
-	printf("inserting if...\n");
 	this->insert("if", 0);
-	printf("inserting IF...\n");
 	this->insert("IF", 0);
-	printf("inserting while...\n");
 	this->insert("while", 0);
-	printf("inserting WHILE...\n");
 	this->insert("WHILE", 0);
-	printf("Success!\n");
 }
 
 void Symboltable::resize() {
-	int new_table_size = this->table_size + SYMBOL_TABLE_SIZE;
+	int new_table_size = this->table_size * 2;
 	SymTabEntry* temp = new SymTabEntry[new_table_size];
-	memcpy(temp, this->entries, sizeof(this->table_size));
+	memcpy(temp, this->entries, this->table_size);
 	this->table_size = new_table_size;
 	this->free_space += SYMBOL_TABLE_SIZE;
 	delete[] this->entries;
