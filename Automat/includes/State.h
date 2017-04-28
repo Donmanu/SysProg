@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string>
 
-class Automat;
+class Automat; // <- why after #include "Automat.h" ? TODO
 
 class State {
 	public:

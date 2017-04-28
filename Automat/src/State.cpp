@@ -1,6 +1,8 @@
 /*
  * State.cpp
  *
+ * Using case ranges here, which are an GCC feature!
+ *
  *  Created on: Mar 24, 2017
  *      Author: donmanu
  */
@@ -366,7 +368,14 @@ void StateCommentBegin::read(char c, Automat* m) {
 }
 
 /*
- * in-between state for actual comment end
+ * in-between state for actual comment end:
+ *
+ *                                    |:--> (StateStart)
+ *                                    |
+ * :* bla bla   --*--> (commentEnd) --|*--> (CommentEnd)
+ * ^                                  |
+ * (CommentBegin) <--------_----------|
+ *
  */
 
 State* StateCommentEnd::makeState() {
@@ -378,11 +387,17 @@ void StateCommentEnd::read(char c, Automat* m) {
 	switch (c) {
 		case '\0': // EOF
 		case ':':
+			// comment finished
 			m->setCurrentState(StateStart::makeState());
-			// no token for comments
+			// no token for comments to create
+			break;
+		case '*':
+			// another star after star  :****:
+			// nothing to do: stay in CommentEnd
 			break;
 		default:
-			m->setCurrentState(StateCommentEnd::makeState());
+			// back to beginning
+			m->setCurrentState(StateCommentBegin::makeState());
 	}
 }
 

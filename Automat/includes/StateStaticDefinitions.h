@@ -40,4 +40,4 @@ StateCommentEnd StateCommentEnd::instance;
 
 StateUnknown StateUnknown::instance;
 
-#endif /* STATESTATICDEFINITIONS_H_ */
+#endif /* AUTOMAT_INCLUDES_STATESTATICDEFINITIONS_H_ */

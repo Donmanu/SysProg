@@ -13,7 +13,7 @@
 #include "../../Scanner/includes/IScanner.h"
 #include "../../Scanner/includes/Token.h"
 
-class State;
+//class State;
 
 class Automat {
 public:
