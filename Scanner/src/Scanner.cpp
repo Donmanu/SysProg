@@ -12,7 +12,7 @@
 
 
 Scanner::Scanner(char* filename) {
-	this->automat = new Automat(this);
+	this->automat = new Automat(*this);
 	this->buffer = new Buffer(filename);
 	this->notoken = true;
 	//this->current_token;
@@ -29,6 +29,7 @@ void Scanner::sayHello() {
 }
 
 Token Scanner::nextToken() {
+	this->notoken = true;
 	char c;
 
 	printf("Finding token:\n");

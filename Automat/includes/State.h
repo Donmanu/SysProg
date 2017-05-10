@@ -10,10 +10,10 @@
 
 #define TAB_WIDTH (8)
 
-#include "Automat.h"
-#include "../../Scanner/includes/TokenType.h"
+//#include "../../Scanner/includes/TokenType.h"
 #include <stdio.h>
 #include <string>
+#include "Automat.h"
 
 class Automat; // <- why after #include "Automat.h" ? TODO
 

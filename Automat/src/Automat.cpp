@@ -5,8 +5,8 @@
 
 #include "../includes/Automat.h"  // includes State.h, IScanner.h, etc
 
-Automat::Automat(IScanner* scan) {
-	this->scanner = scan;
+Automat::Automat(IScanner& scan) {
+	this->scanner = &scan;
 	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
 	this->counter = 0;
@@ -17,11 +17,10 @@ Automat::Automat(IScanner* scan) {
 Automat::~Automat() {
 	// TODO Auto-generated destructor stub
 	// Don't delete the scanner!
-
 }
 
-void Automat::setScanner(IScanner* scanner) {
-	this->scanner = scanner;
+void Automat::setScanner(IScanner& scanner) {
+	this->scanner = &scanner;
 }
 
 void Automat::setCurrentState(State* state) {
@@ -43,6 +42,7 @@ State* Automat::getCurrentState() {
 State* Automat::getLastFinalState() {
 	return this->last_final_state;
 }
+
 int Automat::getColumn() {
 	return this->column; // - counter ?? TODO
 }

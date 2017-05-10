@@ -43,5 +43,6 @@ cleanAutomat:
 # dieses Target wird vom makefile des Gesamtprojekts verwendet
 # objs fuer Gesamtprojekt loeschen und dann neu erzeugen
 AutomatOBJTarget:
+	$(MAKE) StateTarget
 	$(MAKE) AutomatTarget
 

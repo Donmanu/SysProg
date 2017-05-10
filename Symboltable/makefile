@@ -17,9 +17,8 @@ BINDIRTEST = debug
 ## darauf achten, dass letzte Zeile ohne "\" eingetragen wird
 
 OBJS = $(OBJDIR)/Symboltable.o \
-	$(OBJDIR)/Information.o \
-	$(OBJDIR)/StringTab.o
-
+	$(OBJDIR)/StringTab.o \
+	$(OBJDIR)/Information.o
 
 #
 #		Targets zum Bauen des Tests
@@ -60,7 +59,7 @@ $(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/In
 #makeTestSymboltable: SymboltableTarget TestSymboltableTarget
 #	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
 
-SymboltableTarget: $(OBJS)
+SymboltableTarget: $(OBJS)/
 
 # $@ name des object files = name auf der linken Seite vom Doppelpunkt des Targets
 # $< erste abhaengigkeit, $< das erste Element in der Liste der Abhaengigkeiten
