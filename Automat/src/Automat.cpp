@@ -76,7 +76,6 @@ void Automat::resetCounter() {
 }
 
 void Automat::readChar(char c) {
-	// TODO Do some state changing and/or ground braking thing here ...
 	if (c == '\n') { // More common case first
 		this->incrementNewline();
 	} else if (c == '\t') {

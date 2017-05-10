@@ -42,6 +42,8 @@ void Scanner::freeToken() {
 
 void Scanner::mkToken(TokenType::Type type) {
 	// Called by Automat (i.e. its States) to tell the Scanner when something was found.
+	if (this->notoken == false) // already?
+		perror("mkToken() called twice in a row!?\n");
 	this->notoken = false;
 	this->freeToken();
 	this->current_token.type = type;

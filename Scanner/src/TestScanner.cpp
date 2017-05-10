@@ -21,12 +21,12 @@ int main(int argc, char **argv) {
 		"TokenExclamationMark\t",
 		"TokenAndAnd\t\t",
 		"TokenSemiColon\t\t",
-		"TokenBracketsOpen\t",
-		"TokenBracketsClose\t",
+		"TokenParenthesisOpen\t",
+		"TokenParenthesisClose\t",
 		"TokenSquareBracketsOpen\t",
 		"TokenSquareBracketsClose", // 24 chars = 6 \t
-		"TokenCurlyBracketsOpen\t",
-		"TokenCurlyBracketsClose\t",
+		"TokenCurlyBracesOpen\t",
+		"TokenCurlyBracesClose\t",
 		"TokenIf\t\t\t",
 		"TokenWhile\t\t",
 		"TokenStop\t\t"
