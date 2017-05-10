@@ -29,16 +29,10 @@ void Scanner::sayHello() {
 }
 
 Token Scanner::nextToken() {
-	char c;
-
-	printf("Finding token:\n");
-
+	this->notoken = true;
 	while (this->notoken) {
-		c = this->buffer->getChar();
-		//printf("<%c>\n", c);
-		this->automat->readChar(c); // calls mkToken(), and therefore sets notoken = false;
+		this->automat->readChar(this->buffer->getChar()); // calls mkToken(), and therefore sets notoken = false;
 	}
-	// TODO handle error(token)
 	return this->current_token;
 }
 
@@ -48,7 +42,6 @@ void Scanner::freeToken() {
 
 void Scanner::mkToken(TokenType::Type type) {
 	// Called by Automat (i.e. its States) to tell the Scanner when something was found.
-	printf("Token found! Type %i", type);
 	this->notoken = false;
 	this->freeToken();
 	this->current_token.type = type;

@@ -9,9 +9,9 @@ int main(int argc, char **argv) {
 		"TokenUnknown\t\t", // a.k.a. TokenError
 		"TokenInteger\t\t",
 		"TokenIdentifier\t\t",
-		"TokenPlus\t\t",
-		"TokenMinus\t\t",
-		"TokenColon\t\t",
+		"TokenPlus\t\t\t",
+		"TokenMinus\t\t\t",
+		"TokenColon\t\t\t",
 		"TokenStar\t\t",
 		"TokenLessThan\t\t",
 		"TokenGreaterThan\t",
@@ -28,7 +28,8 @@ int main(int argc, char **argv) {
 		"TokenCurlyBracketsOpen\t",
 		"TokenCurlyBracketsClose\t",
 		"TokenIf\t\t\t",
-		"TokenWhile\t\t"
+		"TokenWhile\t\t",
+		"TokenStop\t\t"
 	};
 
 	Scanner* scanner;
@@ -47,7 +48,7 @@ int main(int argc, char **argv) {
 	scanner = new Scanner(argv[1]);
 	do {
 		t = scanner->nextToken();
-		printf("Found token type %s", tokenTypeToName[t.type]);
+		printf("Found token type %d (%s)\n", t.type, tokenTypeToName[t.type]);
 
 		// Write file
 		out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
@@ -58,7 +59,6 @@ int main(int argc, char **argv) {
 		default:
 			out << std::endl;
 		}
-
 
 	} while (t.type != TokenType::TokenStop);
 

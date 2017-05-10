@@ -11,11 +11,10 @@
 #include "../includes/StateStaticDefinitions.h"
 
 State* StateStart::makeState() {
-	return &this->instance;
+	return &instance;
 }
 
 void StateStart::read(char c, Automat* m) {
-	Scanner* myScanner = (Scanner)m->getScanner(); // TODO that's just for testing. Make inline again!: m->getScanner()->mkToek ...
 	m->resetCounter();
 	printf("State: Start\n");
 	switch (c) {
@@ -33,79 +32,80 @@ void StateStart::read(char c, Automat* m) {
 		case '+':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenPlus);
-			m->incrementCounter();
+			m->getScanner()->mkToken(TokenType::TokenPlus);
+
+			m->incrementCounter(); // TODO increment counter on single sign??
 			break;
 		case '-':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenMinus);
+			m->getScanner()->mkToken(TokenType::TokenMinus);
 			m->incrementCounter();
 			break;
 		case '*':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenStar);
+			m->getScanner()->mkToken(TokenType::TokenStar);
 			m->incrementCounter();
 			break;
 		case '<':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenLessThan);
+			m->getScanner()->mkToken(TokenType::TokenLessThan);
 			m->incrementCounter();
 			break;
 		case '>':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenGreaterThan);
+			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
 			m->incrementCounter();
 			break;
 		case '(':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenBracketsOpen);
+			m->getScanner()->mkToken(TokenType::TokenBracketsOpen);
 			m->incrementCounter();
 			break;
 		case ')':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenBracketsClose);
+			m->getScanner()->mkToken(TokenType::TokenBracketsClose);
 			m->incrementCounter();
 			break;
 		case '[':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenSquareBracketsOpen);
+			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
 			m->incrementCounter();
 			break;
 		case ']':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenSquareBracketsClose);
+			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
 			m->incrementCounter();
 			break;
 		case '{':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenCurlyBracketsOpen);
+			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsOpen);
 			m->incrementCounter();
 			break;
 		case '}':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenCurlyBracketsClose);
+			m->getScanner()->mkToken(TokenType::TokenCurlyBracketsClose);
 			m->incrementCounter();
 			break;
 		case '!':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenExclamationMark);
+			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
 			m->incrementCounter();
 			break;
 		case ';':
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
-			myScanner->mkToken(TokenType::TokenSemiColon);
+			m->getScanner()->mkToken(TokenType::TokenSemiColon);
 			m->incrementCounter();
 			break;
 		case '&':
@@ -123,12 +123,9 @@ void StateStart::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		case '\n':
-			m->incrementNewline();
-			break;
 		case '\t':
-			m->incrementTabulator();
-			break;
 		case ' ':
+			/* Stay in Start */
 			break;
 		default:
 			m->setCurrentState(StateUnknown::makeState());
