@@ -48,7 +48,6 @@ int main(int argc, char **argv) {
 	scanner = new Scanner(argv[1]);
 	do {
 		t = scanner->nextToken();
-		printf("Found token type %d (%s)\n", t.type, tokenTypeToName[t.type]);
 
 		// Write file
 		out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;

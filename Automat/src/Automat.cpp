@@ -44,8 +44,7 @@ State* Automat::getLastFinalState() {
 	return this->last_final_state;
 }
 int Automat::getColumn() {
-	printf("Counter at getCol(): %d\n", counter);
-	return this->column - this->counter; // TODO counter may have already been reset at this point!! (always on entry of StateStart ...)
+	return this->column - this->counter;
 }
 
 int Automat::getLine() {

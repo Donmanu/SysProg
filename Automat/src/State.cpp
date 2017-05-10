@@ -10,13 +10,8 @@
 #include "../includes/State.h"
 #include "../includes/StateStaticDefinitions.h"
 
-State* StateStart::makeState() {
-	return &instance;
-}
-
 void StateStart::read(char c, Automat* m) {
 	m->resetCounter();
-	printf("State: Start\n");
 	switch (c) {
 		case '0' ... '9':
 			m->setCurrentState(StateNumber::makeState());
@@ -33,8 +28,7 @@ void StateStart::read(char c, Automat* m) {
 			m->setCurrentState(StateSingleSign::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenPlus);
-
-			m->incrementCounter(); // TODO increment counter on single sign??
+			m->incrementCounter(); // TODO increment counter on single sign?? Or do we rather make the according token and go back to Start??
 			break;
 		case '-':
 			m->setCurrentState(StateSingleSign::makeState());
@@ -134,23 +128,15 @@ void StateStart::read(char c, Automat* m) {
 	}
 }
 
-State* StateError::makeState() {
-	return &instance;
-}
-
 void StateError::read(char c, Automat* m) {
-	printf("State: Error\n");
 	// Purpose of this state is to make a controlled transition into start again
 	m->setCurrentState(StateStart::makeState());
-	m->getScanner()->ungetChar(m->getCounter()); // < magic!
-}
-
-State* StateNumber::makeState() {
-	return &instance;
+	//m->getScanner()->ungetChar(m->getCounter()); // < too much magic!
+	// Can we do anything useful here?!? If not, this state can be removed ...
+	m->getCurrentState()->read(c, m);
 }
 
 void StateNumber::read(char c, Automat* m) {
-	printf("State: Number\n");
 	switch (c) {
 		case '0' ... '9':
 			m->setCurrentState(StateNumber::makeState());
@@ -170,12 +156,7 @@ void StateNumber::read(char c, Automat* m) {
 	}
 }
 
-State* StateIdentifier::makeState() {
-	return &instance;
-}
-
 void StateIdentifier::read(char c, Automat* m) {
-	printf("State: Identifier\n");
 	switch (c) {
 		case '0' ... '9':
 		case 'A' ... 'Z':
@@ -196,12 +177,7 @@ void StateIdentifier::read(char c, Automat* m) {
 	}
 }
 
-State* StateSingleSign::makeState() {
-	return &instance;
-}
-
 void StateSingleSign::read(char c, Automat* m) {
-	printf("State: Single Sign\n");
 	switch (c) {
 		case ' ':
 		case '\n':
@@ -216,15 +192,10 @@ void StateSingleSign::read(char c, Automat* m) {
 	}
 }
 
-State* StateAnd::makeState() {
-	return &instance;
-}
-
 /*
  * in-between state for ( ) -> (&) -> ((&&))
  */
 void StateAnd::read(char c, Automat* m) {
-	printf("State: And\n");
 	switch (c) {
 		case '&':
 			m->setCurrentState(StateStart::makeState());
@@ -233,20 +204,15 @@ void StateAnd::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		default:
-			m->setCurrentState(StateUnknown::makeState());
+			m->setCurrentState(StateUnknown::makeState()); // < this refers to the '&' that came before!
 			m->getCurrentState()->read(c, m);
 	}
-}
-
-State* StateColon::makeState() {
-	return &instance;
 }
 
 /*
  * in-between state AND final state!
  */
 void StateColon::read(char c, Automat* m) {
-	printf("State: Colon\n");
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
@@ -273,13 +239,7 @@ void StateColon::read(char c, Automat* m) {
 /*
  * final state
  */
-
-State* StateColonEquals::makeState() {
-	return &instance;
-}
-
 void StateColonEquals::read(char c, Automat* m) {
-	printf("State: Colon Equals\n");
 	switch(c) {
 	default:
 		m->setCurrentState(StateStart::makeState());
@@ -291,13 +251,7 @@ void StateColonEquals::read(char c, Automat* m) {
 /*
  * in-between state for ((=:=)) and final state for ((=))
  */
-
-State* StateEquals::makeState() {
-	return &instance;
-}
-
 void StateEquals::read(char c, Automat* m) {
-	printf("State: Equals\n");
 	switch (c) {
 		case ':':
 			m->setCurrentState(StateEqualsColon::makeState());
@@ -323,13 +277,7 @@ void StateEquals::read(char c, Automat* m) {
  * vs
  *   (=:) --'x'-> ((=)), ((:)), ((x))
  */
-
-State* StateEqualsColon::makeState() {
-	return &instance;
-}
-
 void StateEqualsColon::read(char c, Automat* m) {
-	printf("State: Equals Colon");
 	switch (c) {
 		case '=':
 			m->setCurrentState(StateStart::makeState());
@@ -344,22 +292,12 @@ void StateEqualsColon::read(char c, Automat* m) {
 	}
 }
 
-State* StateEqualsColonEquals::makeState() {
-	return &instance;
-}
-
 void StateEqualsColonEquals::read(char c, Automat* m) {
-	printf("State: Equals Colon Equals\n");
 	m->setCurrentState(StateStart::makeState());
 	m->getCurrentState()->read(c, m);
 }
 
-State* StateCommentBegin::makeState() {
-	return &instance;
-}
-
 void StateCommentBegin::read(char c, Automat* m) {
-	printf("State: Comment Begin\n");
 	if (c == '*' || c == '\0') {
 		m->setCurrentState(StateCommentEnd::makeState());
 	}
@@ -375,13 +313,7 @@ void StateCommentBegin::read(char c, Automat* m) {
  * (CommentBegin) <--------_----------|
  *
  */
-
-State* StateCommentEnd::makeState() {
-	return &instance;
-}
-
 void StateCommentEnd::read(char c, Automat* m) {
-	printf("State: Comment End\n");
 	switch (c) {
 		case '\0': // EOF
 		case ':':
@@ -399,12 +331,8 @@ void StateCommentEnd::read(char c, Automat* m) {
 	}
 }
 
-State* StateUnknown::makeState() {
-	return &instance;
-}
-
 void StateUnknown::read(char c, Automat* m){
-	printf("reading in state unknown");
 	m->setCurrentState(StateStart::makeState());
 	m->getScanner()->mkToken(TokenType::TokenUnknown);
+	//m->incrementCounter();
 }
