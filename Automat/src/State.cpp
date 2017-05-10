@@ -28,67 +28,67 @@ void StateStart::read(char c, Automat* m) {
 		/* Here come the single-sign operators, which we shortcut handle by making the according token,
 		 * but also going into StateStart and ignoring counter increment */
 		case '+':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState()); // By going over Error to Start, we allow mkToken() to have effect
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenPlus);
 			break;
 		case '-':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenMinus);
 			break;
 		case '*':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenStar);
 			break;
 		case '<':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenLessThan);
 			break;
 		case '>':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
 			break;
 		case '(':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenParenthesisOpen);
 			break;
 		case ')':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenParenthesisClose);
 			break;
 		case '[':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
 			break;
 		case ']':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
 			break;
 		case '{':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenCurlyBracesOpen);
 			break;
 		case '}':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenCurlyBracesClose);
 			break;
 		case '!':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
 			break;
 		case ';':
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateError::makeState());
 			m->setLastFinalState(StateSingleSign::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSemiColon);
 			break;
@@ -123,9 +123,10 @@ void StateStart::read(char c, Automat* m) {
 void StateError::read(char c, Automat* m) {
 	// Purpose of this state is to make a controlled transition into start again
 	m->setCurrentState(StateStart::makeState());
+	m->getScanner()->ungetChar(1); // 1 works for now. Later we need a reliable value for Automat.counter ... TODO
 	//m->getScanner()->ungetChar(m->getCounter()); // < too much magic!
 	// Can we do anything useful here?!? If not, this state can be removed ...
-	m->getCurrentState()->read(c, m);
+	//m->getCurrentState()->read(c, m);
 }
 
 void StateNumber::read(char c, Automat* m) {

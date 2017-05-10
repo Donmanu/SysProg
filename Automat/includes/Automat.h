@@ -32,6 +32,7 @@ public:
 	void incrementTabulator();
 	int getCounter();
 	void resetCounter();
+	void ungetChar(int);
 	void readChar(char);
 
 private:

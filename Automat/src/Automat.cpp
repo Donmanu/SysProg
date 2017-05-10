@@ -75,6 +75,19 @@ void Automat::resetCounter() {
 	// TODO what to do with line/column? column -= counter??
 }
 
+void Automat::ungetChar(int count) {
+	if (this->column == 0) {
+		this->line--; // col = lastCol needed??
+	} else if (count > this->column) {
+		// We assume we never go back more than ONE line
+		//errno = ?;
+		perror("[A] Un-getting more than a line!?");
+		this->column = 0;
+	} else {
+		this->column -= count;
+	}
+}
+
 void Automat::readChar(char c) {
 	if (c == '\n') { // More common case first
 		this->incrementNewline();
