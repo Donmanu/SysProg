@@ -30,7 +30,7 @@ class ScannerInterface {
 class Scanner : public ScannerInterface, public IScanner {
 public:
 	Scanner(char*);
-	~Scanner();    // or virtual ~Scanner();  ???
+	virtual ~Scanner();    // or virtual ~Scanner();  ???
 
 	// ScannerForParser interface:
 	Token nextToken();

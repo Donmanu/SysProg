@@ -12,7 +12,7 @@
 
 
 Scanner::Scanner(char* filename) {
-	this->automat = new Automat(this);
+	this->automat = new Automat(*this);
 	this->buffer = new Buffer(filename);
 	this->notoken = true;
 	//this->current_token;
@@ -30,6 +30,7 @@ void Scanner::sayHello() {
 
 Token Scanner::nextToken() {
 	this->notoken = true;
+
 	while (this->notoken) {
 		this->automat->readChar(this->buffer->getChar()); // calls mkToken(), and therefore sets notoken = false;
 	}
