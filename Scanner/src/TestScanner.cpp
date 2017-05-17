@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 		"TokenIdentifier\t\t",
 		"TokenPlus\t\t\t",
 		"TokenMinus\t\t\t",
-		"TokenColon\t\t\t",
+		"TokenColon\t\t",
 		"TokenStar\t\t",
 		"TokenLessThan\t\t",
 		"TokenGreaterThan\t",
@@ -53,7 +53,13 @@ int main(int argc, char **argv) {
 		out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
 		switch (t.type) {
 		case TokenType::TokenUnknown:
-			out << "\twith symbol TODO get symbol of tokenUnknown" << std::endl;
+			out << "\tSymbol: TODO" << std::endl;
+			break;
+		case TokenType::TokenIdentifier:
+			out << "\tLexem: TODO" <<  std::endl;
+			break;
+		case TokenType::TokenInteger:
+			out << "\tValue: TODO" <<  std::endl;
 			break;
 		default:
 			out << std::endl;
@@ -65,6 +71,6 @@ int main(int argc, char **argv) {
 	delete(scanner);
 	out.close();
 
-	printf("_done_");
+	printf("_done_\n");
 }
 
