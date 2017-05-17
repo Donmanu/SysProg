@@ -76,16 +76,20 @@ void Automat::resetCounter() {
 }
 
 void Automat::ungetChar(int count) {
-	if (this->column == 0) {
+	/*if (this->column == 0) { // should never happen!
 		this->line--; // col = lastCol needed??
-	} else if (count > this->column) {
-		// We assume we never go back more than ONE line
+	} else */
+	if (count > this->column) {
+		// We assume we never go back a line
 		//errno = ?;
 		perror("[A] Un-getting more than a line!?");
 		this->column = 0;
 	} else {
 		this->column -= count;
+		this->counter -= count; // needed?
 	}
+
+	// buffer->unget() is done by Scanner
 }
 
 void Automat::readChar(char c) {

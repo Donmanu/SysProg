@@ -24,10 +24,6 @@ Scanner::~Scanner() {
 	delete this->buffer;
 }
 
-void Scanner::sayHello() {
-	printf("Hello!\n");
-}
-
 Token Scanner::nextToken() {
 	this->notoken = true;
 
@@ -49,7 +45,8 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->freeToken();
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
-	this->current_token.column = this->automat->getColumn(); // TODO Setting line/column this way is probably too late!
+	this->current_token.column = this->automat->getColumn();
+	// TODO: Lexem, Value, Symbol
 }
 
 void Scanner::ungetChar(int count) {
@@ -58,7 +55,7 @@ void Scanner::ungetChar(int count) {
 		perror("Cannot unget() negative amount");
 		return;
 	}
-	for (int i = 0; i < count; ++i) {
+	for (int i = 0; i < count; ++i) { // TODO this can be optimized by an intelligent Buffer::ungetChar(int) On the other hand count is usually 1 or 2 in most cases
 		this->buffer->ungetChar();
 	}
 	this->automat->ungetChar(count);

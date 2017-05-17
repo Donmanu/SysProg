@@ -104,17 +104,19 @@ void Buffer::readFile(char **buffer) {
  * @return: current character{current_char}
  */
 char Buffer::getChar() {
-	//printf("getting char ... \n");    Debug spam ...
-	if (position < BUFFER_SIZE) {
-		current_char = buffer_current[position];
-	} else {
-		this->swapBuffer();
+	if (position >= BUFFER_SIZE) {
+		if (buffer_swapped_back) {
+			// swap without new file read
+			this->swapBuffer();
+		 } else {
+			// swap with new file read
+			this->swapBuffer();
+			memset(buffer_current, 0, BUFFER_SIZE);
+			this->readFile(&buffer_current);
+		 }
 		position = 0;
-		memset(buffer_current, 0, BUFFER_SIZE);
-		this->readFile(&buffer_current);
-		current_char = buffer_current[position];
 	}
-	position++;
+	current_char = buffer_current[position++];
 	return current_char;
 }
 

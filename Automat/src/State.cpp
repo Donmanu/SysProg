@@ -122,8 +122,10 @@ void StateStart::read(char c, Automat* m) {
 
 void StateError::read(char c, Automat* m) {
 	// Purpose of this state is to make a controlled transition into start again
+
 	m->setCurrentState(StateStart::makeState());
 	m->getScanner()->ungetChar(1); // 1 works for now. Later we need a reliable value for Automat.counter ... TODO
+
 	//m->getScanner()->ungetChar(m->getCounter()); // < too much magic!
 	// Can we do anything useful here?!? If not, this state can be removed ...
 	//m->getCurrentState()->read(c, m);
@@ -205,27 +207,29 @@ void StateAnd::read(char c, Automat* m) {
 }
 
 /*
- * in-between state AND final state!
+ *     in-between state for ":=" and ":*"
+ * AND final state for ":"!
  */
 void StateColon::read(char c, Automat* m) {
 	switch (c) {
 		case '=':
+			// shortcut: make Token here already
 			m->setCurrentState(StateStart::makeState());
-			m->setLastFinalState(StateColon::makeState());
+			m->setLastFinalState(StateColonEquals::makeState());
 			m->getScanner()->mkToken(TokenType::TokenColonEquals);
-			m->incrementCounter();
+			m->incrementCounter(); // helpful?
 			break;
 		case '*':
 			m->setCurrentState(StateCommentBegin::makeState());
-			m->setLastFinalState(StateColon::makeState());
 			break;
-		case ' ':
+		/*case ' ':
 		case '\n':
 		case '\t':
+			m->getScanner()->mkToken(TokenType::TokenColon); // this is good
 			m->setCurrentState(StateStart::makeState());
-			m->getScanner()->mkToken(TokenType::TokenColon);
-			break;
+			break;*/
 		default:
+			m->getScanner()->mkToken(TokenType::TokenColon);
 			m->setCurrentState(StateError::makeState());
 			m->getCurrentState()->read(c, m);
 	}
@@ -238,7 +242,6 @@ void StateColonEquals::read(char c, Automat* m) {
 	switch(c) {
 	default:
 		m->setCurrentState(StateStart::makeState());
-		m->getScanner()->mkToken(TokenType::TokenColon);
 		m->getCurrentState()->read(c, m);
 	}
 }
@@ -268,9 +271,9 @@ void StateEquals::read(char c, Automat* m) {
 
 /*
  * in-between state:
- *   (=:) --'='-> ((=:=))
+ *   (=:) ---'='--> ((=:=))
  * vs
- *   (=:) --'x'-> ((=)), ((:)), ((x))
+ *   (=:) ---'x'--> ((=)), ((:)), ((x))
  */
 void StateEqualsColon::read(char c, Automat* m) {
 	switch (c) {
@@ -281,9 +284,12 @@ void StateEqualsColon::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		default:
-			// is that really enough: TODO
-			m->setCurrentState(StateError::makeState());
-			m->getCurrentState()->read(c, m);
+			m->getScanner()->ungetChar(2); // read in ":" and c again
+			m->getScanner()->mkToken(TokenType::TokenEquals);
+			m->setLastFinalState(StateEquals::makeState());
+			m->setCurrentState(StateStart::makeState());
+
+			//m->getCurrentState()->read(c, m);
 	}
 }
 
@@ -296,16 +302,17 @@ void StateCommentBegin::read(char c, Automat* m) {
 	if (c == '*' || c == '\0') {
 		m->setCurrentState(StateCommentEnd::makeState());
 	}
+	// else: nothing to do: stay in CommentBegin
 }
 
 /*
  * in-between state for actual comment end:
  *
- *                                    |:--> (StateStart)
+ *                                    |-:--> (StateStart)
  *                                    |
- * :* bla bla   --*--> (commentEnd) --|*--> (CommentEnd)
+ * :* bla bla   --*--> (commentEnd) --|-*--> (CommentEnd)
  * ^                                  |
- * (CommentBegin) <--------_----------|
+ * (CommentBegin) <----default--------|
  *
  */
 void StateCommentEnd::read(char c, Automat* m) {

@@ -24,7 +24,6 @@ class ScannerInterface {
 
 		virtual Token nextToken() = 0; //Token nextToken() = 0;
 		virtual void freeToken() = 0;
-		virtual void sayHello() = 0; // debug test
 };
 
 class Scanner : public ScannerInterface, public IScanner {
@@ -40,9 +39,6 @@ public:
 	void mkToken(TokenType::Type);
 	void ungetChar(int count);
 	void stop(void);
-
-	// own functions:
-	void sayHello(void);
 private:
 	Automat* automat;
 	Buffer* buffer;
