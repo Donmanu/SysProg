@@ -1,0 +1,192 @@
+% °_°_°_°_°_°_°_°_°_°_°_
+%   PREAMBEL / IMPORTS
+% °_°_°_°_°_°_°_°_°_°_°_
+\documentclass[
+a4paper,   %|letterpaper|a5paper|b5paper|legalpaper|executivepaper,
+11pt,      %|10pt|12pt,
+oneside,   %|twoside,
+onecolumn, %|twocolumn,
+final      %|draft,     wie Bilder eingebunden sind
+]{article}
+
+% Deutsche Sprache:
+\usepackage[utf8]{inputenc} % Ermöglicht die direkte Eingabe der Umlaute.
+\usepackage[T1]{fontenc}    % Wird u.a. für das Trennen von Wörtern mit Umlauten genutzt.
+\usepackage[ngerman]{babel} % Wird benötigt um deutsche Bezeichnungen zu erhalten. Zum Beispiel 'Inhaltsverzeichnis'
+                            % anstelle von 'Table of contents'.  Auch werden dann die Wörter gemäß der _neuen_
+                            % Rechtschreibung getrennt.
+\addto\captionsngerman{\renewcommand{\abstractname}{Abstract}} % Aber doch Abstract statt "Zusammenfassung"
+
+% Bilder:
+\usepackage{graphicx}    % Besserer Bilderimport
+\usepackage{wrapfig}     % Erlaube Text um Bilder
+\usepackage[font={small,it},labelfont={normal}]{caption}  % Bessere Bild-/Code-/Tabellenuntertitel
+
+% Schrift und Optik:
+\usepackage{geometry}
+\usepackage{concrete}    % Ganz hübsche Schriftart von Donald himself
+\geometry{a4paper,left=28mm,right=28mm, top=38mm, bottom=38mm}
+\usepackage{setspace}
+\onehalfspacing          % Anderhalbfacher Zeilenabstand
+\widowpenalty = 10000
+\clubpenalty = 10000
+
+% Code:
+\usepackage{color}       % Vor allem für farbigen Code
+\definecolor{lightgray}{rgb}{ .95, .95, .95 }
+\definecolor{shadow}{rgb}   { .75, .75, .75 }
+\definecolor{darkgray}{rgb} { .4 , .4 , .4  }
+\definecolor{blue}{rgb}     { .0 , .15, .45 }    % redefine
+\definecolor{purple}{rgb}   { .6 , .1 , .75 }
+\definecolor{deepblue}{rgb} { .15, .0 , .5  }
+\definecolor{darkblue}{rgb} { .0 , .0 , .33 }
+
+\usepackage{listings}    % Code-Listings
+
+\lstdefinelanguage{PseudoCode}{
+  basicstyle=\small,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#}{//}{;},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{darkgrey}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]", % shorter delimiter first!
+  morestring=[b]"""
+}
+%\usepackage{mathtools} % mainly for := sign, mathtools is not available :(
+% http://tex.stackexchange.com/questions/4216/how-to-typeset-correctly
+\newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt
+                     \hbox{\scriptsize.}\hbox{\scriptsize.}}}
+                     =}
+\lstset{
+  % keep default basicstyle for \lstinline 
+  backgroundcolor=\color{lightgray},
+  columns=fixed,    % make monospace. TODO does not work?
+  keepspaces=true,
+  basewidth=0.60em,
+  frame=shadowbox,
+  rulecolor=\color{shadow},
+  rulesepcolor=\color{shadow}, % shadow color
+  numbers=left,
+  numbersep=5pt,    % how far the line-numbers are from the code
+  showspaces=false,
+  showstringspaces=false,
+  captionpos=b,     % bottom
+  xleftmargin=2em,   % enough for 99 lines
+  escapechar=!     % LaTeX inside code segments
+}
+\renewcommand\lstlistingname{Quelltext} % Sag Babel, wie es das Label "Listing" übersetzen soll
+\renewcommand\lstlistlistingname{Quelltextverzeichnis} % Sag Babel, wie es den Titel "Listings" übersetzen soll
+
+% short hand macro. Use like \code{var example = 1;}
+\newcommand{\code}[1]{\lstinline$#1$}
+
+% Referenzen:
+\usepackage[nospace,sort]{cite}     % Zitiernummermanagement
+\renewcommand{\thefootnote}{\roman{footnote}} % Römische Nummerierung für Fußnoten
+
+% LAST IMPORT, URLs und links:
+\usepackage{hyperref}    % Get clickable links, refs, figs, chapters ... SHOULD BE LAST IMPORT!
+\hypersetup{
+    colorlinks=false, % false doesn't work?
+    linktocpage=true
+    %linkcolor=blue,
+    %filecolor=magenta,      
+    %urlcolor=cyan,
+}
+% END IMPORTS
+
+
+
+% META INFO:
+\title{Scanner}
+\author{Arthur Jagiella \and \texttt{jaar1013@hs-karlsruhe.de}}
+\author{Manuel Giesinger\and \texttt{gima10XX@hs-karlsruhe.de}}
+\date{\today}
+
+
+
+% °_°_°_°_°_°_°_°_°_°_°_
+%    BEGIN DOCUMENT:
+% °_°_°_°_°_°_°_°_°_°_°_
+\begin{document}
+
+%\include{mytitle}  % als externe .tex-Datei
+\title{Scanner}
+\maketitle
+
+
+
+% °_°_°_°_°_°_°_°_°_°_°_
+%    MAIN MATTER
+% °_°_°_°_°_°_°_°_°_°_°_
+\begin{abstract}
+Bla bla.
+
+Nächster Absatz. XXX
+\end{abstract}
+\textbf{Schlüsselworte}: Scanner, Parser, Compiler, Token, Tokenizer, Buffer, Hashmap.
+
+\section{Einleitung} % sub-, subsub-, paragraph, subparagraph
+Hallo Welt. Vgl.\cite{bestArticle}.
+
+\subsection{Foo, quo vadis?}
+Lösung:
+% Code. Als externer Text-Import: \lstinputlisting[language=Python, caption={Beschreibung}, label={lst:ref}]{./pfad/zu/codeFile.py}
+\begin{lstlisting}[language=PseudoCode,caption={XXX},label=lst:code1]
+function code() {
+  return EXIT_FAILURE;
+}
+\end{lstlisting}
+
+\subsection{Bar im Wandel der Zeit}
+Auf nimmer Wiedersehen, du grausame Welt
+
+\section{XXX}
+In dem nun folgenden, zeigen wir $P=NP$.
+
+\subsection{Beweis} \label{subsec:aircontrol}
+Easy
+
+\begin{wrapfigure}[13]{Rth}{0.45\textwidth}
+    \centering
+    \includegraphics[width=0.45\textwidth]{./pics/pic.png}
+	\caption[format=plain]{Voll der Text XXX}
+	\label{fig:ref1}
+\end{wrapfigure}
+
+Wie in Bild \ref{fig:ref1} gezeigt, ... XXX
+
+\section{Schluss}
+Wie dieser Überblick dem Leser hoffentlich vermitteln konnte XXX
+
+
+
+% °_°_°_°_°_°_°_°_°_°_°_
+%    APPENDIX
+% °_°_°_°_°_°_°_°_°_°_°_
+\appendix
+
+
+\begin{description}
+\item{ABOUT}
+    \begin{description}
+    \item{Diese Arbeit} ist im Rahmen des Kurses „Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden.
+
+    \item{Die Autoren} studieren Informatik (B.Sc.) an o.g. Hochschule.
+\end{description}
+\end{description}
+
+
+\begin{thebibliography}{99}
+
+\bibitem{bestArticle}
+  \textsc{WIKIPEDIA}:
+  \emph{Hallo-Welt-Programm}.
+  https://de.wikipedia.org/wiki/Hallo-Welt-Programm.
+
+\end{thebibliography}
+
+\end{document}
