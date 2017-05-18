@@ -20,9 +20,6 @@ SymTabEntry::SymTabEntry(Key* key, StringTabNode* node) {
 }
 
 SymTabEntry::~SymTabEntry() {
-//	delete(this->next);
-//	delete(this->string_tab_node);
-//	delete(this->key);
 }
 
 bool SymTabEntry::hasNext() {
@@ -68,11 +65,10 @@ Symboltable::~Symboltable() {
 	delete[] this->string_table;
 }
 
-Key Symboltable::insert(char* lexem, int value) {
-//	SymTabEntry current = this->entries[0]; //this->hash(lexem)];
-	SymTabEntry* current = &(this->entries[0]);
+Key Symboltable::insert(char* lexem) {
+	SymTabEntry* current = &(this->entries[this->hash(lexem)]);
 
-	Information* information = new Information(lexem, value);
+	Information* information = new Information(lexem);
 	Key* key = new Key(information);
 	StringTabNode* node = new StringTabNode(lexem);
 
@@ -99,10 +95,15 @@ Information Symboltable::lookup(Key key) {
 
 void Symboltable::initSymbols() {
 	// TODO: replace value parameters with something useful
-	this->insert("if", 0);
-	this->insert("IF", 0);
-	this->insert("while", 0);
-	this->insert("WHILE", 0);
+	this->insert("write");
+	this->insert("read");
+	this->insert("if");
+	this->insert("IF");
+	this->insert("else");
+	this->insert("ELSE");
+	this->insert("while");
+	this->insert("WHILE");
+	this->insert("int");
 }
 
 void Symboltable::resize() {
@@ -112,7 +113,7 @@ void Symboltable::resize() {
 	this->table_size = new_table_size;
 	this->free_space += SYMBOL_TABLE_SIZE;
 	delete[] this->entries;
-	this->entries = temp; // TODO: check this
+	this->entries = temp;
 }
 
 int Symboltable::hash(char* lexem) {
@@ -120,7 +121,7 @@ int Symboltable::hash(char* lexem) {
 	int i = 0;
 
 	while (lexem[i] != '\0') {
-		hash += SALT * lexem[i];
+		hash += (SALT * lexem[i]) % this->table_size;
 		i++;
 	}
 
