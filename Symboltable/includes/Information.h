@@ -13,17 +13,13 @@
 
 class Information {
 	public:
-		Information(char* lexem, int value);
+		Information(char* lexem);
 		virtual ~Information();
 		bool compareLexem(char* lexem);
 		char* getLexem();
-		int getValue();
-		void setValue(int value);
 
 	private:
 		char *lexem;
-		int value;
-
 };
 
 class Key {

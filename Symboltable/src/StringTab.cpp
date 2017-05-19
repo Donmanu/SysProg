@@ -33,12 +33,10 @@ StringTab::StringTab() {
 
 StringTab::~StringTab() {
 	delete(first_node);
-//	delete[] this->string_table;
 }
 
 char* StringTab::insert(char* lexem, int size) {
-	// TODO: re-think this
-	//char* tmp = this->free_ptr;
+	// TODO: good to go?
 	while (this->free_space < size) {
 		this->resize();
 	}

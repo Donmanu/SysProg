@@ -12,7 +12,6 @@ Key::Key(Information* information) {
 }
 
 Key::~Key() {
-//	delete(this->information);
 }
 
 Information* Key::getInformation() {
@@ -23,9 +22,8 @@ void Key::setInformation(Information* information) {
 	this->information = information;
 }
 
-Information::Information(char* lexem, int value) {
+Information::Information(char* lexem) {
 	this->lexem = lexem;
-	this->value = value;
 }
 
 Information::~Information() {
@@ -39,10 +37,3 @@ char* Information::getLexem(){
 	return this->lexem;
 }
 
-int Information::getValue() {
-	return this->value;
-}
-
-void Information::setValue(int value) {
-	this->value = value;
-}
