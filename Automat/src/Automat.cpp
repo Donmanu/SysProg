@@ -10,13 +10,16 @@ Automat::Automat(IScanner& scan) {
 	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
 	this->counter = 0;
-	this->column = 0; // In contrast to the line number, column gets incremented in the moment of first read
-	this->line = 1;
+	this->column = 0;
+	this->line = 0;
 }
 
 Automat::~Automat() {
-	// TODO Auto-generated destructor stub
-	// Don't delete the scanner!
+	// states are static
+	// we don't want delete the scanner
+	// rest is POD
+
+	// so nothing to do here
 }
 
 void Automat::setScanner(IScanner& scanner) {
@@ -44,11 +47,11 @@ State* Automat::getLastFinalState() {
 }
 
 int Automat::getColumn() {
-	return this->column - this->counter;
+	return this->column - this->counter + 1; // return in human readable: +1
 }
 
 int Automat::getLine() {
-	return this->line; // return in human readable form: +1
+	return this->line + 1; // return in human readable: +1
 }
 
 void Automat::incrementCounter() {
@@ -72,7 +75,6 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this->counter = 0;
-	// TODO what to do with line/column? column -= counter??
 }
 
 void Automat::ungetChar(int count) {
@@ -82,25 +84,36 @@ void Automat::ungetChar(int count) {
 	if (count > this->column) {
 		// We assume we never go back a line
 		//errno = ?;
+		printf("[A] %d > %d\n", count, this->column);
 		perror("[A] Un-getting more than a line!?");
 		this->column = 0;
 	} else {
 		this->column -= count;
-		this->counter -= count; // needed?
+		//this->counter -= count; // needed?
 	}
 
 	// buffer->unget() is done by Scanner
 }
 
+/*
+ * Feeds the next character to the state machine, which call the according scanner actions.
+ * Also keeps track of line and column numbers
+ */
 void Automat::readChar(char c) {
-	if (c == '\n') { // More common case first
+	this->state_current->read(c, this); // calls this->setState() ...
+
+	// increment after read!
+	switch (c) {
+	case '\n':
 		this->incrementNewline();
-	} else if (c == '\t') {
+		break;
+	case '\t':
 		this->incrementTabulator();
-	} else {
+		break;
+	case '\0':
+		this->scanner->stop();
+		break;
+	default:
 		this->column++;
 	}
-	this->state_current->read(c, this); // calls this->setState() ...
-	if (c == '\0')
-		this->scanner->stop(); // actually, our states are designed to handle '\0'. TODO?
 }

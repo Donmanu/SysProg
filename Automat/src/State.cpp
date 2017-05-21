@@ -122,13 +122,8 @@ void StateStart::read(char c, Automat* m) {
 
 void StateError::read(char c, Automat* m) {
 	// Purpose of this state is to make a controlled transition into start again
-
 	m->setCurrentState(StateStart::makeState());
-	m->getScanner()->ungetChar(1); // 1 works for now. Later we need a reliable value for Automat.counter ... TODO
-
-	//m->getScanner()->ungetChar(m->getCounter()); // < too much magic!
-	// Can we do anything useful here?!? If not, this state can be removed ...
-	//m->getCurrentState()->read(c, m);
+	m->getScanner()->ungetChar(1); // 1 default works here. Else StateError should not be entered
 }
 
 void StateNumber::read(char c, Automat* m) {
@@ -217,7 +212,7 @@ void StateColon::read(char c, Automat* m) {
 			m->setCurrentState(StateStart::makeState());
 			m->setLastFinalState(StateColonEquals::makeState());
 			m->getScanner()->mkToken(TokenType::TokenColonEquals);
-			m->incrementCounter(); // helpful?
+			m->incrementCounter();
 			break;
 		case '*':
 			m->setCurrentState(StateCommentBegin::makeState());
@@ -284,7 +279,7 @@ void StateEqualsColon::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		default:
-			m->getScanner()->ungetChar(2); // read in ":" and c again
+			m->getScanner()->ungetChar(2); // read in ":" and c again    Alternatively we unget(1) and go in StateError ...
 			m->getScanner()->mkToken(TokenType::TokenEquals);
 			m->setLastFinalState(StateEquals::makeState());
 			m->setCurrentState(StateStart::makeState());

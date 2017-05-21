@@ -22,7 +22,7 @@ Buffer::Buffer(char *file_name) {
 	bytes_read = 0;
 	file_handle = 0;
 	position = 0;
-	buffer_swapped_back = true;  // regard buffers as if back-swapped initially!
+	buffer_swapped_back = false; //true;  // regard buffers as if back-swapped initially!
 	this->allocateMemory(&buffer_current);
 	this->allocateMemory(&buffer_previous);
 	this->openFile(file_name);
@@ -106,14 +106,14 @@ void Buffer::readFile(char **buffer) {
 char Buffer::getChar() {
 	if (position >= BUFFER_SIZE) {
 		if (buffer_swapped_back) {
-			// swap without new file read
+			// just swap without new file read
 			this->swapBuffer();
-		 } else {
+		} else {
 			// swap with new file read
 			this->swapBuffer();
 			memset(buffer_current, 0, BUFFER_SIZE);
 			this->readFile(&buffer_current);
-		 }
+		}
 		position = 0;
 	}
 	current_char = buffer_current[position++];
@@ -132,8 +132,8 @@ char Buffer::ungetChar() {
 		position--;
 	} else if (!buffer_swapped_back) {
 		this->swapBuffer();
-		position = BUFFER_SIZE - 1;
 		buffer_swapped_back = true;
+		position = BUFFER_SIZE - 1;
 	} else {
 		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", buffer_current[position], position); // won't get printed?? TODO
 		errno = ENOBUFS; // error: no buffer space
@@ -141,7 +141,7 @@ char Buffer::ungetChar() {
 		throw errno;
 	}
 
-	return buffer_current[position];
+	return buffer_current[position]; // if anybody is interested ...
 }
 
 /*
@@ -152,7 +152,8 @@ char Buffer::ungetChar() {
  * ungetChar() to false.
  */
 void Buffer::swapBuffer() {
-	printf("[B] %swapping buffers ...\n", buffer_swapped_back ? "Un-s" : "S"); // Un-Swapping or Swapping?
+	printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?
+	// the print above is wrong the first time! We could fill both buffers on init, but that also
 	char *buffer_temp = buffer_previous;
 	buffer_previous = buffer_current;
 	buffer_current = buffer_temp;

@@ -1,3 +1,4 @@
+:* Alle Permutationen, generiert von http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/*:
 =:=:=:=:**:
 =:=::**:=:=
 =:==:=::**:
@@ -68,7 +69,6 @@
 ::**::==:==
 ::**:=:==:=
 ::**:=:=:==
-:* Alle Permutationen, generiert von http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/*:
 ::**:==:=:=
 ::**:=:==:=
 =:==:=::**:
