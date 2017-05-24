@@ -27,10 +27,6 @@ Scanner::~Scanner() {
 	delete this->symboltable;
 }
 
-void Scanner::sayHello() {
-	printf("Hello!\n");
-}
-
 void Scanner::initSymbols() {
 	this->keywords[0] = this->symboltable->insert("write");
 	this->keywords[1] = this->symboltable->insert("read");

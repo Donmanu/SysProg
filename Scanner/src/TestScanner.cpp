@@ -5,13 +5,14 @@
 
 int main(int argc, char **argv) {
 
+	int args = 1;
 	const char* tokenTypeToName[] = {
 		"TokenUnknown\t\t", // a.k.a. TokenError
 		"TokenInteger\t\t",
 		"TokenIdentifier\t\t",
-		"TokenPlus\t\t\t",
-		"TokenMinus\t\t\t",
-		"TokenColon\t\t\t",
+		"TokenPlus\t\t",
+		"TokenMinus\t\t",
+		"TokenColon\t\t",
 		"TokenStar\t\t",
 		"TokenLessThan\t\t",
 		"TokenGreaterThan\t",
@@ -40,31 +41,42 @@ int main(int argc, char **argv) {
 		printf("Please provide files to read and write as arguments! (argc: %d)", argc);
 		exit(EXIT_FAILURE);
 	} else {
-		out.open(argv[2]/*, ios::out*/);
+		out.open("out.txt"/*, ios::out*/);
 		printf("Scanning file ... %s\n", argv[1]);
 	}
 
-	/* TEST 1: scan the given file for tokens until scanner stopped by automat */
-	scanner = new Scanner(argv[1]);
-	do {
-		t = scanner->nextToken();
+	for (;args < argc; args++) {
+		/* TEST 1: scan the given file for tokens until scanner stopped by automat */
+		printf("\n-----------------------------------------------------\n");
+		printf("Testing file %s\n", argv[args]);
+		scanner = new Scanner(argv[args]); // need to make new scanner for every file
+		do {
+			t = scanner->nextToken();
 
-		// Write file
-		out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
-		switch (t.type) {
-		case TokenType::TokenUnknown:
-			out << "\twith symbol TODO get symbol of tokenUnknown" << std::endl;
-			break;
-		default:
-			out << std::endl;
-		}
+			// Write file
+			out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
+			switch (t.type) {
+			case TokenType::TokenUnknown:
+				out << "\tSymbol: TODO" << std::endl;
+				break;
+			case TokenType::TokenIdentifier:
+				out << "\tLexem: TODO" <<  std::endl;
+				break;
+			case TokenType::TokenInteger:
+				out << "\tValue: TODO" <<  std::endl;
+				break;
+			default:
+				out << std::endl;
+			}
 
-	} while (t.type != TokenType::TokenStop);
+		} while (t.type != TokenType::TokenStop);
 
-	printf("Test ended. All tokens fetched.\n");
-	delete(scanner);
+		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
+		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
+		delete(scanner);
+	}
 	out.close();
 
-	printf("_done_");
+	printf("_done_\n");
 }
 
