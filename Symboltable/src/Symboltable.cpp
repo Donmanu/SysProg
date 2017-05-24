@@ -74,14 +74,9 @@ bool Symboltable::containsEntry(SymTabEntry* entry, char* lexem) {
 	return false;
 }
 
-<<<<<<< HEAD
 Key* Symboltable::insert(char* lexem) {
-	SymTabEntry* current = &(this->entries[this->hash(lexem)]);
-=======
-Key Symboltable::insert(char* lexem) {
 	int hash = this->hash(lexem);
 	SymTabEntry* current = &(this->entries[hash]);
->>>>>>> 8055b029a80470f90c3c1173859c2e38f1dfbb96
 
 	if (this->containsEntry(current, lexem)) {
 		return current->getKey();
