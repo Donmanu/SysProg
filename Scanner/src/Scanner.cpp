@@ -17,7 +17,6 @@ Scanner::Scanner(char* filename) {
 	this->symboltable = new Symboltable();
 	this->keywords = new Key*[KEYWORD_ARRAY_LENGTH];
 	//this->current_token;
-	this->symboltable = new Symboltable();
   	this->initSymbols();
 }
 
@@ -66,6 +65,7 @@ void Scanner::mkToken(TokenType::Type type) {
 		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
 			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
 				position = i;
+				break;
 			}
 		}
 
@@ -97,6 +97,7 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
+	// TODO this->current_token.key = (Key*) ...
 }
 
 void Scanner::ungetChar(int count) {

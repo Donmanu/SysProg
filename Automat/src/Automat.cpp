@@ -120,12 +120,18 @@ void Automat::readChar(char c) {
 }
 
 char* Automat::appendCharToString(char c) {
-	int length = (int) strlen(this->final_identifier);
-	char* string = new char[length + 2];
-	strcpy(string, this->final_identifier);
-	string[length] = c;
-	string[length + 1] = '\0';
-	return string;
+	int length = 0;
+	char* tmpString = "";
+	if (this->final_identifier != NULL) {
+		length = (int) strlen(this->final_identifier);
+		tmpString = this->final_identifier;
+	}
+	this->final_identifier = new char[length + 2];
+	strcpy(this->final_identifier, tmpString);
+	this->final_identifier[length] = c;
+	this->final_identifier[length + 1] = '\0';
+	//delete[] tmpString; //delete not needed
+	return this->final_identifier; // nobody needs that ... ?
 }
 
 char* Automat::getFinalIdentifier() {
