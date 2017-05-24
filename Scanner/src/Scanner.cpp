@@ -60,15 +60,14 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->notoken = false;
 	this->freeToken();
 
-	/*
 	if (type == TokenType::TokenIdentifier) {
-		int position = KEYWORD_ARRAY_LENGTH;
+		int position = 0;
 
-		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
-			if (this->keywords[i].getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
-				position = i;
-			}
-		}
+//		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
+//			if (this->keywords[i].getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
+//				position = i;
+//			}
+//		}
 
 		switch (position) {
 			case 0:
@@ -93,7 +92,6 @@ void Scanner::mkToken(TokenType::Type type) {
 				type = TokenType::TokenInt;
 		}
 	}
-	*/
 
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
