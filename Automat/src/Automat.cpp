@@ -119,7 +119,6 @@ void Automat::readChar(char c) {
 	}
 }
 
-/*
 char* Automat::appendCharToString(char c) {
 	int length = (int) strlen(this->final_identifier);
 	char* string = new char[length + 2];
@@ -132,4 +131,3 @@ char* Automat::appendCharToString(char c) {
 char* Automat::getFinalIdentifier() {
 	return this->final_identifier;
 }
-*/
