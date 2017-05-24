@@ -9,6 +9,7 @@ Automat::Automat(IScanner& scan) {
 	this->scanner = &scan;
 	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
+	this->final_identifier = NULL;
 	this->counter = 0;
 	this->column = 0; // In contrast to the line number, column gets incremented in the moment of first read
 	this->line = 1;
@@ -99,4 +100,17 @@ void Automat::readChar(char c) {
 	this->state_current->read(c, this); // calls this->setState() ...
 	if (c == '\0')
 		this->scanner->stop(); // actually, our states are designed to handle '\0'. TODO?
+}
+
+char* Automat::appendCharToString(char c) {
+	int length = strlen(this->final_identifier);
+	char* string = new char[length + 2];
+	strcpy(string, this->final_identifier);
+	string[length] = c;
+	string[length + 1] = '\0';
+	return string;
+}
+
+char* Automat::getFinalIdentifier() {
+	return this->final_identifier;
 }

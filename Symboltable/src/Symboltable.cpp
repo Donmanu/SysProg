@@ -56,7 +56,6 @@ Symboltable::Symboltable() {
 	this->string_table = new StringTab[SYMBOL_TABLE_SIZE];
 	this->table_size = SYMBOL_TABLE_SIZE;
 	this->free_space = SYMBOL_TABLE_SIZE;
-	this->initSymbols();
 }
 
 Symboltable::~Symboltable() {
@@ -65,8 +64,19 @@ Symboltable::~Symboltable() {
 	delete[] this->string_table;
 }
 
+bool Symboltable::containsEntry(SymTabEntry* entry, char* lexem) {
+	if (entry->getKey() != NULL) {
+		return entry->getKey()->getInformation()->compareLexem(lexem);
+	}
+	return false;
+}
+
 Key Symboltable::insert(char* lexem) {
 	SymTabEntry* current = &(this->entries[this->hash(lexem)]);
+
+	if (this->containsEntry(current, lexem)) {
+		return *current->getKey();
+	}
 
 	Information* information = new Information(lexem);
 	Key* key = new Key(information);
@@ -91,19 +101,6 @@ Key Symboltable::insert(char* lexem) {
 
 Information Symboltable::lookup(Key key) {
 	return *key.getInformation();
-}
-
-void Symboltable::initSymbols() {
-	// TODO: replace value parameters with something useful
-	this->insert("write");
-	this->insert("read");
-	this->insert("if");
-	this->insert("IF");
-	this->insert("else");
-	this->insert("ELSE");
-	this->insert("while");
-	this->insert("WHILE");
-	this->insert("int");
 }
 
 void Symboltable::resize() {

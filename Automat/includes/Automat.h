@@ -9,6 +9,7 @@
 #define Automat_H_
 
 #include <unistd.h>
+#include <string.h>
 #include "State.h"
 #include "../../Scanner/includes/ScannerForAutomat.h"
 #include "../../Scanner/includes/Token.h"
@@ -34,11 +35,14 @@ public:
 	void resetCounter();
 	void ungetChar(int);
 	void readChar(char);
+	char* appendCharToString(char c);
+	char* getFinalIdentifier();
 
 private:
 	IScanner* scanner;
 	State* state_current;
 	State* last_final_state;
+	char* final_identifier;
 	int counter;
 	int column;
 	int line;

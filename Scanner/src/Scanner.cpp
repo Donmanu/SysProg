@@ -10,22 +10,37 @@
 #include "../../Buffer/includes/Buffer.h"
 #include "../../Symboltable/includes/Symboltable.h"
 
-
 Scanner::Scanner(char* filename) {
+	this->notoken = true;
 	this->automat = new Automat(*this);
 	this->buffer = new Buffer(filename);
-	this->notoken = true;
+	this->symboltable = new Symboltable();
+	this->keywords[KEYWORD_ARRAY_LENGTH];
 	//this->current_token;
+	this->initSymbols();
 }
 
 Scanner::~Scanner() {
 	// TODO Auto-generated destructor stub
 	delete this->automat;
 	delete this->buffer;
+	delete this->symboltable;
 }
 
 void Scanner::sayHello() {
 	printf("Hello!\n");
+}
+
+void Scanner::initSymbols() {
+	this->keywords[0] = this->symboltable->insert("write");
+	this->keywords[1] = this->symboltable->insert("read");
+	this->keywords[2] = this->symboltable->insert("if");
+	this->keywords[3] = this->symboltable->insert("IF");
+	this->keywords[4] = this->symboltable->insert("else");
+	this->keywords[5] = this->symboltable->insert("ELSE");
+	this->keywords[6] = this->symboltable->insert("while");
+	this->keywords[7] = this->symboltable->insert("WHILE");
+	this->keywords[8] = this->symboltable->insert("int");
 }
 
 Token Scanner::nextToken() {
@@ -47,6 +62,40 @@ void Scanner::mkToken(TokenType::Type type) {
 		perror("mkToken() called twice in a row!?");
 	this->notoken = false;
 	this->freeToken();
+
+	if (type == TokenType::TokenIdentifier) {
+		int position = KEYWORD_ARRAY_LENGTH;
+
+		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
+			if (this->keywords[i].getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
+				position = i;
+			}
+		}
+
+		switch (position) {
+			case 0:
+				type = TokenType::TokenWrite;
+				break;
+			case 1:
+				type = TokenType::TokenRead;
+				break;
+			case 2:
+			case 3:
+				type = TokenType::TokenIf;
+				break;
+			case 4:
+			case 5:
+				type = TokenType::TokenElse;
+				break;
+			case 6:
+			case 7:
+				type = TokenType::TokenWhile;
+				break;
+			case 8:
+				type = TokenType::TokenInt;
+		}
+	}
+
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn(); // TODO Setting line/column this way is probably too late!

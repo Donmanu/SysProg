@@ -43,11 +43,18 @@ public:
 
 	// own functions:
 	void sayHello(void);
+
 private:
+	void initSymbols();
+
+	bool notoken;
 	Automat* automat;
 	Buffer* buffer;
-	bool notoken;
+	Symboltable* symboltable;
+	Key keywords[];
 	Token current_token;
+
+	static const int KEYWORD_ARRAY_LENGTH = 9;
 };
 
 #endif /* SCANNER_H_ */

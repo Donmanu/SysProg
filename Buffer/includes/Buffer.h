@@ -18,7 +18,7 @@
 
 class Buffer {
 public:
-	Buffer(char *file_name);
+	Buffer(char*);
 	virtual ~Buffer();
 	char getChar();
 	char ungetChar();

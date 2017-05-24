@@ -42,9 +42,9 @@ class Symboltable {
 		SymTabEntry* entries;
 
 	private:
-		void initSymbols();
 		void resize();
 		int hash(char* lexem);
+		bool containsEntry(SymTabEntry* entry, char* lexem);
 		StringTab* string_table;
 
 		int table_size;
