@@ -120,7 +120,7 @@ void Automat::readChar(char c) {
 }
 
 char* Automat::appendCharToString(char c) {
-	int length = strlen(this->final_identifier);
+	int length = (int) strlen(this->final_identifier);
 	char* string = new char[length + 2];
 	strcpy(string, this->final_identifier);
 	string[length] = c;

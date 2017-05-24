@@ -22,7 +22,7 @@ Buffer::Buffer(char *file_name) {
 	bytes_read = 0;
 	file_handle = 0;
 	position = 0;
-	buffer_swapped_back = false; //true;  // regard buffers as if back-swapped initially!
+	buffer_swapped_back = true;  // regard buffers as if back-swapped initially!
 	this->allocateMemory(&buffer_current);
 	this->allocateMemory(&buffer_previous);
 	this->openFile(file_name);
@@ -85,7 +85,7 @@ void Buffer::openFile(char *file_name) {
  */
 void Buffer::readFile(char **buffer) {
 	printf("[B] reading file ...\n");
-	bytes_read = read(file_handle, buffer_current, BUFFER_SIZE);
+	bytes_read = read(file_handle, *buffer, BUFFER_SIZE); // should actually always be buffer_current
 	if (bytes_read == -1) {
 		errno = EBADFD; // error: bad file descriptor
 		perror("[B] Error reading File!\n");

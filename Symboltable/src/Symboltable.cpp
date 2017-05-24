@@ -71,11 +71,11 @@ bool Symboltable::containsEntry(SymTabEntry* entry, char* lexem) {
 	return false;
 }
 
-Key Symboltable::insert(char* lexem) {
+Key* Symboltable::insert(char* lexem) {
 	SymTabEntry* current = &(this->entries[this->hash(lexem)]);
 
 	if (this->containsEntry(current, lexem)) {
-		return *current->getKey();
+		return current->getKey();
 	}
 
 	Information* information = new Information(lexem);
@@ -96,7 +96,7 @@ Key Symboltable::insert(char* lexem) {
 
 	this->string_table->insert(lexem, node->getLexemLength());
 
-	return *key;
+	return key;
 }
 
 Information Symboltable::lookup(Key key) {
@@ -106,7 +106,7 @@ Information Symboltable::lookup(Key key) {
 void Symboltable::resize() {
 	int new_table_size = this->table_size * 2;
 	SymTabEntry* temp = new SymTabEntry[new_table_size];
-	memcpy(temp, this->entries, this->table_size);
+	memcpy(temp, this->entries, this->table_size);   // TODO Wrong! Need to rehash all entries with new modulo table_size
 	this->table_size = new_table_size;
 	this->free_space += SYMBOL_TABLE_SIZE;
 	delete[] this->entries;

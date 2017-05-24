@@ -47,7 +47,7 @@ private:
 	Automat* automat;
 	Buffer* buffer;
 	Symboltable* symboltable;
-	Key keywords[];
+	Key** keywords;
 	Token current_token;
 
 	static const int KEYWORD_ARRAY_LENGTH = 9;
