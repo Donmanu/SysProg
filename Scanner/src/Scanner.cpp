@@ -17,7 +17,8 @@ Scanner::Scanner(char* filename) {
 	this->symboltable = new Symboltable();
 	this->keywords = new Key*[KEYWORD_ARRAY_LENGTH];
 	//this->current_token;
-	this->initSymbols();
+	this->symboltable = new Symboltable();
+  	this->initSymbols();
 }
 
 Scanner::~Scanner() {

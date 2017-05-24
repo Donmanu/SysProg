@@ -12,6 +12,7 @@ Key::Key(Information* information) {
 }
 
 Key::~Key() {
+	delete this->information;
 }
 
 Information* Key::getInformation() {
