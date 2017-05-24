@@ -43,14 +43,15 @@ public:
 private:
 	void initSymbols();
 
+	static const int KEYWORD_ARRAY_LENGTH = 9;
+
 	bool notoken;
 	Automat* automat;
 	Buffer* buffer;
 	Symboltable* symboltable;
-	Key keywords[];
+	//Key keywords[KEYWORD_ARRAY_LENGTH];
 	Token current_token;
 
-	static const int KEYWORD_ARRAY_LENGTH = 9;
 };
 
 #endif /* SCANNER_H_ */

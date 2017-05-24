@@ -20,6 +20,9 @@ SymTabEntry::SymTabEntry(Key* key, StringTabNode* node) {
 }
 
 SymTabEntry::~SymTabEntry() {
+	delete this->next;
+	delete this->string_tab_node;
+	delete this->key;
 }
 
 bool SymTabEntry::hasNext() {
@@ -72,7 +75,8 @@ bool Symboltable::containsEntry(SymTabEntry* entry, char* lexem) {
 }
 
 Key Symboltable::insert(char* lexem) {
-	SymTabEntry* current = &(this->entries[this->hash(lexem)]);
+	int hash = this->hash(lexem);
+	SymTabEntry* current = &(this->entries[hash]);
 
 	if (this->containsEntry(current, lexem)) {
 		return *current->getKey();
@@ -85,7 +89,7 @@ Key Symboltable::insert(char* lexem) {
 	if (current->getKey() == NULL) {
 		current->setKey(key);
 		current->setStringTabNode(node);
-		this->entries[0] = *current;
+		this->entries[hash] = *current;
 	} else {
 		while (current->hasNext()) {
 			current = current->getNext();

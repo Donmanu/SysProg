@@ -85,7 +85,7 @@ void Buffer::openFile(char *file_name) {
  */
 void Buffer::readFile(char **buffer) {
 	printf("[B] reading file ...\n");
-	bytes_read = read(file_handle, buffer_current, BUFFER_SIZE);
+	bytes_read = read(file_handle, *buffer, BUFFER_SIZE);
 	if (bytes_read == -1) {
 		errno = EBADFD; // error: bad file descriptor
 		perror("[B] Error reading File!\n");

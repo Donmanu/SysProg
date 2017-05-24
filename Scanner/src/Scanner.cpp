@@ -14,10 +14,9 @@ Scanner::Scanner(char* filename) {
 	this->notoken = true;
 	this->automat = new Automat(*this);
 	this->buffer = new Buffer(filename);
-	this->symboltable = new Symboltable();
-	this->keywords[KEYWORD_ARRAY_LENGTH];
 	//this->current_token;
-	this->initSymbols();
+	this->symboltable = new Symboltable();
+//	this->initSymbols();
 }
 
 Scanner::~Scanner() {
@@ -27,6 +26,7 @@ Scanner::~Scanner() {
 	delete this->symboltable;
 }
 
+/*
 void Scanner::initSymbols() {
 	this->keywords[0] = this->symboltable->insert("write");
 	this->keywords[1] = this->symboltable->insert("read");
@@ -38,6 +38,7 @@ void Scanner::initSymbols() {
 	this->keywords[7] = this->symboltable->insert("WHILE");
 	this->keywords[8] = this->symboltable->insert("int");
 }
+*/
 
 Token Scanner::nextToken() {
 	this->notoken = true;
@@ -59,6 +60,7 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->notoken = false;
 	this->freeToken();
 
+	/*
 	if (type == TokenType::TokenIdentifier) {
 		int position = KEYWORD_ARRAY_LENGTH;
 
@@ -91,6 +93,7 @@ void Scanner::mkToken(TokenType::Type type) {
 				type = TokenType::TokenInt;
 		}
 	}
+	*/
 
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
