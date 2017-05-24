@@ -49,7 +49,7 @@ private:
 	Automat* automat;
 	Buffer* buffer;
 	Symboltable* symboltable;
-	//Key keywords[KEYWORD_ARRAY_LENGTH];
+	Key** keywords;
 	Token current_token;
 
 };

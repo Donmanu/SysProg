@@ -36,7 +36,7 @@ class Symboltable {
 	public:
 		Symboltable();
 		virtual ~Symboltable();
-		Key insert(char* lexem);
+		Key* insert(char* lexem);
 		Information lookup(Key key);
 
 		SymTabEntry* entries;

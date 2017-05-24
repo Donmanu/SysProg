@@ -16,7 +16,8 @@ Scanner::Scanner(char* filename) {
 	this->buffer = new Buffer(filename);
 	//this->current_token;
 	this->symboltable = new Symboltable();
-//	this->initSymbols();
+	this->keywords = new Key*[KEYWORD_ARRAY_LENGTH];
+	this->initSymbols();
 }
 
 Scanner::~Scanner() {
@@ -26,7 +27,6 @@ Scanner::~Scanner() {
 	delete this->symboltable;
 }
 
-/*
 void Scanner::initSymbols() {
 	this->keywords[0] = this->symboltable->insert("write");
 	this->keywords[1] = this->symboltable->insert("read");
@@ -38,7 +38,6 @@ void Scanner::initSymbols() {
 	this->keywords[7] = this->symboltable->insert("WHILE");
 	this->keywords[8] = this->symboltable->insert("int");
 }
-*/
 
 Token Scanner::nextToken() {
 	this->notoken = true;
@@ -69,6 +68,12 @@ void Scanner::mkToken(TokenType::Type type) {
 //			}
 //		}
 
+		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
+			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
+				position = i;
+			}
+		}
+
 		switch (position) {
 			case 0:
 				type = TokenType::TokenWrite;
@@ -90,12 +95,13 @@ void Scanner::mkToken(TokenType::Type type) {
 				break;
 			case 8:
 				type = TokenType::TokenInt;
+			// default: keep TokenType::TokenIdentifier
 		}
 	}
 
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
-	this->current_token.column = this->automat->getColumn(); // TODO Setting line/column this way is probably too late!
+	this->current_token.column = this->automat->getColumn();
 }
 
 void Scanner::ungetChar(int count) {
