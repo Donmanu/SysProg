@@ -119,19 +119,41 @@ void Automat::readChar(char c) {
 	}
 }
 
-/*
-char* Automat::appendCharToString(char c) {
-	int length = strlen(this->final_identifier);
-	char* string = new char[length + 2];
-	strcpy(string, this->final_identifier);
+void Automat::appendCharToString(char c) {
+	int length = 0;
+	char* string;
+
+	if (this->final_identifier != NULL) {
+		length = strlen(this->final_identifier);
+		string = new char[length + 2];
+		strcpy(string, this->final_identifier);
+	} else {
+		string = new char[length + 2];
+	}
+
 	string[length] = c;
 	string[length + 1] = '\0';
-	return string;
+	delete this->final_identifier;
+	this->final_identifier = string;
 }
 
 char* Automat::getFinalIdentifier() {
-	char* temp = final_identifier;
-	this->final_identifier = NULL;
-	return temp;
+	return this->final_identifier;
 }
-*/
+
+void Automat::resetIdentifier() {
+	delete this->final_identifier;
+	this->final_identifier = NULL;
+}
+
+int Automat::getIntegerValue() {
+	int result = 0;
+	for (int i = 0; this->final_identifier[i] != '\0'; i++) {
+		result = result * 10 + this->final_identifier[i] - '0';
+	}
+	return result;
+}
+
+char Automat::getUnknownCharacter() {
+	return this->final_identifier[0];
+}

@@ -57,17 +57,20 @@ int main(int argc, char **argv) {
 		do {
 			t = scanner->nextToken();
 
+			std::string lexem;
+
 			// Write file
 			out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
 			switch (t.type) {
 			case TokenType::TokenUnknown:
-				out << "\tSymbol: TODO" << std::endl;
+				out << "\tSymbol: " << (char)t.value << std::endl;
 				break;
 			case TokenType::TokenIdentifier:
-				out << "\tLexem: TODO" <<  std::endl;
+				lexem = t.key->getInformation()->getLexem();
+				out << "\tLexem: " << lexem <<  std::endl;
 				break;
 			case TokenType::TokenInteger:
-				out << "\tValue: TODO" <<  std::endl;
+				out << "\tValue: " << t.value <<  std::endl;
 				break;
 			default:
 				out << std::endl;

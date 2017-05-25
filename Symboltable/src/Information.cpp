@@ -24,7 +24,9 @@ void Key::setInformation(Information* information) {
 }
 
 Information::Information(char* lexem) {
-	this->lexem = lexem;
+	int length = strlen(lexem);
+	this->lexem = new char[length];
+	strcpy(this->lexem, lexem);
 }
 
 Information::~Information() {

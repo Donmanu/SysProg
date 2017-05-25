@@ -59,14 +59,18 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->notoken = false;
 	this->freeToken();
 
-	if (type == TokenType::TokenIdentifier) {
-		int position = 0;
+	if (type == TokenType::TokenUnknown) {
+		this->current_token.value = (int)this->automat->getUnknownCharacter();
+		this->automat->resetIdentifier();
+	}
 
-//		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
-//			if (this->keywords[i].getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
-//				position = i;
-//			}
-//		}
+	if (type == TokenType::TokenInteger) {
+		this->current_token.value = this->automat->getIntegerValue();
+		this->automat->resetIdentifier();
+	}
+
+	if (type == TokenType::TokenIdentifier) {
+		int position = KEYWORD_ARRAY_LENGTH;
 
 		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
 			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
@@ -97,11 +101,16 @@ void Scanner::mkToken(TokenType::Type type) {
 				type = TokenType::TokenInt;
 			// default: keep TokenType::TokenIdentifier
 		}
+
+		if (position >= KEYWORD_ARRAY_LENGTH) {
+			this->current_token.key = this->symboltable->insert(this->automat->getFinalIdentifier());
+		}
 	}
 
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
+	this->automat->resetIdentifier();
 }
 
 void Scanner::ungetChar(int count) {

@@ -37,6 +37,9 @@ public:
 	void readChar(char);
 	void appendCharToString(char c);
 	char* getFinalIdentifier();
+	void resetIdentifier();
+	int getIntegerValue();
+	char getUnknownCharacter();
 
 private:
 	IScanner* scanner;
