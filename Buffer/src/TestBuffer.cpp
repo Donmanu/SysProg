@@ -13,7 +13,6 @@ int main(int argc, char **argv) {
 	int i;
 	char c;
 	int testNo = 1;
-	//void ((*tests)(void))[10]; // test pointers TODO?
 
 	if (argc < 2 || *argv[1] == '\0') {
 		printf("No test file(s) given!\n");
@@ -26,9 +25,6 @@ int main(int argc, char **argv) {
 		printf("    Testing %s\n", argv[args]);
 		printf("\n-------------------------------------------------------------\n");
 		file = argv[args];
-
-		// TODO:
-		// for (tests) {tests[i]()}
 
 		// TEST 1: constructor
 		printf(" --- Test %d: creating buffer\n", testNo);

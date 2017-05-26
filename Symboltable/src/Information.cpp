@@ -24,13 +24,27 @@ void Key::setInformation(Information* information) {
 }
 
 Information::Information(char* lexem) {
-	this->lexem = lexem;
+	if (lexem != NULL) {
+		int length = strlen(lexem);
+		this->lexem = new char[length]; // TODO +1 !?
+		strcpy(this->lexem, lexem);
+	} else {
+		errno = EINVAL; // invalid arg
+		perror("NULL given as lexem to Information()");
+		this->lexem = new char[1];
+		this->lexem[0] = '\0';
+	}
 }
 
 Information::~Information() {
 }
 
 bool Information::compareLexem(char* lexem) {
+	if (lexem == NULL) {
+		errno = EINVAL;
+		perror("NULL given to compareLexem()");
+		return false;
+	}
 	return !strcmp(this->lexem, lexem);
 }
 

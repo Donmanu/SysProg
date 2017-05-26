@@ -14,6 +14,7 @@ void StateStart::read(char c, Automat* m) {
 	m->resetCounter();
 	switch (c) {
 		case '0' ... '9':
+			m->appendCharToString(c);
 			m->setCurrentState(StateNumber::makeState());
 			m->setLastFinalState(StateNumber::makeState());
 			m->incrementCounter();
@@ -115,6 +116,7 @@ void StateStart::read(char c, Automat* m) {
 			/* Stay in Start */
 			break;
 		default:
+			m->appendCharToString(c);
 			m->setCurrentState(StateUnknown::makeState());
 			m->setLastFinalState(StateUnknown::makeState());
 			m->getCurrentState()->read(c, m);
@@ -130,6 +132,7 @@ void StateError::read(char c, Automat* m) {
 void StateNumber::read(char c, Automat* m) {
 	switch (c) {
 		case '0' ... '9':
+			m->appendCharToString(c);
 			m->setCurrentState(StateNumber::makeState());
 			m->setLastFinalState(StateNumber::makeState());
 			m->incrementCounter();

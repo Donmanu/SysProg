@@ -18,6 +18,7 @@ struct Token {
 		TokenType::Type type;
 		int line;
 		int column;
+		int value;
 		Key* key;
 };
 

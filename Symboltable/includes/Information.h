@@ -5,8 +5,12 @@
  *      Author: donmanu
  */
 
+#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <error.h>
+#include <errno.h>
+#include <err.h>
 
 #ifndef SYMBOLTABLE_INCLUDES_INFORMATION_H_
 #define SYMBOLTABLE_INCLUDES_INFORMATION_H_

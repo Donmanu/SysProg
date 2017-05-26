@@ -14,14 +14,13 @@ Scanner::Scanner(char* filename) {
 	this->notoken = true;
 	this->automat = new Automat(*this);
 	this->buffer = new Buffer(filename);
+	//this->current_token;
 	this->symboltable = new Symboltable();
 	this->keywords = new Key*[KEYWORD_ARRAY_LENGTH];
-	//this->current_token;
-  	this->initSymbols();
+	this->initSymbols();
 }
 
 Scanner::~Scanner() {
-	// TODO Auto-generated destructor stub
 	delete this->automat;
 	delete this->buffer;
 	delete this->symboltable;
@@ -59,6 +58,14 @@ void Scanner::mkToken(TokenType::Type type) {
 	this->notoken = false;
 	this->freeToken();
 
+	if (type == TokenType::TokenUnknown) {
+		this->current_token.value = (int)this->automat->getUnknownCharacter();
+	}
+
+	if (type == TokenType::TokenInteger) {
+		this->current_token.value = this->automat->getIntegerValue();
+	}
+
 	if (type == TokenType::TokenIdentifier) {
 		int position = KEYWORD_ARRAY_LENGTH;
 
@@ -90,14 +97,16 @@ void Scanner::mkToken(TokenType::Type type) {
 				break;
 			case 8:
 				type = TokenType::TokenInt;
-			// default: keep TokenType::TokenIdentifier
+				break;
+			default:
+				// keep type = TokenType::TokenIdentifier
+				this->current_token.key = this->symboltable->insert(this->automat->getFinalIdentifier());
 		}
 	}
 
 	this->current_token.type = type;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
-	// TODO this->current_token.key = (Key*) ...
 }
 
 void Scanner::ungetChar(int count) {

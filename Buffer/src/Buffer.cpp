@@ -135,7 +135,7 @@ char Buffer::ungetChar() {
 		buffer_swapped_back = true;
 		position = BUFFER_SIZE - 1;
 	} else {
-		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", buffer_current[position], position); // won't get printed?? TODO
+		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", buffer_current[position], position);
 		errno = ENOBUFS; // error: no buffer space
 		perror("[B] can't go back two buffers");
 		throw errno;

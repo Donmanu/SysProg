@@ -54,7 +54,6 @@ void SymTabEntry::setKey(Key* key) {
 }
 
 Symboltable::Symboltable() {
-	// TODO Auto-generated constructor stub
 	this->entries = new SymTabEntry[SYMBOL_TABLE_SIZE];
 	this->string_table = new StringTab[SYMBOL_TABLE_SIZE];
 	this->table_size = SYMBOL_TABLE_SIZE;
@@ -62,7 +61,6 @@ Symboltable::Symboltable() {
 }
 
 Symboltable::~Symboltable() {
-	// TODO Auto-generated destructor stub
 	delete[] this->entries;
 	delete[] this->string_table;
 }
@@ -75,6 +73,11 @@ bool Symboltable::containsEntry(SymTabEntry* entry, char* lexem) {
 }
 
 Key* Symboltable::insert(char* lexem) {
+	if (lexem == NULL) {
+		errno = EINVAL; // invalid arg
+		perror("NULL given to Symboltable::insert()");
+		return NULL; // also bad, but meh ...
+	}
 	int hash = this->hash(lexem);
 	SymTabEntry* current = &(this->entries[hash]);
 
@@ -103,7 +106,7 @@ Key* Symboltable::insert(char* lexem) {
 	return key;
 }
 
-Information Symboltable::lookup(Key key) {
+Information Symboltable::lookup(Key key) { // wouldn't Symboltable::lookup(char* lexem) be more usefull??
 	return *key.getInformation();
 }
 
@@ -118,6 +121,7 @@ void Symboltable::resize() {
 }
 
 int Symboltable::hash(char* lexem) {
+	// hope it's not NULL here. Check beforehand!
 	int hash = 0;
 	int i = 0;
 

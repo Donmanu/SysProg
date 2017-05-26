@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <error.h>
+#include <err.h>
 
 #include "StringTab.h"
 

@@ -35,8 +35,10 @@ public:
 	void resetCounter();
 	void ungetChar(int);
 	void readChar(char);
-	char* appendCharToString(char c);
+	void appendCharToString(char c);
 	char* getFinalIdentifier();
+	int getIntegerValue();
+	char getUnknownCharacter();
 
 private:
 	IScanner* scanner;
