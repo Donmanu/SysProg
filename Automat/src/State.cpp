@@ -20,7 +20,7 @@ void StateStart::read(char c, Automat* m) {
 		break;
 		case 'A' ... 'Z':
 		case 'a' ... 'z':
-			//m->appendCharToString(c);
+			m->appendCharToString(c);
 			m->setCurrentState(StateIdentifier::makeState());
 			m->setLastFinalState(StateIdentifier::makeState());
 			m->incrementCounter();

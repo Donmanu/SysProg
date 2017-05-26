@@ -76,6 +76,11 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this->counter = 0;
+	// is this good here?:
+	if (this->final_identifier != NULL) {
+		delete[] this->final_identifier;
+		this->final_identifier = NULL;
+	}
 }
 
 void Automat::ungetChar(int count) {
@@ -119,18 +124,26 @@ void Automat::readChar(char c) {
 	}
 }
 
+/*
+ * Another approach would be to take the count variable and get the according
+ * amount of characters from the buffer ...
+ */
 char* Automat::appendCharToString(char c) {
-	int length = 0;
-	char* tmpString = "";
+	int length;
+	char* tmpString;
 	if (this->final_identifier != NULL) {
 		length = (int) strlen(this->final_identifier);
 		tmpString = this->final_identifier;
+	} else {
+		length = 0;
+		tmpString = "";
 	}
 	this->final_identifier = new char[length + 2];
 	strcpy(this->final_identifier, tmpString);
 	this->final_identifier[length] = c;
 	this->final_identifier[length + 1] = '\0';
-	//delete[] tmpString; //delete not needed
+	//delete[] tmpString; //delete not needed for POD on function end ??
+	printf("append() returning %s\n", this->final_identifier);
 	return this->final_identifier; // nobody needs that ... ?
 }
 
