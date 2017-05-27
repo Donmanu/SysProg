@@ -17,11 +17,7 @@ Automat::Automat(IScanner& scan) {
 }
 
 Automat::~Automat() {
-	// states are static
-	// we don't want to delete the scanner
-	// rest is POD
-
-	// so nothing to do here
+	delete[] this->last_string;
 }
 
 void Automat::setScanner(IScanner& scanner) {
@@ -78,7 +74,7 @@ int Automat::getCounter() {
 void Automat::resetCounter() {
 	this->counter = 0;
 	// delete on NULL is supposed to be safe
-	delete[] this->last_string; // delete[] instead of delete, right?
+	delete this->last_string; // delete[] instead of delete, right?
 	this->last_string = NULL;
 	this->last_string_len = 0;
 }
@@ -138,7 +134,7 @@ void Automat::appendCharToString(char c) {
 
 	string[this->last_string_len - 1] = c; // overwrite last '\0'
 	string[this->last_string_len] = '\0';
-	delete[] this->last_string;
+	//delete[] this->last_string; // PROBLEM HERE TODO delete fails 'sometimes' ...
 	this->last_string = string;
 }
 
