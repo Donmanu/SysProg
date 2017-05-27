@@ -29,6 +29,8 @@ class StringTab {
 		StringTabNode* getFirstNode();
 		int getNodeCount();
 
+		void debugPrint();
+
 	private:
 		void resize();
 		StringTabNode* first_node;

@@ -53,11 +53,12 @@ int main(int argc, char **argv) {
 		/* TEST 1: scan the given file for tokens until scanner stopped by automat */
 		printf("\n-----------------------------------------------------\n");
 		printf("Testing file %s\n", argv[args]);
+
+		// would be cool to open a new file for each test.in, but this fucking const char* stuff sucks soo hard ...
+
 		scanner = new Scanner(argv[args]); // need to make new scanner for every file
 		do {
 			t = scanner->nextToken();
-
-			std::string lexem;
 
 			// Write file
 			out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
@@ -66,8 +67,7 @@ int main(int argc, char **argv) {
 				out << "\tSymbol: " << (char)t.value << std::endl;
 				break;
 			case TokenType::TokenIdentifier:
-				lexem = t.key->getInformation()->getLexem();
-				out << "\tLexem: " << lexem <<  std::endl;
+				out << "\tLexem: " << t.key->getInformation()->getLexem() <<  std::endl;
 				break;
 			case TokenType::TokenInteger:
 				out << "\tValue: " << t.value <<  std::endl;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
 		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
-		delete(scanner);
+		delete scanner;
 	}
 	out.close();
 

@@ -111,6 +111,8 @@ Information Symboltable::lookup(Key key) { // wouldn't Symboltable::lookup(char*
 }
 
 void Symboltable::resize() {
+	errno = ENOSYS;
+	perror("WARNING! resize() does not work yet!");
 	int new_table_size = this->table_size * 2;
 	SymTabEntry* temp = new SymTabEntry[new_table_size];
 	memcpy(temp, this->entries, this->table_size);   // TODO Wrong! Need to rehash all entries with new modulo table_size
@@ -131,4 +133,30 @@ int Symboltable::hash(char* lexem) {
 	}
 
 	return hash % this->table_size;
+}
+
+void Symboltable::debugPrint() {
+	int e = 0;
+	SymTabEntry* s;
+
+	printf("\n --- SYMBOL_TABLE: ---\n");
+
+	for (; e < SYMBOL_TABLE_SIZE; e++) {
+		s = &(this->entries[e]);
+		printf("[%d]", e);
+		do {
+			if (s->getNext() == NULL) {
+				printf("->( )");
+			} else {
+				printf("->(%s)", s->getKey()->getInformation()->getLexem());
+			}
+			s = s->getNext();
+		} while (s != NULL);
+		printf("\n");
+	}
+	printf("\n");
+
+	printf("\n --- STRING_TABLE: ---\n");
+	this->string_table->debugPrint();
+	printf("\n");
 }

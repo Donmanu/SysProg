@@ -36,7 +36,7 @@ public:
 	void ungetChar(int);
 	void readChar(char);
 	void appendCharToString(char c);
-	char* getFinalIdentifier();
+	char* getLastString();
 	int getIntegerValue();
 	char getUnknownCharacter();
 
@@ -44,8 +44,9 @@ private:
 	IScanner* scanner;
 	State* state_current;
 	State* last_final_state;
-	char* final_identifier;
-	int counter;
+	char* last_string; // holder, identifiers, integers and unknowns
+	int last_string_len;
+	int counter; // basically the same as last_string_len TODO refactor to merge counter with last_string_len (appendToString(c){... counter++; ...} )
 	int column;
 	int line;
 };

@@ -70,7 +70,7 @@ void Scanner::mkToken(TokenType::Type type) {
 		int position = KEYWORD_ARRAY_LENGTH;
 
 		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
-			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getFinalIdentifier())) {
+			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getLastString())) {
 				position = i;
 				break;
 			}
@@ -100,7 +100,7 @@ void Scanner::mkToken(TokenType::Type type) {
 				break;
 			default:
 				// keep type = TokenType::TokenIdentifier
-				this->current_token.key = this->symboltable->insert(this->automat->getFinalIdentifier());
+				this->current_token.key = this->symboltable->insert(this->automat->getLastString());
 		}
 	}
 
@@ -126,4 +126,5 @@ void Scanner::stop() {
 	this->current_token.type = TokenType::TokenStop;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
+	this->symboltable->debugPrint();
 }

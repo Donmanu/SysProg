@@ -9,7 +9,8 @@ Automat::Automat(IScanner& scan) {
 	this->scanner = &scan;
 	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
-	this->final_identifier = NULL;
+	this->last_string = NULL;
+	this->last_string_len = 0;
 	this->counter = 0;
 	this->column = 0;
 	this->line = 0;
@@ -17,7 +18,7 @@ Automat::Automat(IScanner& scan) {
 
 Automat::~Automat() {
 	// states are static
-	// we don't want delete the scanner
+	// we don't want to delete the scanner
 	// rest is POD
 
 	// so nothing to do here
@@ -76,11 +77,10 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this->counter = 0;
-	// isn't this good here?:
-	if (this->final_identifier != NULL) {
-		delete this->final_identifier; // delete[] instead of delete, right?
-		this->final_identifier = NULL;
-	}
+	// delete on NULL is supposed to be safe
+	delete[] this->last_string; // delete[] instead of delete, right?
+	this->last_string = NULL;
+	this->last_string_len = 0;
 }
 
 void Automat::ungetChar(int count) {
@@ -129,36 +129,33 @@ void Automat::readChar(char c) {
  * amount of characters from the buffer ...
  */
 void Automat::appendCharToString(char c) {
-	int length = 0;
-	char* string;
+	this->last_string_len++;
+	char* string = new char[this->last_string_len];
 
-	if (this->final_identifier != NULL) {
-		length = strlen(this->final_identifier);
-		string = new char[length + 2];
-		strcpy(string, this->final_identifier);
-	} else {
-		string = new char[length + 2];
+	if (this->last_string_len != 1) {
+		strcpy(string, this->last_string);
 	}
 
-	string[length] = c;
-	string[length + 1] = '\0';
-	delete this->final_identifier;
-	this->final_identifier = string;
+	string[this->last_string_len - 1] = c; // overwrite last '\0'
+	string[this->last_string_len] = '\0';
+	delete[] this->last_string;
+	this->last_string = string;
 }
 
-char* Automat::getFinalIdentifier() {
-	return this->final_identifier;
+char* Automat::getLastString() {
+	return this->last_string;
 }
 
 int Automat::getIntegerValue() {
 	int result = 0;
 	// TODO make this with strtol()!? and catch possible overflow this way ...
-	for (int i = 0; this->final_identifier[i] != '\0'; i++) {
-		result = result * 10 + this->final_identifier[i] - '0';
+	// fails on valuesAndLexems.txt line 6 (given as line 11 ...) 9345689128371928379182379747948721893789123 ==> -2005152317
+	for (int i = 0; this->last_string[i] != '\0'; i++) {
+		result = result * 10 + this->last_string[i] - '0';
 	}
 	return result;
 }
 
 char Automat::getUnknownCharacter() {
-	return this->final_identifier[0];
+	return this->last_string[0];
 }

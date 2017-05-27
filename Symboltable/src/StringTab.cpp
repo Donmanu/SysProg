@@ -68,3 +68,9 @@ void StringTab::resize() {
 	this->string_table = temp;
 	this->free_ptr = &(this->string_table[this->table_size - this->free_space]);
 }
+
+void StringTab::debugPrint() {
+	for (int e = 0; e < this->table_size; e++) {
+		printf("%c", this->string_table[e]); // also print all the '\0'
+	}
+}

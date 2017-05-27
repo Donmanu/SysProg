@@ -44,6 +44,8 @@ class Symboltable {
 
 		SymTabEntry* entries;
 
+		void debugPrint();
+
 	private:
 		void resize();
 		int hash(char* lexem);
