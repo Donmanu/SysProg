@@ -126,15 +126,15 @@ void Automat::readChar(char c) {
  */
 void Automat::appendCharToString(char c) {
 	this->last_string_len++;
-	char* string = new char[this->last_string_len];
+	char* string = new char[this->last_string_len + 1];
 
 	if (this->last_string_len != 1) {
 		strcpy(string, this->last_string);
 	}
 
-	string[this->last_string_len - 1] = c; // overwrite last '\0'
+	string[this->last_string_len - 1] = c; // overwrite last '\0' or (uninitialized mem)
 	string[this->last_string_len] = '\0';
-	//delete[] this->last_string; // PROBLEM HERE TODO delete fails 'sometimes' ...
+	delete[] this->last_string; // PROBLEM HERE TODO delete fails 'sometimes' ...
 	this->last_string = string;
 }
 

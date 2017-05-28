@@ -29,8 +29,8 @@ private:
 	void readFile(char **buffer);
 	void swapBuffer();
 
-	static const int BUFFER_SIZE = 512; //512;
-	static const int ALIGNMENT = 512;
+	static const size_t BUFFER_SIZE = 512; //512;
+	static const size_t ALIGNMENT = 512;
 	char *buffer_current;
 	char *buffer_previous;
 	ssize_t bytes_read;

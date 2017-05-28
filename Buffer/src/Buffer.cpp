@@ -35,8 +35,8 @@ Buffer::Buffer(char *file_name) {
  */
 Buffer::~Buffer() {
 	printf("[B] freeing memory and closing file ...\n");
-	delete(buffer_current);
-	delete(buffer_previous);
+	free(buffer_current); // the counterpart to posix_memalign() is free(), not delete[]
+	free(buffer_previous);
 	close(file_handle);
 }
 
@@ -49,11 +49,14 @@ Buffer::~Buffer() {
  * @error: memory could not be allocated.
  */
 void Buffer::allocateMemory(char **buffer) {
-	printf("[B] allocating memory ...\n");
+	//printf("[B] allocating memory ...\n");
 	errno = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
 	if (errno) { // EINVAL (error: invalid alignment, not a power of 2) or ENOMEM (error: no memory)
 		perror("Error allocating memory!");
 		throw errno;
+	} else {
+		// not really needed, but it silents valgrind in regards to "uninitialized value(s)"-errors
+		memset(*buffer, 0, BUFFER_SIZE);
 	}
 }
 

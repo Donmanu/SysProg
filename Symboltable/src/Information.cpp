@@ -25,8 +25,7 @@ void Key::setInformation(Information* information) {
 
 Information::Information(char* lexem) {
 	if (lexem != NULL) {
-		int length = strlen(lexem);
-		this->lexem = new char[length]; // TODO +1 !?
+		this->lexem = new char[strlen(lexem) + 1];
 		strcpy(this->lexem, lexem);
 	} else {
 		errno = EINVAL; // invalid arg
@@ -37,6 +36,7 @@ Information::Information(char* lexem) {
 }
 
 Information::~Information() {
+	delete[] this->lexem;
 }
 
 bool Information::compareLexem(char* lexem) {
