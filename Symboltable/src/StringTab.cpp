@@ -7,11 +7,14 @@
 
 #include "../includes/StringTab.h"
 
+/*------------------ StringTabNode -------------------*/
+
 StringTabNode::StringTabNode(char* lexem) {
-	this->lexem = lexem;
+	this->lexem = lexem; // TODO really? do we get a persistent address here?
 }
 
 StringTabNode::~StringTabNode() {
+	// leave this->lexem, not our responsibility!
 }
 
 char* StringTabNode::getLexem() {
@@ -22,14 +25,15 @@ int StringTabNode::getLexemLength() {
 	return strlen(this->lexem);
 }
 
+/*------------------ StringTab -------------------*/
 
 StringTab::StringTab() {
 	this->first_node = NULL;
-	this->string_table = new char[STRING_TABLE_SIZE];
-	memset(this->string_table, 0, this->STRING_TABLE_SIZE); // to be on the save site
+	this->string_table = new char[StringTab::STRING_TABLE_SIZE];
+	memset(this->string_table, 0, StringTab::STRING_TABLE_SIZE); // to be on the save site
 	this->node_count = 0;
-	this->table_size = STRING_TABLE_SIZE;
-	this->free_space = STRING_TABLE_SIZE;
+	this->table_size = StringTab::STRING_TABLE_SIZE;
+	this->free_space = StringTab::STRING_TABLE_SIZE;
 	this->free_ptr = &(this->string_table[0]);
 }
 
@@ -39,14 +43,13 @@ StringTab::~StringTab() {
 }
 
 char* StringTab::insert(char* lexem, int size) {
-	// TODO: good to go?
 	while (this->free_space < size + 1) {
 		this->resize();
 	}
 
 	this->node_count++;
 	memcpy(this->free_ptr, lexem, size);
-	//this->free_ptr[size] = '\0';
+	// TODO new StringTabNode(this->free_ptr);?
 	this->free_ptr += size + 1;
 	this->free_space -= size + 1;
 
@@ -76,8 +79,10 @@ void StringTab::resize() {
 }
 
 void StringTab::debugPrint() {
+	printf("%d entries:\n", this->node_count);
 	for (int e = 0; e < this->table_size; e++) {
 		//printf("%c", this->string_table[e]); // also print all the '\0'  -> in Eclipse, nothing is shown AFTER the first '\0'. In the console, nothing is printed AS '\0'
+		// so rather do a case:
 		if (this->string_table[e] == '\0') {
 			printf("_");
 		} else {

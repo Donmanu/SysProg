@@ -29,14 +29,14 @@ private:
 	void readFile(char **buffer);
 	void swapBuffer();
 
-	static const size_t BUFFER_SIZE = 512; //512;
+	static const size_t BUFFER_SIZE = 512;
 	static const size_t ALIGNMENT = 512;
 	char *buffer_current;
 	char *buffer_previous;
 	ssize_t bytes_read;
 	char current_char;
 	int file_handle;
-	int position;
+	unsigned int position;
 	bool buffer_swapped_back;
 };
 

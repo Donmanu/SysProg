@@ -19,6 +19,7 @@ class StringTabNode {
 
 	private:
 		char *lexem;
+		// StringTabNode* next?
 };
 
 class StringTab {

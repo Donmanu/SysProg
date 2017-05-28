@@ -1,3 +1,47 @@
+:* Hash collision?: *:
+abc
+Abc
+aBc
+abC
+ABc
+AbC
+ABC
+aBc
+aBC
+abC
+
+:* Repetition *:
+abc
+Abc
+aBc
+abC
+ABc
+AbC
+ABC
+aBc
+aBC
+abC
+abc
+Abc
+aBc
+abC
+ABc
+AbC
+ABC
+aBc
+aBC
+abC
+abc
+Abc
+aBc
+abC
+ABc
+AbC
+ABC
+aBc
+aBC
+abC
+
 :* Test with focus on StringTable and SymbolTable *:
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB

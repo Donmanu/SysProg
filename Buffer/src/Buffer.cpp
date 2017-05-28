@@ -8,25 +8,25 @@
 #include "../includes/Buffer.h"
 
 /*
- * the constructor takes a file as input parameter,
+ * The constructor takes a file as input parameter,
  * initializes the variables and calls the allocateMemory()
- * functions for both buffers and calls the openFile()
+ * functions for both buffers. Then calls the openFile()
  * and readFile() functions.
  *
- * @input: the file to be opened.
+ * @input: the name of the file to be opened.
  */
 Buffer::Buffer(char *file_name) {
-	buffer_current = NULL;
-	buffer_previous = NULL;
-	current_char = '\0';
-	bytes_read = 0;
-	file_handle = 0;
-	position = 0;
-	buffer_swapped_back = true;  // regard buffers as if back-swapped initially!
-	this->allocateMemory(&buffer_current);
-	this->allocateMemory(&buffer_previous);
+	this->buffer_current = NULL;
+	this->buffer_previous = NULL;
+	this->current_char = '\0';
+	this->bytes_read = 0;
+	this->file_handle = 0;
+	this->position = 0;
+	this->buffer_swapped_back = true;       // regard buffers as if back-swapped initially!
+	this->allocateMemory(& this->buffer_current);
+	this->allocateMemory(& this->buffer_previous);
 	this->openFile(file_name);
-	this->readFile(&buffer_current);
+	this->readFile(& this->buffer_current);
 }
 
 /*
@@ -35,9 +35,9 @@ Buffer::Buffer(char *file_name) {
  */
 Buffer::~Buffer() {
 	printf("[B] freeing memory and closing file ...\n");
-	free(buffer_current); // the counterpart to posix_memalign() is free(), not delete[]
-	free(buffer_previous);
-	close(file_handle);
+	free(this->buffer_current); // the counterpart to posix_memalign() is free(), not delete[]
+	free(this->buffer_previous);
+	close(this->file_handle);
 }
 
 /*
@@ -50,13 +50,13 @@ Buffer::~Buffer() {
  */
 void Buffer::allocateMemory(char **buffer) {
 	//printf("[B] allocating memory ...\n");
-	errno = posix_memalign((void**) buffer, ALIGNMENT, BUFFER_SIZE);
+	errno = posix_memalign((void**) buffer, Buffer::ALIGNMENT, Buffer::BUFFER_SIZE);
 	if (errno) { // EINVAL (error: invalid alignment, not a power of 2) or ENOMEM (error: no memory)
 		perror("Error allocating memory!");
 		throw errno;
 	} else {
 		// not really needed, but it silents valgrind in regards to "uninitialized value(s)"-errors
-		memset(*buffer, 0, BUFFER_SIZE);
+		memset(*buffer, 0, Buffer::BUFFER_SIZE);
 	}
 }
 
@@ -70,8 +70,8 @@ void Buffer::allocateMemory(char **buffer) {
  */
 void Buffer::openFile(char *file_name) {
 	printf("[B] opening file %s ...\n", file_name);
-	file_handle = open(file_name, O_DIRECT);
-	if (file_handle == -1) {
+	this->file_handle = open(file_name, O_DIRECT);
+	if (this->file_handle == -1) {
 		errno = ENOENT; // error: no entity
 		perror("Error opening File!\n");
 		throw errno;
@@ -88,7 +88,7 @@ void Buffer::openFile(char *file_name) {
  */
 void Buffer::readFile(char **buffer) {
 	printf("[B] reading file ...\n");
-	bytes_read = read(file_handle, *buffer, BUFFER_SIZE); // should actually always be buffer_current
+	this->bytes_read = read(this->file_handle, *buffer, Buffer::BUFFER_SIZE); // should actually always be buffer_current
 	if (bytes_read == -1) {
 		errno = EBADFD; // error: bad file descriptor
 		perror("[B] Error reading File!\n");
@@ -107,20 +107,20 @@ void Buffer::readFile(char **buffer) {
  * @return: current character{current_char}
  */
 char Buffer::getChar() {
-	if (position >= BUFFER_SIZE) {
+	if (this->position >= Buffer::BUFFER_SIZE) {
 		if (buffer_swapped_back) {
 			// just swap without new file read
 			this->swapBuffer();
 		} else {
 			// swap with new file read
 			this->swapBuffer();
-			memset(buffer_current, 0, BUFFER_SIZE);
-			this->readFile(&buffer_current);
+			memset(this->buffer_current, 0, Buffer::BUFFER_SIZE);
+			this->readFile(& this->buffer_current);
 		}
-		position = 0;
+		this->position = 0;
 	}
-	current_char = buffer_current[position++];
-	return current_char;
+	this->current_char = this->buffer_current[this->position++];
+	return this->current_char;
 }
 
 /*
@@ -131,20 +131,20 @@ char Buffer::getChar() {
  * swapped and the buffer would have to be swapped again.
  */
 char Buffer::ungetChar() {
-	if (position > 0) {
-		position--;
-	} else if (!buffer_swapped_back) {
+	if (this->position > 0) {
+		this->position--;
+	} else if (!this->buffer_swapped_back) {
 		this->swapBuffer();
-		buffer_swapped_back = true;
-		position = BUFFER_SIZE - 1;
+		this->buffer_swapped_back = true;
+		this->position = Buffer::BUFFER_SIZE - 1;
 	} else {
-		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", buffer_current[position], position);
+		printf("[B] Error!\tCurrent char: '%c'.\tCurrent position: %d\n", this->buffer_current[this->position], this->position);
 		errno = ENOBUFS; // error: no buffer space
 		perror("[B] can't go back two buffers");
 		throw errno;
 	}
 
-	return buffer_current[position]; // if anybody is interested ...
+	return buffer_current[this->position]; // if anybody is interested ...
 }
 
 /*
@@ -157,8 +157,8 @@ char Buffer::ungetChar() {
 void Buffer::swapBuffer() {
 	printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?
 	// the print above is wrong the first time! We could fill both buffers on init, but that also
-	char *buffer_temp = buffer_previous;
-	buffer_previous = buffer_current;
-	buffer_current = buffer_temp;
-	buffer_swapped_back = false;
+	char *buffer_temp = this->buffer_previous;
+	this->buffer_previous = this->buffer_current;
+	this->buffer_current = buffer_temp;
+	this->buffer_swapped_back = false;
 }

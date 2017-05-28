@@ -42,14 +42,13 @@ class Symboltable {
 		Key* insert(char* lexem);
 		Information lookup(Key key);
 
-		SymTabEntry* entries;
+		SymTabEntry** entries;
 
 		void debugPrint();
 
 	private:
 		void resize();
 		int hash(char* lexem);
-		bool containsEntry(SymTabEntry* entry, char* lexem);
 		StringTab* string_table;
 
 		int table_size;

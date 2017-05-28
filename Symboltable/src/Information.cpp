@@ -29,7 +29,7 @@ Information::Information(char* lexem) {
 		strcpy(this->lexem, lexem);
 	} else {
 		errno = EINVAL; // invalid arg
-		perror("NULL given as lexem to Information()");
+		perror("NULL given as lexem to Information()! Doing fallback ...");
 		this->lexem = new char[1];
 		this->lexem[0] = '\0';
 	}

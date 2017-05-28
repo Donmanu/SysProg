@@ -24,6 +24,7 @@ Scanner::~Scanner() {
 	delete this->automat;
 	delete this->buffer;
 	delete this->symboltable;
+	delete[] this->keywords;
 }
 
 void Scanner::initSymbols() {
@@ -48,7 +49,12 @@ Token Scanner::nextToken() {
 }
 
 void Scanner::freeToken() {
-	//delete this->current_token; ??
+	// more like resetToken();
+	// a.k.a. remove information pertaining only to the last token (value, lexem, ...)
+	this->current_token.type = TokenType::TokenStop;
+	this->current_token.line = -1337; // because some offset errors leading to -1, we set to something other magic number
+	this->current_token.column = -1337;
+	this->current_token.key = NULL;
 }
 
 void Scanner::mkToken(TokenType::Type type) {

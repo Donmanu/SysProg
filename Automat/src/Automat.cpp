@@ -74,7 +74,7 @@ int Automat::getCounter() {
 void Automat::resetCounter() {
 	this->counter = 0;
 	// delete on NULL is supposed to be safe
-	delete this->last_string; // delete[] instead of delete, right?
+	delete[] this->last_string;
 	this->last_string = NULL;
 	this->last_string_len = 0;
 }
@@ -134,7 +134,7 @@ void Automat::appendCharToString(char c) {
 
 	string[this->last_string_len - 1] = c; // overwrite last '\0' or (uninitialized mem)
 	string[this->last_string_len] = '\0';
-	delete[] this->last_string; // PROBLEM HERE TODO delete fails 'sometimes' ...
+	delete[] this->last_string;
 	this->last_string = string;
 }
 

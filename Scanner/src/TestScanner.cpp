@@ -84,6 +84,6 @@ int main(int argc, char **argv) {
 	}
 	out.close();
 
-	printf("_done_\n");
+	printf("--- TEST RUN FINISHED ---\n");
 }
 
