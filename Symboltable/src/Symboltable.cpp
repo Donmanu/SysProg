@@ -61,7 +61,7 @@ void SymTabEntry::setKey(Key* key) {
 Symboltable::Symboltable() {
 	this->string_table = new StringTab[Symboltable::SYMBOL_TABLE_SIZE];
 	this->table_size = Symboltable::SYMBOL_TABLE_SIZE;
-	this->free_space = Symboltable::SYMBOL_TABLE_SIZE;
+	this->free_space = Symboltable::SYMBOL_TABLE_SIZE; // currently not used! Alternative to Symboltable::LOADFACTOR
 	this->entries = new SymTabEntry*[Symboltable::SYMBOL_TABLE_SIZE];
 	for (int i = 0; i < Symboltable::SYMBOL_TABLE_SIZE; i++)
 		this->entries[i] = NULL;
@@ -82,6 +82,10 @@ Key* Symboltable::insert(char* lexem) {
 		perror("NULL given to Symboltable::insert()");
 		return NULL; // also bad, but meh ...
 	}
+	if (this->string_table->getNodeCount() > (int) this->table_size * Symboltable::LOADFACTOR) {
+		this->resize();
+	}
+
 	int hash = this->hash(lexem);
 	SymTabEntry* current = this->entries[hash];
 
@@ -95,14 +99,10 @@ Key* Symboltable::insert(char* lexem) {
 		}
 	}
 	// here we have a new Symbol!
-	// current is now pointing to the last entry in the row, which is possibly null
-
-	// TODO if (this->string_table->node_count > this->table_size/* * loadfactor 0.75 as in Java ??*/)
-	//          this->resize();
-	//
-	// this->string_table->node_count; // string table is keeping track of the node count, so we don't introduce another int here ...
+	// current is now pointing to the last entry in the row, possibly null
 
 	Information* i = new Information(lexem);
+	i->incrementOccurrences(); // TODO this also increments on initSymbols() ...
 	Key* k = new Key(i);
 	StringTabNode* n = new StringTabNode(i->getLexem()); // insert into StringTab and let StringTabNode point to Information ...
 
@@ -119,22 +119,58 @@ Key* Symboltable::insert(char* lexem) {
 	return current->getKey();
 }
 
+/*
+ * Insert for the purpose to use on resize. So we can save on some stuff, that we already know:
+ *
+ *  + inserted entries are going to be unique
+ *  + are already in string_table
+ *  + new Key, Information, StringTabNode all are already done
+ *
+ */
+void Symboltable::quickInsert(SymTabEntry* s) {
+	int hash = this->hash(s->getLexem());
+	SymTabEntry* current = this->entries[hash];
+
+	if (current == NULL) {
+		this->entries[hash] = s;
+		return;
+	}
+
+	while (current->hasNext()) { // go to end of row.
+		current = current->getNext();
+	}
+	current->setNext(s);
+}
+
 Information Symboltable::lookup(Key key) {
 	return *key.getInformation();
 }
 
 void Symboltable::resize() {
+	int hash;
+	int previous_table_size = this->table_size;
+	this->table_size *= 2; // already update, so the hash function works
 
-	errno = ENOSYS;
-	perror("WARNING! resize() does not work yet!");
+	printf("RESIZING SymTab %d -> %d\n", previous_table_size, this->table_size);
 
-	int new_table_size = this->table_size * 2;
-	SymTabEntry** temp = new SymTabEntry*[new_table_size];
-	memcpy(temp, this->entries, this->table_size);   // TODO Wrong! Need to rehash all entries with new modulo table_size
-	this->table_size = new_table_size;
-	this->free_space += SYMBOL_TABLE_SIZE;
-	delete[] this->entries;
-	this->entries = temp;
+	SymTabEntry** previousEntries = this->entries;
+	this->entries = new SymTabEntry*[this->table_size];
+	for (hash = 0; hash < this->table_size; hash++)
+		this->entries[hash] = NULL; // valgrind <3
+
+	SymTabEntry* oldNext;
+	for (hash = 0; hash < previous_table_size; hash++) {
+		SymTabEntry* entry = previousEntries[hash];
+		while (entry != NULL) {
+			oldNext = entry->getNext(); // save that, as it is going to be reordered.
+			entry->setNext(NULL);
+			this->quickInsert(entry);
+			entry = oldNext;
+		}
+	}
+	delete[] previousEntries; // only the array!
+
+	this->free_space += (this->table_size - previous_table_size); // fool prove, even if resize x3, x4, etc.
 }
 
 int Symboltable::hash(char* lexem) {
@@ -155,19 +191,53 @@ int Symboltable::hash(char* lexem) {
 
 void Symboltable::debugPrint() {
 	int e = 0;
+	int empties = 0;
+	int chain = 0;
+	int max_chain = 0;
+	double chains = 0.0;
+	double avg = 0.0;
+
+	double red_dragon = 0.0; // https://www.strchr.com/hash_functions -> middle of page, formula for measuring hash quality
+
 	SymTabEntry* s;
 
 	printf("\n --- SYMBOL_TABLE: ---\n");
 
-	for (; e < SYMBOL_TABLE_SIZE; e++) {
+	for (; e < this->table_size; e++) {
+		this->entries[e] == NULL ? empties++ : 0;
 		s = this->entries[e];
 		printf("[%d]", e);
 		while (s != NULL) {
-			printf("->(%s/%d)", s->getKey()->getInformation()->getLexem(), s->getKey()->getInformation()->getOccurrences());
+			chain++;
+			chains += 1.0;
+			printf("->(%s/%d)", s->getLexem(), s->getKey()->getInformation()->getOccurrences());
 			s = s->getNext();
 		}
 		printf("->( )\n");
+		// update longest chain
+		chain > max_chain ? max_chain = chain : 0;
+
+		// update avg
+		chain ? avg = (avg * (chains - 1) + chain) / chains: 0;
+
+		// update quality measure
+		red_dragon += (double) (chain * (chain + 1)); // constants are only calculated in at the end ...
+
+		// reset
+		chain = 0;
 	}
+
+	red_dragon /= 2;
+	red_dragon /= this->string_table->getNodeCount() / 2 * this->table_size;
+	red_dragon /= this->string_table->getNodeCount() + 2 * this->table_size -1;
+
+	printf("\n -- Statistics --\n");
+	printf("  Assumed Loadfactor: %f\n", Symboltable::LOADFACTOR);
+	printf("  Actual Loadfactor : %f %%\n", 100.0 * (double)(this->table_size - empties) / this->table_size);
+	printf("  Empty buckets     : %d (%f %%)\n", empties, 100.0 * empties / (double) this->table_size);
+	printf("  Longest chain     : %d\n", max_chain);
+	printf("  Avg chain         : %f\n", avg);
+	printf("  red_dragon quality: %f (1.0 is perfect)\n", red_dragon);
 
 	printf("\n --- STRING_TABLE: ---\n");
 	this->string_table->debugPrint();

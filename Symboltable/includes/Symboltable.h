@@ -48,14 +48,15 @@ class Symboltable {
 
 	private:
 		void resize();
+		void quickInsert(SymTabEntry* s);
 		int hash(char* lexem);
 		StringTab* string_table;
 
 		int table_size;
 		int free_space;
-		static const int SYMBOL_TABLE_SIZE = 8;
+		static const int SYMBOL_TABLE_SIZE = 16; // should be at least enough for the keywords
 		static const int SALT = 31;
-
+		static const double LOADFACTOR = 0.75; // when to resize
 };
 
 #endif /* SYMBOLTABLE_H_ */

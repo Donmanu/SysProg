@@ -52,7 +52,7 @@ void Scanner::freeToken() {
 	// more like resetToken();
 	// a.k.a. remove information pertaining only to the last token (value, lexem, ...)
 	this->current_token.type = TokenType::TokenStop;
-	this->current_token.line = -1337; // because some offset errors leading to -1, we set to something other magic number
+	this->current_token.line = -1337; // because some offset errors leading to -1, we set to some other magic number
 	this->current_token.column = -1337;
 	this->current_token.key = NULL;
 	this->current_token.value = -1; // ??
@@ -86,24 +86,39 @@ void Scanner::mkToken(TokenType::Type type) {
 		switch (position) {
 			case 0:
 				type = TokenType::TokenWrite;
+				this->keywords[0]->getInformation()->incrementOccurrences();
 				break;
 			case 1:
 				type = TokenType::TokenRead;
+				this->keywords[1]->getInformation()->incrementOccurrences();
 				break;
 			case 2:
+				type = TokenType::TokenIf;
+				this->keywords[2]->getInformation()->incrementOccurrences();
+				break;
 			case 3:
 				type = TokenType::TokenIf;
+				this->keywords[3]->getInformation()->incrementOccurrences();
 				break;
 			case 4:
+				type = TokenType::TokenIf;
+				this->keywords[4]->getInformation()->incrementOccurrences();
+				break;
 			case 5:
 				type = TokenType::TokenElse;
+				this->keywords[5]->getInformation()->incrementOccurrences();
 				break;
 			case 6:
+				type = TokenType::TokenIf;
+				this->keywords[6]->getInformation()->incrementOccurrences();
+				break;
 			case 7:
 				type = TokenType::TokenWhile;
+				this->keywords[7]->getInformation()->incrementOccurrences();
 				break;
 			case 8:
 				type = TokenType::TokenInt;
+				this->keywords[8]->getInformation()->incrementOccurrences();
 				break;
 			default:
 				// keep type = TokenType::TokenIdentifier

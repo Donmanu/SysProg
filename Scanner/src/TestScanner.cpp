@@ -2,9 +2,9 @@
 //#include "/usr/include/c++/4.7/ostream"
 #include <iostream>
 #include <fstream> // after iostream
+#include <ctime>
 
 int main(int argc, char **argv) {
-
 	int args = 1;
 	const char* tokenTypeToName[] = {
 		"TokenUnknown\t\t", // a.k.a. TokenError		//0
@@ -46,16 +46,16 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	} else {
 		out.open("out.txt"/*, ios::out*/);
-		printf("Scanning file ... %s\n", argv[1]);
 	}
 
 	for (;args < argc; args++) {
 		/* TEST 1: scan the given file for tokens until scanner stopped by automat */
-		printf("\n-----------------------------------------------------\n");
+		printf("-----------------------------------------------------\n");
 		printf("Testing file %s\n", argv[args]);
 
 		// would be cool to open a new file for each test.in, but this fucking const char* stuff sucks soo hard ...
 
+		time_t start = time(NULL); // not as accurate as clock()!
 		scanner = new Scanner(argv[args]); // need to make new scanner for every file
 		do {
 			t = scanner->nextToken();
@@ -81,6 +81,8 @@ int main(int argc, char **argv) {
 		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
 		delete scanner;
+		time_t end = time(NULL);
+		printf("Took %d s\n", end - start); // or double(end - start) / CLOCKS_PER_SEC
 	}
 	out.close();
 
