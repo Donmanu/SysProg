@@ -87,9 +87,10 @@ Key* Symboltable::insert(char* lexem) {
 
 	if (current != NULL) {
 		while (current->hasNext()) { // go to end of row. On the way: check, if entry already there. Return if so.
-			if (current->getKey()->getInformation()->compareLexem(lexem))
+			if (current->getKey()->getInformation()->compareLexem(lexem)) {
 				current->getKey()->getInformation()->incrementOccurrences();
 				return current->getKey();
+			}
 			current = current->getNext();
 		}
 	}
