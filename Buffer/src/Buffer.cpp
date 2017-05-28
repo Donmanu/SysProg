@@ -27,6 +27,9 @@ Buffer::Buffer(char *file_name) {
 	this->allocateMemory(& this->buffer_previous);
 	this->openFile(file_name);
 	this->readFile(& this->buffer_current);
+	// as we start 'buffer_swapped_back', we also read next chunk, if there is something
+	if (this->bytes_read == (int) Buffer::BUFFER_SIZE)
+		this->readFile(& this->buffer_previous);
 }
 
 /*
@@ -34,7 +37,7 @@ Buffer::Buffer(char *file_name) {
  * and closes the file
  */
 Buffer::~Buffer() {
-	printf("[B] freeing memory and closing file ...\n");
+	//printf("[B] freeing memory and closing file ...\n");
 	free(this->buffer_current); // the counterpart to posix_memalign() is free(), not delete[]
 	free(this->buffer_previous);
 	close(this->file_handle);
@@ -69,7 +72,7 @@ void Buffer::allocateMemory(char **buffer) {
  * @error: file could not be opened.
  */
 void Buffer::openFile(char *file_name) {
-	printf("[B] opening file %s ...\n", file_name);
+	//printf("[B] opening file %s ...\n", file_name);
 	this->file_handle = open(file_name, O_DIRECT);
 	if (this->file_handle == -1) {
 		errno = ENOENT; // error: no entity
@@ -87,7 +90,7 @@ void Buffer::openFile(char *file_name) {
  * @error: file could not be read.
  */
 void Buffer::readFile(char **buffer) {
-	printf("[B] reading file ...\n");
+	//printf("[B] reading file ...\n");
 	this->bytes_read = read(this->file_handle, *buffer, Buffer::BUFFER_SIZE); // should actually always be buffer_current
 	if (bytes_read == -1) {
 		errno = EBADFD; // error: bad file descriptor
@@ -155,8 +158,8 @@ char Buffer::ungetChar() {
  * ungetChar() to false.
  */
 void Buffer::swapBuffer() {
-	printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?
-	// the print above is wrong the first time! We could fill both buffers on init, but that also
+	//printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?
+	// the print above is wrong the first time!
 	char *buffer_temp = this->buffer_previous;
 	this->buffer_previous = this->buffer_current;
 	this->buffer_current = buffer_temp;
