@@ -42,6 +42,7 @@ public:
 
 private:
 	void initSymbols();
+	void inline filterToken(TokenType::Type type);
 
 	static const int KEYWORD_ARRAY_LENGTH = 9;
 

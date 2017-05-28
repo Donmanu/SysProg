@@ -64,71 +64,86 @@ void Scanner::mkToken(TokenType::Type type) {
 		perror("mkToken() called twice in a row!?");
 	this->notoken = false;
 	this->freeToken();
+	this->filterToken(type);
+	this->current_token.line = this->automat->getLine();
+	this->current_token.column = this->automat->getColumn();
+}
 
-	if (type == TokenType::TokenUnknown) {
+void inline Scanner::filterToken(TokenType::Type type) {
+	int position = Scanner::KEYWORD_ARRAY_LENGTH;
+	this->current_token.type = type;
+	switch (type) {
+	case TokenType::TokenUnknown:
 		this->current_token.value = (int)this->automat->getUnknownCharacter();
-	}
+		break;
 
-	if (type == TokenType::TokenInteger) {
+	case TokenType::TokenInteger:
 		this->current_token.value = this->automat->getIntegerValue();
-	}
+		break;
 
-	if (type == TokenType::TokenIdentifier) {
-		int position = KEYWORD_ARRAY_LENGTH;
-
-		for (int i = 0; i < KEYWORD_ARRAY_LENGTH; i++) {
+	case TokenType::TokenIdentifier:
+		// search keywords for match
+		for (int i = 0; i < Scanner::KEYWORD_ARRAY_LENGTH; i++) {
 			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getLastString())) {
 				position = i;
 				break;
 			}
 		}
-
 		switch (position) {
 			case 0:
-				type = TokenType::TokenWrite;
+				this->current_token.type = TokenType::TokenWrite;
+				this->current_token.key = this->keywords[0];
 				this->keywords[0]->getInformation()->incrementOccurrences();
 				break;
 			case 1:
-				type = TokenType::TokenRead;
+				this->current_token.type = TokenType::TokenRead;
+				this->current_token.key = this->keywords[1];
 				this->keywords[1]->getInformation()->incrementOccurrences();
 				break;
 			case 2:
-				type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenIf;
+				this->current_token.key = this->keywords[2];
 				this->keywords[2]->getInformation()->incrementOccurrences();
 				break;
 			case 3:
-				type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenIf;
+				this->current_token.key = this->keywords[3];
 				this->keywords[3]->getInformation()->incrementOccurrences();
 				break;
 			case 4:
-				type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenIf;
+				this->current_token.key = this->keywords[4];
 				this->keywords[4]->getInformation()->incrementOccurrences();
 				break;
 			case 5:
-				type = TokenType::TokenElse;
+				this->current_token.type = TokenType::TokenElse;
+				this->current_token.key = this->keywords[5];
 				this->keywords[5]->getInformation()->incrementOccurrences();
 				break;
 			case 6:
-				type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenIf;
+				this->current_token.key = this->keywords[6];
 				this->keywords[6]->getInformation()->incrementOccurrences();
 				break;
 			case 7:
-				type = TokenType::TokenWhile;
+				this->current_token.type = TokenType::TokenWhile;
+				this->current_token.key = this->keywords[7];
 				this->keywords[7]->getInformation()->incrementOccurrences();
 				break;
 			case 8:
-				type = TokenType::TokenInt;
+				this->current_token.type = TokenType::TokenInt;
+				this->current_token.key = this->keywords[8];
 				this->keywords[8]->getInformation()->incrementOccurrences();
 				break;
 			default:
 				// keep type = TokenType::TokenIdentifier
 				this->current_token.key = this->symboltable->insert(this->automat->getLastString());
 		}
+		break;
+	default:
+		// nothing
+		break;
 	}
-
-	this->current_token.type = type;
-	this->current_token.line = this->automat->getLine();
-	this->current_token.column = this->automat->getColumn();
 }
 
 void Scanner::ungetChar(int count) {
@@ -148,5 +163,5 @@ void Scanner::stop() {
 	this->current_token.type = TokenType::TokenStop;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
-	this->symboltable->debugPrint();
+	this->symboltable->debugPrint(); // TODO remove debug
 }

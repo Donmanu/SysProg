@@ -175,18 +175,25 @@ void Symboltable::resize() {
 
 int Symboltable::hash(char* lexem) {
 	// lexem = NULL won't work! Check beforehand!
-	int hash = 0;
+	int hash = 5;
 	int i = 0;
 
 	while (lexem[i] != '\0') {
-		hash += (SALT * lexem[i]) % this->table_size;
+		hash += Symboltable::SALT * lexem[i]; // % this->table_size;
+		i++;
+
+		//hash = hash << (((int) lexem[i] / 11) - 2);
+		//hash > 10000000 ? hash %= this->table_size : 0;
+
 		// " % this->table_size" on every step keeps the hash number small, even for long identifiers
 		// but also rehashing on resize must be done completely. Alternatively: https://stackoverflow.com/a/14251372
 		// Example: http://www.algolist.net/Data_structures/Hash_table/Dynamic_resizing
-		i++;
+
+		// hash ^= (SALT * lexem[i]); looks nice, but only fills until 4096 ??
 	}
 
-	return hash % this->table_size;
+	hash = (i + hash) % this->table_size; // TODO remove debug
+	return hash;
 }
 
 void Symboltable::debugPrint() {
@@ -206,14 +213,14 @@ void Symboltable::debugPrint() {
 	for (; e < this->table_size; e++) {
 		this->entries[e] == NULL ? empties++ : 0;
 		s = this->entries[e];
-		printf("[%d]", e);
+//		printf("[%d]", e);
 		while (s != NULL) {
 			chain++;
 			chains += 1.0;
-			printf("->(%s/%d)", s->getLexem(), s->getKey()->getInformation()->getOccurrences());
+//			printf("->(%s/%d)", s->getLexem(), s->getKey()->getInformation()->getOccurrences());
 			s = s->getNext();
 		}
-		printf("->( )\n");
+//		printf("->( )\n");
 		// update longest chain
 		chain > max_chain ? max_chain = chain : 0;
 
@@ -221,23 +228,24 @@ void Symboltable::debugPrint() {
 		chain ? avg = (avg * (chains - 1) + chain) / chains: 0;
 
 		// update quality measure
-		red_dragon += (double) (chain * (chain + 1)); // constants are only calculated in at the end ...
+		red_dragon += (double) (chain * (chain + 1)); // constants are only calculated at the end ...
 
 		// reset
 		chain = 0;
 	}
 
-	red_dragon /= 2;
-	red_dragon /= this->string_table->getNodeCount() / 2 * this->table_size;
-	red_dragon /= this->string_table->getNodeCount() + 2 * this->table_size -1;
+	red_dragon /= 2.0;
+	red_dragon /= this->string_table->getNodeCount() / 2.0 * this->table_size;
+	red_dragon /= this->string_table->getNodeCount() + 2.0 * this->table_size - 1.0;
 
 	printf("\n -- Statistics --\n");
-	printf("  Assumed Loadfactor: %f\n", Symboltable::LOADFACTOR);
-	printf("  Actual Loadfactor : %f %%\n", 100.0 * (double)(this->table_size - empties) / this->table_size);
-	printf("  Empty buckets     : %d (%f %%)\n", empties, 100.0 * empties / (double) this->table_size);
-	printf("  Longest chain     : %d\n", max_chain);
-	printf("  Avg chain         : %f\n", avg);
-	printf("  red_dragon quality: %f (1.0 is perfect)\n", red_dragon);
+	printf("  Loadfactor          : %f %%\n", Symboltable::LOADFACTOR * 100.0);
+	printf("  Expected Loadfactor : %f %%\n", this->string_table->getNodeCount() / (double) this->table_size * 100.0);
+	printf("  Actual Loadfactor   : %f %%\n", 100.0 * (double)(this->table_size - empties) / this->table_size);
+	printf("  Empty buckets       : %d (%f %%)\n", empties, 100.0 * empties / (double) this->table_size);
+	printf("  Longest chain       : %d\n", max_chain);
+	printf("  Avg chain           : %f\n", avg);
+	printf("  red_dragon quality  : %f (1.0 is perfect)\n", red_dragon);
 
 	printf("\n --- STRING_TABLE: ---\n");
 	this->string_table->debugPrint();

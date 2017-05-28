@@ -67,10 +67,10 @@ int main(int argc, char **argv) {
 				out << "\tSymbol: " << (char)t.value << std::endl;
 				break;
 			case TokenType::TokenIdentifier:
-				out << "\tLexem: " << t.key->getInformation()->getLexem() <<  std::endl;
+				out << "\tLexem: " << t.key->getInformation()->getLexem() << std::endl;
 				break;
 			case TokenType::TokenInteger:
-				out << "\tValue: " << t.value <<  std::endl;
+				out << "\tValue: " << t.value << std::endl;
 				break;
 			default:
 				out << std::endl;
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
 		delete scanner;
 		time_t end = time(NULL);
-		printf("Took %d s\n", end - start); // or double(end - start) / CLOCKS_PER_SEC
+		printf("Took %ld s\n", end - start); // or double(end - start) / CLOCKS_PER_SEC
 	}
 	out.close();
 

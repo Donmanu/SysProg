@@ -18,7 +18,7 @@
 Buffer::Buffer(char *file_name) {
 	this->buffer_current = NULL;
 	this->buffer_previous = NULL;
-	this->current_char = '\0';
+	this->current_char = '\0'; // TODO remove debug
 	this->bytes_read = 0;
 	this->file_handle = 0;
 	this->position = 0;

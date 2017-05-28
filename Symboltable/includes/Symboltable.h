@@ -54,9 +54,9 @@ class Symboltable {
 
 		int table_size;
 		int free_space;
-		static const int SYMBOL_TABLE_SIZE = 16; // should be at least enough for the keywords
-		static const int SALT = 31;
-		static const double LOADFACTOR = 0.75; // when to resize
+		static const int SYMBOL_TABLE_SIZE = 16; // should be at least big enough for the keywords
+		static const int SALT = 31;              // for hashing
+		static const double LOADFACTOR = 0.75;   // fill level before resize
 };
 
 #endif /* SYMBOLTABLE_H_ */
