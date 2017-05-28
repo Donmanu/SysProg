@@ -53,7 +53,7 @@ char* StringTab::insert(char* lexem, int size) {
 	this->free_ptr += size + 1;
 	this->free_space -= size + 1;
 
-	return this->free_ptr;
+	return this->free_ptr; // after next resize, this pointer will be useless ...
 }
 
 StringTabNode* StringTab::getFirstNode() {

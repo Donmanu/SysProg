@@ -21,9 +21,12 @@ class Information {
 		virtual ~Information();
 		bool compareLexem(char* lexem);
 		char* getLexem();
+		void incrementOccurrences(void);
+		int getOccurrences();
 
 	private:
 		char *lexem;
+		int occurrences;
 };
 
 class Key {

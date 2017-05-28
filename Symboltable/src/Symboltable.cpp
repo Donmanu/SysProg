@@ -88,6 +88,7 @@ Key* Symboltable::insert(char* lexem) {
 	if (current != NULL) {
 		while (current->hasNext()) { // go to end of row. On the way: check, if entry already there. Return if so.
 			if (current->getKey()->getInformation()->compareLexem(lexem))
+				current->getKey()->getInformation()->incrementOccurrences();
 				return current->getKey();
 			current = current->getNext();
 		}
@@ -102,7 +103,7 @@ Key* Symboltable::insert(char* lexem) {
 
 	Information* i = new Information(lexem);
 	Key* k = new Key(i);
-	StringTabNode* n = new StringTabNode(this->string_table->insert(lexem, strlen(lexem))); // insert into StringTab and let StringTabNode point to where
+	StringTabNode* n = new StringTabNode(i->getLexem()); // insert into StringTab and let StringTabNode point to Information ...
 
 	if (current != NULL) {
 		current->setNext(new SymTabEntry(k, n)); // new Key(new Information(lexem)), new StringTabNode(lexem)
@@ -111,6 +112,8 @@ Key* Symboltable::insert(char* lexem) {
 		this->entries[hash] = new SymTabEntry(k, n);
 		current = this->entries[hash];
 	}
+
+	this->string_table->insert(lexem, strlen(lexem));
 
 	return current->getKey();
 }
@@ -159,15 +162,10 @@ void Symboltable::debugPrint() {
 		s = this->entries[e];
 		printf("[%d]", e);
 		while (s != NULL) {
-			if (s->hasNext()) {
-				printf("->(%s)", s->getKey()->getInformation()->getLexem());
-				s = s->getNext();
-			} else {
-				printf("->( )");
-				break;
-			}
+			printf("->(%s/%d)", s->getKey()->getInformation()->getLexem(), s->getKey()->getInformation()->getOccurrences());
+			s = s->getNext();
 		}
-		printf("\n");
+		printf("->( )\n");
 	}
 
 	printf("\n --- STRING_TABLE: ---\n");

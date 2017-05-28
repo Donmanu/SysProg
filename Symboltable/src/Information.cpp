@@ -24,6 +24,7 @@ void Key::setInformation(Information* information) {
 }
 
 Information::Information(char* lexem) {
+	this->occurrences = 1; // Caveat: when Info is created, it could also be a keyword without occurrence (yet)!
 	if (lexem != NULL) {
 		this->lexem = new char[strlen(lexem) + 1];
 		strcpy(this->lexem, lexem);
@@ -50,5 +51,13 @@ bool Information::compareLexem(char* lexem) {
 
 char* Information::getLexem(){
 	return this->lexem;
+}
+
+void Information::incrementOccurrences() {
+	this->occurrences++;
+}
+
+int Information::getOccurrences() {
+	return this->occurrences;
 }
 
