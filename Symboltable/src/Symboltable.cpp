@@ -174,12 +174,27 @@ void Symboltable::resize() {
 }
 
 int Symboltable::hash(char* lexem) {
+	// Jenkins One At A Time Hash:
+	unsigned int hash, i;
+
+	for(hash = i = 0; lexem[i]; i++)
+	{
+		hash += lexem[i];
+		hash += (hash << 10);
+		hash ^= (hash >> 6);
+	}
+	hash += (hash << 3);
+	hash ^= (hash >> 11);
+	hash += (hash << 15);
+
+	return hash % this->table_size;
+
 	// lexem = NULL won't work! Check beforehand!
-	int hash = 5;
+	/*unsigned int hash = Symboltable::SEED;
 	int i = 0;
 
 	while (lexem[i] != '\0') {
-		hash += Symboltable::SALT * lexem[i]; // % this->table_size;
+		hash += (hash * Symboltable::SALT) * lexem[i]; // % this->table_size;
 		i++;
 
 		//hash = hash << (((int) lexem[i] / 11) - 2);
@@ -192,12 +207,12 @@ int Symboltable::hash(char* lexem) {
 		// hash ^= (SALT * lexem[i]); looks nice, but only fills until 4096 ??
 	}
 
-	hash = (i + hash) % this->table_size; // TODO remove debug
-	return hash;
+	hash = hash % this->table_size; // TODO remove debug
+	return (int) hash;*/
 }
 
 void Symboltable::debugPrint() {
-	int e = 0;
+	unsigned int e = 0;
 	int empties = 0;
 	int chain = 0;
 	int max_chain = 0;

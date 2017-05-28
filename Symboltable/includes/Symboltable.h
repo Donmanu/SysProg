@@ -52,11 +52,12 @@ class Symboltable {
 		int hash(char* lexem);
 		StringTab* string_table;
 
-		int table_size;
-		int free_space;
-		static const int SYMBOL_TABLE_SIZE = 16; // should be at least big enough for the keywords
-		static const int SALT = 31;              // for hashing
-		static const double LOADFACTOR = 0.75;   // fill level before resize
+		unsigned int table_size;
+		unsigned int free_space;
+		static const unsigned int SYMBOL_TABLE_SIZE = 16; // should be at least big enough for the keywords
+		static const double LOADFACTOR = 0.75;            // fill level before resize
+		static const unsigned int SEED = 5381;            // for hashing
+		static const unsigned int SALT = 33;              // for hashing
 };
 
 #endif /* SYMBOLTABLE_H_ */
