@@ -41,6 +41,7 @@ class Symboltable {
 		virtual ~Symboltable();
 		Key* insert(char* lexem);
 		Information lookup(Key key);
+		int hash(char* lexem);
 
 		SymTabEntry** entries;
 
@@ -49,15 +50,17 @@ class Symboltable {
 	private:
 		void resize();
 		void quickInsert(SymTabEntry* s);
-		int hash(char* lexem);
 		StringTab* string_table;
 
 		unsigned int table_size;
 		unsigned int free_space;
-		static const unsigned int SYMBOL_TABLE_SIZE = 16; // should be at least big enough for the keywords
-		static const double LOADFACTOR = 0.75;            // fill level before resize
-		static const unsigned int SEED = 5381;            // for hashing
-		static const unsigned int SALT = 33;              // for hashing
+		static const unsigned int SYMBOL_TABLE_SIZE = 128; // should be at least big enough for the keywords: SYMBOL_TABLE_SIZE >= keywords / LOADFACTOR
+		static const double LOADFACTOR = 0.75;              // fill level before resize (0.01 - 200.0 have almost same performance)
+		// Multiplicative hashing (h = SEED; h += SALT * h + c) parameters:
+		// Bernstein: 5381, 33
+		// K&R:       0   , 31
+		static const unsigned int SEED = 5381;
+		static const unsigned int SALT = 33;
 };
 
 #endif /* SYMBOLTABLE_H_ */

@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
 		// would be cool to open a new file for each test.in, but this fucking const char* stuff sucks soo hard ...
 
-		time_t start = time(NULL); // not as accurate as clock()!
+		time_t start = clock();
 		scanner = new Scanner(argv[args]); // need to make new scanner for every file
 		do {
 			t = scanner->nextToken();
@@ -81,8 +81,11 @@ int main(int argc, char **argv) {
 		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
 		delete scanner;
-		time_t end = time(NULL);
-		printf("Took %ld s\n", end - start); // or double(end - start) / CLOCKS_PER_SEC
+
+		time_t end = clock();
+		printf("Took %f s\n", double(end - start) / CLOCKS_PER_SEC);
+		std::ifstream file(argv[args], std::ifstream::ate | std::ifstream::binary);
+		printf("Crunched with %f MB/s\n", file.tellg() * CLOCKS_PER_SEC / double(end - start) / 1e6 /*MB*/);
 	}
 	out.close();
 

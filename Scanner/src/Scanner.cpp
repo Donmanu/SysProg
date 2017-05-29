@@ -16,7 +16,7 @@ Scanner::Scanner(char* filename) {
 	this->buffer = new Buffer(filename);
 	//this->current_token;
 	this->symboltable = new Symboltable();
-	this->keywords = new Key*[KEYWORD_ARRAY_LENGTH];
+	this->keywords = new Key*[Scanner::KEYWORD_ARRAY_LENGTH];
 	this->initSymbols();
 }
 
@@ -37,6 +37,10 @@ void Scanner::initSymbols() {
 	this->keywords[6] = this->symboltable->insert("while");
 	this->keywords[7] = this->symboltable->insert("WHILE");
 	this->keywords[8] = this->symboltable->insert("int");
+	// revert default insert-action:
+	for (int i = 0; i < Scanner::KEYWORD_ARRAY_LENGTH; i++) {
+		this->keywords[i]->getInformation()->decrementOccurrences();
+	}
 }
 
 Token Scanner::nextToken() {
@@ -70,7 +74,8 @@ void Scanner::mkToken(TokenType::Type type) {
 }
 
 void inline Scanner::filterToken(TokenType::Type type) {
-	int position = Scanner::KEYWORD_ARRAY_LENGTH;
+	int position;
+	unsigned int hash;
 	this->current_token.type = type;
 	switch (type) {
 	case TokenType::TokenUnknown:
@@ -82,11 +87,15 @@ void inline Scanner::filterToken(TokenType::Type type) {
 		break;
 
 	case TokenType::TokenIdentifier:
+		position = Scanner::KEYWORD_ARRAY_LENGTH;
+		hash = this->symboltable->hash(this->automat->getLastString());
 		// search keywords for match
 		for (int i = 0; i < Scanner::KEYWORD_ARRAY_LENGTH; i++) {
-			if (this->keywords[i]->getInformation()->compareLexem(this->automat->getLastString())) {
-				position = i;
-				break;
+			if (this->keywords[i]->getHash() == hash) { // only fully compare, if hash is equal
+				if (this->keywords[i]->getInformation()->compareLexem(this->automat->getLastString())) {
+					position = i;
+					break;
+				}
 			}
 		}
 		switch (position) {
@@ -135,12 +144,12 @@ void inline Scanner::filterToken(TokenType::Type type) {
 				this->current_token.key = this->keywords[8];
 				this->keywords[8]->getInformation()->incrementOccurrences();
 				break;
-			default:
+			default: // on position
 				// keep type = TokenType::TokenIdentifier
 				this->current_token.key = this->symboltable->insert(this->automat->getLastString());
 		}
 		break;
-	default:
+	default: // on type
 		// nothing
 		break;
 	}

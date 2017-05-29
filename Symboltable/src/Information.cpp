@@ -7,8 +7,9 @@
 
 #include "../includes/Information.h"
 
-Key::Key(Information* information) {
-	this->information = information;
+Key::Key(unsigned int h, Information* info) {
+	this->information = info;
+	this->hash = h;
 }
 
 Key::~Key() {
@@ -21,6 +22,14 @@ Information* Key::getInformation() {
 
 void Key::setInformation(Information* information) {
 	this->information = information;
+}
+
+unsigned int Key::getHash() {
+	return this->hash;
+}
+
+void Key::setHash(unsigned int h) {
+	this->hash = h;
 }
 
 Information::Information(char* lexem) {
@@ -55,6 +64,13 @@ char* Information::getLexem(){
 
 void Information::incrementOccurrences() {
 	this->occurrences++;
+}
+
+/*
+ * Really only needed for keywords
+ */
+void Information::decrementOccurrences() {
+	this->occurrences--;
 }
 
 int Information::getOccurrences() {

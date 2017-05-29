@@ -57,13 +57,11 @@ void Automat::incrementCounter() {
 }
 
 void Automat::incrementNewline() {
-	//this->counter += 1;
 	this->line += 1;
 	this->column = 0;
 }
 
 void Automat::incrementTabulator() {
-	//this->counter += 1;
 	this->column += TAB_WIDTH - (this->column % TAB_WIDTH); // http://c-for-dummies.com/blog/?p=424
 }
 
@@ -73,28 +71,23 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this->counter = 0;
-	// delete on NULL is supposed to be safe
-	delete[] this->last_string;
+	delete[] this->last_string; // delete on NULL is safe
 	this->last_string = NULL;
 	this->last_string_len = 0;
 }
 
 void Automat::ungetChar(int count) {
-	/*if (this->column == 0) { // should never happen!
-		this->line--; // col = lastCol needed??
-	} else */
 	if (count > this->column) {
-		// We assume we never go back a line
-		//errno = ?;
+		// We never go back a line
+		errno = EINVAL;
 		printf("[A] %d > %d\n", count, this->column);
-		perror("[A] Un-getting more than a line!?");
+		perror("[A] Un-getting more than a line!!");
 		this->column = 0;
 	} else {
 		this->column -= count;
 		//this->counter -= count; // needed?
 	}
-
-	// buffer->unget() is done by Scanner
+	// buffer->unget() is done by Scanner for us
 }
 
 /*
@@ -132,7 +125,7 @@ void Automat::appendCharToString(char c) {
 		strcpy(string, this->last_string);
 	}
 
-	string[this->last_string_len - 1] = c; // overwrite last '\0' or (uninitialized mem)
+	string[this->last_string_len - 1] = c; // overwrite last '\0' or uninitialized memory
 	string[this->last_string_len] = '\0';
 	delete[] this->last_string;
 	this->last_string = string;

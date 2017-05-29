@@ -63,13 +63,13 @@ Symboltable::Symboltable() {
 	this->table_size = Symboltable::SYMBOL_TABLE_SIZE;
 	this->free_space = Symboltable::SYMBOL_TABLE_SIZE; // currently not used! Alternative to Symboltable::LOADFACTOR
 	this->entries = new SymTabEntry*[Symboltable::SYMBOL_TABLE_SIZE];
-	for (int i = 0; i < Symboltable::SYMBOL_TABLE_SIZE; i++)
+	for (unsigned int i = 0; i < Symboltable::SYMBOL_TABLE_SIZE; i++)
 		this->entries[i] = NULL;
 }
 
 Symboltable::~Symboltable() {
 	// delete entries:
-	for (int i = 0; i < this->table_size; i++)
+	for (unsigned int i = 0; i < this->table_size; i++)
 		delete this->entries[i]; // each triggers a delete chain
 	// delete array of pointers to entries:
 	delete[] this->entries;
@@ -80,13 +80,15 @@ Key* Symboltable::insert(char* lexem) {
 	if (lexem == NULL) {
 		errno = EINVAL; // invalid arg
 		perror("NULL given to Symboltable::insert()");
-		return NULL; // also bad, but meh ...
+		return NULL; // also bad, but meh. Should ever happen anyway
 	}
 	if (this->string_table->getNodeCount() > (int) this->table_size * Symboltable::LOADFACTOR) {
+		// we save on the check, if new size would overflow ...
 		this->resize();
 	}
 
-	int hash = this->hash(lexem);
+	unsigned int fullHash = this->hash(lexem);
+	unsigned int hash = fullHash % this->table_size;
 	SymTabEntry* current = this->entries[hash];
 
 	if (current != NULL) {
@@ -102,8 +104,8 @@ Key* Symboltable::insert(char* lexem) {
 	// current is now pointing to the last entry in the row, possibly null
 
 	Information* i = new Information(lexem);
-	i->incrementOccurrences(); // TODO this also increments on initSymbols() ...
-	Key* k = new Key(i);
+	i->incrementOccurrences();
+	Key* k = new Key(fullHash, i);
 	StringTabNode* n = new StringTabNode(i->getLexem()); // insert into StringTab and let StringTabNode point to Information ...
 
 	if (current != NULL) {
@@ -125,10 +127,11 @@ Key* Symboltable::insert(char* lexem) {
  *  + inserted entries are going to be unique
  *  + are already in string_table
  *  + new Key, Information, StringTabNode all are already done
+ *  + hash has been calculated and saved
  *
  */
 void Symboltable::quickInsert(SymTabEntry* s) {
-	int hash = this->hash(s->getLexem());
+	int hash = s->getKey()->getHash() % this->table_size;
 	SymTabEntry* current = this->entries[hash];
 
 	if (current == NULL) {
@@ -136,10 +139,10 @@ void Symboltable::quickInsert(SymTabEntry* s) {
 		return;
 	}
 
-	while (current->hasNext()) { // go to end of row.
+	while (current->hasNext()) { // go to end of row. Not really needed, but it's consistent. Else every resize would switch the order
 		current = current->getNext();
 	}
-	current->setNext(s);
+	current->setNext(s); // put at end
 }
 
 Information Symboltable::lookup(Key key) {
@@ -147,20 +150,20 @@ Information Symboltable::lookup(Key key) {
 }
 
 void Symboltable::resize() {
-	int hash;
-	int previous_table_size = this->table_size;
-	this->table_size *= 2; // already update, so the hash function works
+	unsigned int h;
+	unsigned int previous_table_size = this->table_size;
+	this->table_size *= 2;
 
 	printf("RESIZING SymTab %d -> %d\n", previous_table_size, this->table_size);
 
 	SymTabEntry** previousEntries = this->entries;
 	this->entries = new SymTabEntry*[this->table_size];
-	for (hash = 0; hash < this->table_size; hash++)
-		this->entries[hash] = NULL; // valgrind <3
+	for (h = 0; h < this->table_size; h++)
+		this->entries[h] = NULL; // valgrind <3
 
 	SymTabEntry* oldNext;
-	for (hash = 0; hash < previous_table_size; hash++) {
-		SymTabEntry* entry = previousEntries[hash];
+	for (h = 0; h < previous_table_size; h++) {
+		SymTabEntry* entry = previousEntries[h];
 		while (entry != NULL) {
 			oldNext = entry->getNext(); // save that, as it is going to be reordered.
 			entry->setNext(NULL);
@@ -174,41 +177,46 @@ void Symboltable::resize() {
 }
 
 int Symboltable::hash(char* lexem) {
-	// Jenkins One At A Time Hash:
-	unsigned int hash, i;
+	// lexem = NULL won't work! Check beforehand!
+	// 'sdbm' used in gawk
+	unsigned int hash = 0; // SEED = 0
+	int i = 0;
 
-	for(hash = i = 0; lexem[i]; i++)
+	while (lexem[i]) {
+		hash = (hash << 6) + (hash << 16) - hash + lexem[i]; // optimized SALT = 65599 = 2^16 + 2^6 - 1
+		i++;
+	}
+	return hash;
+
+	// Jenkins 'One At A Time' Hash:
+	/*unsigned int hash = 0;
+	int i = 0;
+
+	while (lexem[i])
 	{
 		hash += lexem[i];
 		hash += (hash << 10);
 		hash ^= (hash >> 6);
+		i++;
 	}
 	hash += (hash << 3);
 	hash ^= (hash >> 11);
 	hash += (hash << 15);
 
-	return hash % this->table_size;
+	return hash % this->table_size;*/
 
-	// lexem = NULL won't work! Check beforehand!
-	/*unsigned int hash = Symboltable::SEED;
+
+
+	/*
+	unsigned int hash = Symboltable::SEED;
 	int i = 0;
 
-	while (lexem[i] != '\0') {
+	while (lexem[i]) {
 		hash += (hash * Symboltable::SALT) * lexem[i]; // % this->table_size;
 		i++;
-
-		//hash = hash << (((int) lexem[i] / 11) - 2);
-		//hash > 10000000 ? hash %= this->table_size : 0;
-
-		// " % this->table_size" on every step keeps the hash number small, even for long identifiers
-		// but also rehashing on resize must be done completely. Alternatively: https://stackoverflow.com/a/14251372
-		// Example: http://www.algolist.net/Data_structures/Hash_table/Dynamic_resizing
-
-		// hash ^= (SALT * lexem[i]); looks nice, but only fills until 4096 ??
 	}
 
-	hash = hash % this->table_size; // TODO remove debug
-	return (int) hash;*/
+	return (int) hash % this->table_size;*/
 }
 
 void Symboltable::debugPrint() {
@@ -228,14 +236,14 @@ void Symboltable::debugPrint() {
 	for (; e < this->table_size; e++) {
 		this->entries[e] == NULL ? empties++ : 0;
 		s = this->entries[e];
-//		printf("[%d]", e);
+		printf("[%d]", e);
 		while (s != NULL) {
 			chain++;
 			chains += 1.0;
-//			printf("->(%s/%d)", s->getLexem(), s->getKey()->getInformation()->getOccurrences());
+			printf("->(%s/%d)", s->getLexem(), s->getKey()->getInformation()->getOccurrences());
 			s = s->getNext();
 		}
-//		printf("->( )\n");
+		printf("->( )\n");
 		// update longest chain
 		chain > max_chain ? max_chain = chain : 0;
 
