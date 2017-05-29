@@ -1,48 +1,48 @@
-:* Hash collision?: *:
+:* Hash collision?:    8 *:
 abc
-Abc
-aBc
 abC
-ABc
-AbC
-ABC
 aBc
 aBC
-abC
+Abc
+AbC
+ABc
+ABC
 
-:* Repetition *:
+:* Repetition    + 4*8 *:
 abc
-Abc
-aBc
 abC
-ABc
-AbC
-ABC
 aBc
 aBC
-abC
-abc
 Abc
-aBc
-abC
-ABc
 AbC
+ABc
 ABC
+abc
+abC
 aBc
 aBC
-abC
-abc
 Abc
-aBc
-abC
-ABc
 AbC
+ABc
 ABC
+abc
+abC
 aBc
 aBC
+Abc
+AbC
+ABc
+ABC
+abc
 abC
+aBc
+aBC
+Abc
+AbC
+ABc
+ABC
 
-:* Test with focus on StringTable and SymbolTable *:
+:* Test with focus on StringTable and SymbolTable    + 5 * 2 * 26  =>   60 unique words with 5 occurences each *:
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 CCCCCCCCCCCCCCCCCCCCCCCCCCCC

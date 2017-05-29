@@ -10,6 +10,8 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <cstdlib> // strtol()
+#include <climits> // LONG_MAX, LONG_MIN
 #include "State.h"
 #include "../../Scanner/includes/ScannerForAutomat.h"
 #include "../../Scanner/includes/Token.h"
@@ -37,7 +39,7 @@ public:
 	void readChar(char);
 	void appendCharToString(char c);
 	char* getLastString();
-	int getIntegerValue();
+	long int getIntegerValue();
 	char getUnknownCharacter();
 
 private:

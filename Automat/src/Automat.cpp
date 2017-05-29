@@ -135,13 +135,27 @@ char* Automat::getLastString() {
 	return this->last_string;
 }
 
-int Automat::getIntegerValue() {
-	int result = 0;
+long int Automat::getIntegerValue() {
+	/* strtol:
+	On success, the function returns the converted integral number as a long int value.
+	If no valid conversion could be performed, a zero value is returned (0L).
+	If the value read is out of the range of representable values by a long int,
+		the function returns LONG_MAX or LONG_MIN (defined in <climits>), and errno is set to ERANGE.
+	 */
+	long int result = strtol(this->last_string, NULL, 10);
+
+	if (errno == ERANGE) {
+		// TODO
+		printf("'%s' in line %d column %d is out of range! Automatically set to %ld (%s)\n", this->last_string, this->getLine(), this->getColumn(), result, result == LONG_MAX ? "LONG_MAX" : "LONG_MIN");
+		perror("Parsing number failed");
+		errno = 0; // regard as handled
+	}
+
 	// TODO make this with strtol()!? and catch possible overflow this way ...
 	// fails on valuesAndLexems.txt line 6 (given as line 11 ...) 9345689128371928379182379747948721893789123 ==> -2005152317
-	for (int i = 0; this->last_string[i] != '\0'; i++) {
-		result = result * 10 + this->last_string[i] - '0';
-	}
+	//for (int i = 0; this->last_string[i] != '\0'; i++) {
+	//	result = result * 10 + this->last_string[i] - '0';
+	//}
 	return result;
 }
 

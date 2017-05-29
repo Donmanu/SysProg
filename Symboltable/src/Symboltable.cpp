@@ -252,13 +252,14 @@ void Symboltable::debugPrint() {
 
 		// update quality measure
 		red_dragon += (double) (chain * (chain + 1)); // constants are only calculated at the end ...
+		//e % 1000 == 0 ? printf("RED_DRAGON BY NOW: %10.1f\n", red_dragon) : 0;
 
 		// reset
 		chain = 0;
 	}
 
 	red_dragon /= 2.0;
-	red_dragon /= this->string_table->getNodeCount() / 2.0 * this->table_size;
+	red_dragon /= this->string_table->getNodeCount() / (2.0 * this->table_size);
 	red_dragon /= this->string_table->getNodeCount() + 2.0 * this->table_size - 1.0;
 
 	printf("\n -- Statistics --\n");
