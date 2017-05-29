@@ -85,7 +85,7 @@ void Automat::ungetChar(int count) {
 		this->column = 0;
 	} else {
 		this->column -= count;
-		//this->counter -= count; // needed?
+		this->counter -= count;
 	}
 	// buffer->unget() is done by Scanner for us
 }
@@ -145,14 +145,11 @@ long int Automat::getIntegerValue() {
 	long int result = strtol(this->last_string, NULL, 10);
 
 	if (errno == ERANGE) {
-		// TODO
+		// TODO ?
 		printf("'%s' in line %d column %d is out of range! Automatically set to %ld (%s)\n", this->last_string, this->getLine(), this->getColumn(), result, result == LONG_MAX ? "LONG_MAX" : "LONG_MIN");
 		perror("Parsing number failed");
 		errno = 0; // regard as handled
 	}
-
-	// TODO make this with strtol()!? and catch possible overflow this way ...
-	// fails on valuesAndLexems.txt line 6 (given as line 11 ...) 9345689128371928379182379747948721893789123 ==> -2005152317
 	//for (int i = 0; this->last_string[i] != '\0'; i++) {
 	//	result = result * 10 + this->last_string[i] - '0';
 	//}

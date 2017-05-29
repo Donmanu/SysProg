@@ -76,7 +76,7 @@ void Buffer::openFile(char *file_name) {
 	this->file_handle = open(file_name, O_DIRECT);
 	if (this->file_handle == -1) {
 		errno = ENOENT; // error: no entity
-		perror("Error opening File!\n");
+		// perror("[B] Error opening File!"); no need for outputs, if we throw anyway ...
 		throw errno;
 	}
 }
@@ -122,7 +122,7 @@ char Buffer::getChar() {
 		}
 		this->position = 0;
 	}
-	this->current_char = this->buffer_current[this->position++];
+	this->current_char = this->buffer_current[this->position++]; // TODO remove debug, we don't need to save the char
 	return this->current_char;
 }
 

@@ -229,8 +229,9 @@ void StateColon::read(char c, Automat* m) {
 			m->setCurrentState(StateStart::makeState());
 			break;*/
 		default:
+			//TODO m->incrementCounter();
 			m->getScanner()->mkToken(TokenType::TokenColon);
-			m->setCurrentState(StateError::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getCurrentState()->read(c, m);
 	}
 }
@@ -259,8 +260,9 @@ void StateEquals::read(char c, Automat* m) {
 		case ' ':
 		case '\n':
 		case '\t':
-			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenEquals);
+			m->setLastFinalState(StateEquals::makeState());
+			m->setCurrentState(StateStart::makeState());
 			break;
 		default:
 			m->getScanner()->mkToken(TokenType::TokenEquals);
@@ -284,12 +286,10 @@ void StateEqualsColon::read(char c, Automat* m) {
 			m->incrementCounter();
 			break;
 		default:
-			m->getScanner()->ungetChar(2); // read in ":" and c again    Alternatively we unget(1) and go in StateError ...
-			m->getScanner()->mkToken(TokenType::TokenEquals);
+			m->getScanner()->ungetChar(2); // read in ":" and c again
 			m->setLastFinalState(StateEquals::makeState());
+			m->getScanner()->mkToken(TokenType::TokenEquals);
 			m->setCurrentState(StateStart::makeState());
-
-			//m->getCurrentState()->read(c, m);
 	}
 }
 

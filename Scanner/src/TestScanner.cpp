@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 		"TokenIf\t\t\t",								//23
 		"TokenWhile\t\t",								//24
 		"TokenElse\t\t",								//25
-		"TokenInt\t\t\t",								//26
+		"TokenInt\t\t",									//26
 		"TokenStop\t\t"									//27
 	};
 

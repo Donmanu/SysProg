@@ -13,7 +13,13 @@
 Scanner::Scanner(char* filename) {
 	this->notoken = true;
 	this->automat = new Automat(*this);
-	this->buffer = new Buffer(filename);
+	try {
+		this->buffer = new Buffer(filename);
+	} catch (.../*all*/) {
+		// at this point, buffer is no more
+		perror("Error while buffering");
+		exit(errno);
+	}
 	//this->current_token;
 	this->symboltable = new Symboltable();
 	this->keywords = new Key*[Scanner::KEYWORD_ARRAY_LENGTH];
@@ -120,7 +126,7 @@ void inline Scanner::filterToken(TokenType::Type type) {
 				this->keywords[3]->getInformation()->incrementOccurrences();
 				break;
 			case 4:
-				this->current_token.type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenElse;
 				this->current_token.key = this->keywords[4];
 				this->keywords[4]->getInformation()->incrementOccurrences();
 				break;
@@ -130,7 +136,7 @@ void inline Scanner::filterToken(TokenType::Type type) {
 				this->keywords[5]->getInformation()->incrementOccurrences();
 				break;
 			case 6:
-				this->current_token.type = TokenType::TokenIf;
+				this->current_token.type = TokenType::TokenWhile;
 				this->current_token.key = this->keywords[6];
 				this->keywords[6]->getInformation()->incrementOccurrences();
 				break;
@@ -145,7 +151,7 @@ void inline Scanner::filterToken(TokenType::Type type) {
 				this->keywords[8]->getInformation()->incrementOccurrences();
 				break;
 			default: // on position
-				// keep type = TokenType::TokenIdentifier
+				// keep            type = TokenType::TokenIdentifier
 				this->current_token.key = this->symboltable->insert(this->automat->getLastString());
 		}
 		break;
