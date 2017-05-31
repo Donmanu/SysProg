@@ -134,7 +134,7 @@ void Automat::readChar(char c) {
  * O(n^2) with n length of identifier/number ...
  */
 void Automat::appendCharToString(char c) {
-	if (this->last_string_len >= this->string_buffer_length) {
+	if (this->last_string_len >= this->string_buffer_length - 1) { // >= instead of > : keep last place for '\0'
 		char* tmp = this->last_string;
 		this->string_buffer_length += Automat::STRING_BUFFER_STEP;
 		this->last_string = new char[this->string_buffer_length];
