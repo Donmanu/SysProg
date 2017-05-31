@@ -89,7 +89,7 @@ void Automat::ungetChar(int count) {
 	} else {
 		this->column -= count;
 		this->counter -= count;
-		//this->blockIncrement = count;
+		this->blockIncrement = count;
 	}
 	// buffer->unget() has been done by Scanner for us
 }
@@ -120,6 +120,7 @@ void Automat::readChar(char c) {
 		// the char we just pass to our state has been ungotten
 		// so wait for next 'real' new read
 		this->blockIncrement--;
+		this->column++; // TODO: ????
 	}
 }
 
