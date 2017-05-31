@@ -52,6 +52,9 @@ private:
 	int column;
 	int line;
 	int blockIncrement;
+	int string_buffer_length;
+
+	static const int STRING_BUFFER_STEP = 20;
 };
 
 #endif /* Automat_H_ */

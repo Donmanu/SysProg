@@ -10,5 +10,8 @@
 #include <fstream>
 
 int main(int argc, char **argv) {
-	//TODO: implement this
+	//TODO: parse arguments
+
+	Parser parser = new Parser(argv[1]);
+	parser.prog(); // TODO ?
 }

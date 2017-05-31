@@ -126,7 +126,7 @@ void StateStart::read(char c, Automat* m) {
 
 void StateRestart::read(char c, Automat* m) {
 	// Purpose of this state is to make a controlled transition into start again
-	printf("Restart.read(): c is '%c', l=%d, col=%d\n", c, m->getLine(), m->getColumn());
+	//printf("Restart.read(): c is '%c', l=%d, col=%d\n", c, m->getLine(), m->getColumn());
 	m->setCurrentState(StateStart::makeState());
 	m->getScanner()->ungetChar(1); // 1 default works here. Else StateError should not be entered
 	// TODO ungetting(1) means -> hey "start", read that again. So why not set to start directly and make an epsilon transition?

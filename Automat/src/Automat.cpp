@@ -9,7 +9,8 @@ Automat::Automat(IScanner& scan) {
 	this->scanner = &scan;
 	this->state_current = StateStart::makeState();
 	this->last_final_state = NULL;
-	this->last_string = NULL;
+	this->string_buffer_length = Automat::STRING_BUFFER_STEP;
+	this->last_string = new char[Automat::STRING_BUFFER_STEP];
 	this->last_string_len = 0;
 	this->blockIncrement = 0;
 	this->counter = 0;
@@ -75,8 +76,7 @@ int Automat::getCounter() {
 
 void Automat::resetCounter() {
 	this->counter = 0;
-	delete[] this->last_string; // delete on NULL is safe
-	this->last_string = NULL;
+	memset(this->last_string, 0, this->string_buffer_length);
 	this->last_string_len = 0;
 }
 
@@ -133,17 +133,16 @@ void Automat::readChar(char c) {
  * O(n^2) with n length of identifier/number ...
  */
 void Automat::appendCharToString(char c) {
-	this->last_string_len++;
-	char* string = new char[this->last_string_len + 1];
-
-	if (this->last_string_len != 1) {
-		strcpy(string, this->last_string);
+	if (this->last_string_len >= this->string_buffer_length) {
+		char* tmp = this->last_string;
+		this->string_buffer_length += Automat::STRING_BUFFER_STEP;
+		this->last_string = new char[this->string_buffer_length];
+		memset(this->last_string, 0, this->string_buffer_length);
+		strcpy(this->last_string, tmp);
+		delete[] tmp;
 	}
-
-	string[this->last_string_len - 1] = c; // overwrite last '\0' or uninitialized memory
-	string[this->last_string_len] = '\0';
-	delete[] this->last_string;
-	this->last_string = string;
+	this->last_string[this->last_string_len] = c; // overwrite last '\0'
+	this->last_string_len++;
 }
 
 char* Automat::getLastString() {

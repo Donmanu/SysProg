@@ -17,45 +17,45 @@ Parser::~Parser() {
 }
 
 Node Parser::prog() {
-
+	return new Node();
 }
 
 Node Parser::decls() {
-
+	return new Node();
 }
 
 Node Parser::decl() {
-
+	return new Node();
 }
 
 Node Parser::array() {
-
+	return new Node();
 }
 
 Node Parser::statements() {
-
+	return new Node();
 }
 
 Node Parser::statement() {
-
+	return new Node();
 }
 
 Node Parser::exp() {
-
+	return new Node();
 }
 
 Node Parser::exp2() {
-
+	return new Node();
 }
 
 Node Parser::index() {
-
+	return new Node();
 }
 
 Node Parser::op_exp() {
-
+	return new Node();
 }
 
 Node Parser::op() {
-
+	return new Node();
 }
