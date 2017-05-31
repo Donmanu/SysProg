@@ -51,6 +51,7 @@ private:
 	int counter; // basically the same as last_string_len TODO refactor to merge counter with last_string_len (appendToString(c){... counter++; ...} )
 	int column;
 	int line;
+	int blockIncrement;
 };
 
 #endif /* Automat_H_ */

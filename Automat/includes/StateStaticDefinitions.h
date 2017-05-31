@@ -22,10 +22,10 @@ State* StateStart::makeState() {
 	return &StateStart::instance;
 }
 
-StateError StateError::instance;
+StateRestart StateRestart::instance;
 
-State* StateError::makeState() {
-	return &StateError::instance;
+State* StateRestart::makeState() {
+	return &StateRestart::instance;
 }
 
 StateNumber StateNumber::instance;

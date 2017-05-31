@@ -33,13 +33,13 @@ class StateStart : public State {
 		static StateStart instance;
 };
 
-class StateError: public State {
+class StateRestart: public State {
 	public:
 		void read(char c, Automat* m);
 		static State* makeState();
 
 	private:
-		static StateError instance;
+		static StateRestart instance;
 };
 
 class StateNumber: public State {

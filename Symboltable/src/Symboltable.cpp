@@ -176,9 +176,8 @@ void Symboltable::resize() {
 	this->free_space += (this->table_size - previous_table_size); // fool prove, even if resize x3, x4, etc.
 }
 
-int Symboltable::hash(char* lexem) {
+unsigned int Symboltable::hash(char* lexem) {
 	// lexem = NULL won't work! Check beforehand!
-	// 'sdbm' used in gawk
 	unsigned int hash = 0; // SEED = 0
 	int i = 0;
 
@@ -189,9 +188,9 @@ int Symboltable::hash(char* lexem) {
 	return hash;
 
 	// Jenkins 'One At A Time' Hash:
-	/*unsigned int hash = 0;
+	/*
+	unsigned int hash = 0;
 	int i = 0;
-
 	while (lexem[i])
 	{
 		hash += lexem[i];
@@ -202,21 +201,8 @@ int Symboltable::hash(char* lexem) {
 	hash += (hash << 3);
 	hash ^= (hash >> 11);
 	hash += (hash << 15);
-
-	return hash % this->table_size;*/
-
-
-
-	/*
-	unsigned int hash = Symboltable::SEED;
-	int i = 0;
-
-	while (lexem[i]) {
-		hash += (hash * Symboltable::SALT) * lexem[i]; // % this->table_size;
-		i++;
-	}
-
-	return (int) hash % this->table_size;*/
+	return hash;
+	*/
 }
 
 void Symboltable::debugPrint() {

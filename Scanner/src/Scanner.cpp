@@ -162,11 +162,6 @@ void inline Scanner::filterToken(TokenType::Type type) {
 }
 
 void Scanner::ungetChar(int count) {
-	if (count < 0) {
-		errno = EINVAL; // invalid argument
-		perror("Cannot unget() negative amount");
-		return;
-	}
 	for (int i = 0; i < count; ++i) {
 		this->buffer->ungetChar();
 	}

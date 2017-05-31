@@ -11,6 +11,7 @@ Automat::Automat(IScanner& scan) {
 	this->last_final_state = NULL;
 	this->last_string = NULL;
 	this->last_string_len = 0;
+	this->blockIncrement = 0;
 	this->counter = 0;
 	this->column = 0;
 	this->line = 0;
@@ -52,6 +53,9 @@ int Automat::getLine() {
 	return this->line + 1; // return in human readable: +1
 }
 
+/*
+ * "incrementWithoutAppendChar"
+ */
 void Automat::incrementCounter() {
 	this->counter++;
 }
@@ -77,17 +81,17 @@ void Automat::resetCounter() {
 }
 
 void Automat::ungetChar(int count) {
-	if (count > this->column) {
+	if (count > this->column || count < 0) {
 		// We never go back a line
 		errno = EINVAL;
-		printf("[A] %d > %d\n", count, this->column);
-		perror("[A] Un-getting more than a line!!");
+		perror("[A] Illegal unget()");
 		this->column = 0;
 	} else {
 		this->column -= count;
 		this->counter -= count;
+		//this->blockIncrement = count;
 	}
-	// buffer->unget() is done by Scanner for us
+	// buffer->unget() has been done by Scanner for us
 }
 
 /*
@@ -98,24 +102,35 @@ void Automat::readChar(char c) {
 	this->state_current->read(c, this); // calls this->setState() ...
 
 	// increment after read!
-	switch (c) {
-	case '\n':
-		this->incrementNewline();
-		break;
-	case '\t':
-		this->incrementTabulator();
-		break;
-	case '\0':
-		this->scanner->stop();
-		break;
-	default:
-		this->column++;
+	if (!this->blockIncrement) {
+		switch (c) {
+		case '\n':
+			this->incrementNewline();
+			break;
+		case '\t':
+			this->incrementTabulator();
+			break;
+		case '\0':
+			this->scanner->stop();
+			break;
+		default:
+			this->column++;
+		}
+	} else {
+		// the char we just pass to our state has been ungotten
+		// so wait for next 'real' new read
+		this->blockIncrement--;
 	}
 }
 
 /*
  * Another approach would be to take the count variable and get the according
  * amount of characters from the buffer ...
+ *
+ * TODO At least we should use some better mechanism like in the StringTable.resize() ...
+ * TODO Should be possible to merge the meaning of last_string_len and counter -> this func becomes "incrementWithAppendChar"
+ *
+ * O(n^2) with n length of identifier/number ...
  */
 void Automat::appendCharToString(char c) {
 	this->last_string_len++;

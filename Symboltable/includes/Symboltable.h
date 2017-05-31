@@ -41,7 +41,7 @@ class Symboltable {
 		virtual ~Symboltable();
 		Key* insert(char* lexem);
 		Information lookup(Key key);
-		int hash(char* lexem);
+		unsigned int hash(char* lexem);
 
 		SymTabEntry** entries;
 
@@ -58,7 +58,8 @@ class Symboltable {
 		static const double LOADFACTOR = 0.75;              // fill level before resize (0.01 - 200.0 have almost same performance)
 		// Multiplicative hashing (h = SEED; h += SALT * h + c) parameters:
 		// Bernstein: 5381, 33
-		// K&R:       0   , 31
+		// K&R      : 0   , 31
+		// sdbm     : 0   , 65599
 		static const unsigned int SEED = 5381;
 		static const unsigned int SALT = 33;
 };
