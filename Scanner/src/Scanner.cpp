@@ -65,7 +65,7 @@ void Scanner::freeToken() {
 	this->current_token.line = -1337; // because some offset errors leading to -1, we set to some other magic number
 	this->current_token.column = -1337;
 	this->current_token.key = NULL;
-	this->current_token.value = -1; // ??
+	this->current_token.value = -1l; // ??
 }
 
 void Scanner::mkToken(TokenType::Type type) {
@@ -89,7 +89,7 @@ void inline Scanner::filterToken(TokenType::Type type) {
 	this->current_token.type = type;
 	switch (type) {
 	case TokenType::TokenUnknown:
-		this->current_token.value = (int)this->automat->getUnknownCharacter();
+		this->current_token.value = (long int) this->automat->getUnknownCharacter();
 		break;
 
 	case TokenType::TokenInteger:

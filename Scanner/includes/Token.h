@@ -14,12 +14,12 @@
 class Key;
 
 struct Token {
-	public:
-		TokenType::Type type;
-		int line;
-		int column;
-		int value;
-		Key* key;
+public:
+	long int value;
+	TokenType::Type type;
+	int line;
+	int column;
+	Key* key;
 };
 
 #endif /* SCANNER_INCLUDES_TOKEN_H_ */
