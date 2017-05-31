@@ -232,7 +232,7 @@ void StateColon::read(char c, Automat* m) {
 			break;
 		default:
 			m->getScanner()->mkToken(TokenType::TokenColon);
-			m->setCurrentState(StateStart::makeState());
+			m->setCurrentState(StateRestart::makeState());
 			m->getCurrentState()->read(c, m);
 	}
 }

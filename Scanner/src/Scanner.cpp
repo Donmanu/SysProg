@@ -70,8 +70,12 @@ void Scanner::freeToken() {
 
 void Scanner::mkToken(TokenType::Type type) {
 	// Called by Automat (i.e. its States) to tell the Scanner when something was found.
-	if (this->notoken == false) // already?
+	if (this->notoken == false) {// already?
+		errno = EBADMSG; // 74: Not a data message (what else??)
+		printf("LAST: %d \t NEXT: %d\n", this->current_token.type, type);
 		perror("mkToken() called twice in a row!?");
+		exit(EXIT_FAILURE); // critical!
+	}
 	this->notoken = false;
 	this->freeToken();
 	this->filterToken(type);
