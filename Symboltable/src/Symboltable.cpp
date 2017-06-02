@@ -44,6 +44,10 @@ void SymTabEntry::setStringTabNode(StringTabNode* node) {
 	this->string_tab_node = node;
 }
 
+bool SymTabEntry::compareLexem(const char* lexem) {
+	return this->key->getInformation()->compareLexem(lexem);
+}
+
 char* SymTabEntry::getLexem() {
 	return this->key->getInformation()->getLexem();
 }
@@ -76,12 +80,12 @@ Symboltable::~Symboltable() {
 	delete[] this->string_table;
 }
 
-Key* Symboltable::insert(char* lexem) {
+Key* Symboltable::insert(const char* lexem) {
 	// check parameter and prepare table
 	if (lexem == NULL) {
 		errno = EINVAL; // invalid arg
 		perror("NULL given to Symboltable::insert()");
-		return NULL; // also bad, but meh. Should ever happen anyway
+		exit(EXIT_FAILURE);
 	}
 	if (this->string_table->getNodeCount() > (int) this->table_size * Symboltable::LOADFACTOR) {
 		// we save on a check, if the new size would overload again ...
@@ -96,7 +100,7 @@ Key* Symboltable::insert(char* lexem) {
 	// look up if already contained
 	if (last != NULL) { // if slot not empty
 		do { // go to end of slot.
-			if (last->getKey()->getInformation()->compareLexem(lexem)) { // On the way: check, if entry already there.
+			if (last->compareLexem(lexem)) { // On the way: check, if entry already there.
 				last->getKey()->getInformation()->incrementOccurrences();
 				return last->getKey(); // Return it if so.
 			} else {
@@ -186,7 +190,7 @@ void Symboltable::resize() {
 	this->free_space += (this->table_size - previous_table_size); // fool prove, even if resize x3, x4, etc.
 }
 
-unsigned int Symboltable::hash(char* lexem) {
+unsigned int Symboltable::hash(const char* lexem) {
 	// lexem = NULL won't work! Check beforehand!
 	unsigned int hash = 0; // SEED = 0
 	int i = 0;

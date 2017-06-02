@@ -32,7 +32,7 @@ void Key::setHash(unsigned int h) {
 	this->hash = h;
 }
 
-Information::Information(char* lexem) {
+Information::Information(const char* lexem) {
 	this->occurrences = 0; // Caveat: when Info is created, it could also be a keyword without occurrences (yet)!
 	if (lexem != NULL) {
 		this->lexem = new char[strlen(lexem) + 1];
@@ -49,7 +49,7 @@ Information::~Information() {
 	delete[] this->lexem;
 }
 
-bool Information::compareLexem(char* lexem) {
+bool Information::compareLexem(const char* lexem) {
 	if (lexem == NULL) {
 		errno = EINVAL;
 		perror("NULL given to compareLexem()");

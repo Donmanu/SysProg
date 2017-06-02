@@ -42,12 +42,13 @@ public:
 
 	void debugPrint();
 
+	static const char * const KEYWORDS[]; // Need C++11 to init here ...
+
 private:
 	void initSymbols();
 	void inline filterToken(TokenType::Type type);
 
 	static const int KEYWORD_ARRAY_LENGTH = 9;
-
 	bool notoken;
 	Automat* automat;
 	Buffer* buffer;

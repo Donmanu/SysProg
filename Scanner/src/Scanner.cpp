@@ -10,6 +10,9 @@
 #include "../../Buffer/includes/Buffer.h"
 #include "../../Symboltable/includes/Symboltable.h"
 
+// initializing static const ...
+const char *const Scanner::KEYWORDS[] = {"write", "read", "if", "IF", "else", "ELSE", "while", "WHILE", "int"};
+
 Scanner::Scanner(char* filename) {
 	this->notoken = true;
 	this->automat = new Automat(*this);
@@ -34,18 +37,19 @@ Scanner::~Scanner() {
 }
 
 void Scanner::initSymbols() {
-	this->keywords[0] = this->symboltable->insert("write");
-	this->keywords[1] = this->symboltable->insert("read");
-	this->keywords[2] = this->symboltable->insert("if");
-	this->keywords[3] = this->symboltable->insert("IF");
-	this->keywords[4] = this->symboltable->insert("else");
-	this->keywords[5] = this->symboltable->insert("ELSE");
-	this->keywords[6] = this->symboltable->insert("while");
-	this->keywords[7] = this->symboltable->insert("WHILE");
-	this->keywords[8] = this->symboltable->insert("int");
-	// revert default insert-action:
+
+	/*this->keywords[1] = this->symboltable->insert();
+	this->keywords[2] = this->symboltable->insert();
+	this->keywords[3] = this->symboltable->insert();
+	this->keywords[4] = this->symboltable->insert();
+	this->keywords[5] = this->symboltable->insert();
+	this->keywords[6] = this->symboltable->insert();
+	this->keywords[7] = this->symboltable->insert();
+	this->keywords[8] = this->symboltable->insert();*/
+
 	for (int i = 0; i < Scanner::KEYWORD_ARRAY_LENGTH; i++) {
-		this->keywords[i]->getInformation()->decrementOccurrences();
+		this->keywords[i] = this->symboltable->insert(Scanner::KEYWORDS[i]);
+		this->keywords[i]->getInformation()->decrementOccurrences(); // revert default insert-action
 	}
 }
 

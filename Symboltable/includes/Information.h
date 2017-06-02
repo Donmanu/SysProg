@@ -17,9 +17,9 @@
 
 class Information {
 	public:
-		Information(char* lexem);
+		Information(const char* lexem);
 		virtual ~Information();
-		bool compareLexem(char* lexem);
+		bool compareLexem(const char* lexem);
 		char* getLexem();
 		void incrementOccurrences(void);
 		void decrementOccurrences(void);

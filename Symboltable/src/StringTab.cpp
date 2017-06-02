@@ -9,7 +9,7 @@
 
 /*------------------ StringTabNode -------------------*/
 
-StringTabNode::StringTabNode(char* lexem) {
+StringTabNode::StringTabNode(const char* lexem) {
 	this->lexem = lexem; // TODO really? do we get a persistent address here?
 }
 
@@ -17,7 +17,7 @@ StringTabNode::~StringTabNode() {
 	// leave this->lexem, not our responsibility!
 }
 
-char* StringTabNode::getLexem() {
+const char* StringTabNode::getLexem() {
 	return this->lexem;
 }
 
@@ -42,7 +42,7 @@ StringTab::~StringTab() {
 	delete first_node;
 }
 
-char* StringTab::insert(char* lexem, int size) {
+char* StringTab::insert(const char* lexem, int size) {
 	while (this->free_space < size + 1) {
 		this->resize();
 	}

@@ -12,13 +12,13 @@
 
 class StringTabNode {
 	public:
-		StringTabNode(char* lexem);
+		StringTabNode(const char* lexem);
 		virtual ~StringTabNode();
-		char* getLexem();
+		const char* getLexem();
 		int getLexemLength();
 
 	private:
-		char *lexem;
+		const char *lexem;
 		// StringTabNode* next?
 };
 
@@ -26,7 +26,7 @@ class StringTab {
 	public:
 		StringTab();
 		virtual ~StringTab();
-		char* insert(char* lexem, int size);
+		char* insert(const char* lexem, int size);
 		StringTabNode* getFirstNode();
 		int getNodeCount();
 
