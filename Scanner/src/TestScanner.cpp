@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		do {
 			t = scanner->nextToken();
 
-			scanner->debugPrint(); // TODO remove debug
+			// scanner->debugPrint();
 
 			// Write file
 			out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;

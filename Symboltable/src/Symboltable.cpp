@@ -164,7 +164,7 @@ void Symboltable::resize() {
 	unsigned int previous_table_size = this->table_size;
 	this->table_size *= 2;
 
-	printf("RESIZING SymTab %d -> %d\n", previous_table_size, this->table_size);
+	//printf("Resizing SymTab %d -> %d\n", previous_table_size, this->table_size);
 
 	SymTabEntry** previousEntries = this->entries;
 	this->entries = new SymTabEntry*[this->table_size];
