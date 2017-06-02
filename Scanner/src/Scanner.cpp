@@ -177,5 +177,8 @@ void Scanner::stop() {
 	this->current_token.type = TokenType::TokenStop;
 	this->current_token.line = this->automat->getLine();
 	this->current_token.column = this->automat->getColumn();
-	this->symboltable->debugPrint(); // TODO remove debug
+}
+
+void Scanner::debugPrint() {
+	this->symboltable->debugPrint();
 }

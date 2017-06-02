@@ -54,8 +54,8 @@ class Symboltable {
 
 		unsigned int table_size;
 		unsigned int free_space;
-		static const unsigned int SYMBOL_TABLE_SIZE = 128; // should be at least big enough for the keywords: SYMBOL_TABLE_SIZE >= keywords / LOADFACTOR
-		static const double LOADFACTOR = 0.75;              // fill level before resize (0.01 - 200.0 have almost same performance)
+		static const unsigned int SYMBOL_TABLE_SIZE = 64; // should be at least big enough for the keywords: SYMBOL_TABLE_SIZE >= keywords / LOADFACTOR
+		static const double LOADFACTOR = 0.75;            // fill level before resize (0.01 - 200.0 have almost same performance)
 		// Multiplicative hashing (h = SEED; h += SALT * h + c) parameters:
 		// Bernstein: 5381, 33
 		// K&R      : 0   , 31

@@ -40,6 +40,8 @@ public:
 	void ungetChar(int count);
 	void stop(void);
 
+	void debugPrint();
+
 private:
 	void initSymbols();
 	void inline filterToken(TokenType::Type type);

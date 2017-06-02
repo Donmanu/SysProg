@@ -77,48 +77,58 @@ Symboltable::~Symboltable() {
 }
 
 Key* Symboltable::insert(char* lexem) {
+	// check parameter and prepare table
 	if (lexem == NULL) {
 		errno = EINVAL; // invalid arg
 		perror("NULL given to Symboltable::insert()");
 		return NULL; // also bad, but meh. Should ever happen anyway
 	}
 	if (this->string_table->getNodeCount() > (int) this->table_size * Symboltable::LOADFACTOR) {
-		// we save on the check, if new size would overflow ...
+		// we save on a check, if the new size would overload again ...
 		this->resize();
 	}
 
+	// hash
 	unsigned int fullHash = this->hash(lexem);
 	unsigned int hash = fullHash % this->table_size;
-	SymTabEntry* current = this->entries[hash];
+	SymTabEntry* last = this->entries[hash];
 
-	if (current != NULL) {
-		while (current->hasNext()) { // go to end of row. On the way: check, if entry already there. Return if so.
-			if (current->getKey()->getInformation()->compareLexem(lexem)) {
-				current->getKey()->getInformation()->incrementOccurrences();
-				return current->getKey();
+	// look up if already contained
+	if (last != NULL) { // if slot not empty
+		do { // go to end of slot.
+			if (last->getKey()->getInformation()->compareLexem(lexem)) { // On the way: check, if entry already there.
+				last->getKey()->getInformation()->incrementOccurrences();
+				return last->getKey(); // Return it if so.
+			} else {
+				if (last->hasNext()) {
+					last = last->getNext();
+					// continue
+				} else {
+					break;
+				}
 			}
-			current = current->getNext();
-		}
+		} while (0);
 	}
-	// here we have a new Symbol!
-	// current is now pointing to the last entry in the row, possibly null
 
+	// here we have a new Symbol! current is now pointing to the last entry in the slot, possibly null if empty
 	Information* i = new Information(lexem);
 	i->incrementOccurrences();
 	Key* k = new Key(fullHash, i);
-	StringTabNode* n = new StringTabNode(i->getLexem()); // insert into StringTab and let StringTabNode point to Information ...
+	StringTabNode* n = new StringTabNode(i->getLexem()); // TODO insert into StringTab and let StringTabNode point to Information ...
 
-	if (current != NULL) {
-		current->setNext(new SymTabEntry(k, n)); // new Key(new Information(lexem)), new StringTabNode(lexem)
-		current = current->getNext();
+	if (last != NULL) {
+		// append to end
+		last->setNext(new SymTabEntry(k, n)); // new Key(new Information(lexem)), new StringTabNode(lexem)
+		last = last->getNext();
 	} else {
+		// init slot
 		this->entries[hash] = new SymTabEntry(k, n);
-		current = this->entries[hash];
+		last = this->entries[hash];
 	}
 
 	this->string_table->insert(lexem, strlen(lexem));
 
-	return current->getKey();
+	return last->getKey();
 }
 
 /*
@@ -237,8 +247,7 @@ void Symboltable::debugPrint() {
 		chain ? avg = (avg * (chains - 1) + chain) / chains: 0;
 
 		// update quality measure
-		red_dragon += (double) (chain * (chain + 1)); // constants are only calculated at the end ...
-		//e % 1000 == 0 ? printf("RED_DRAGON BY NOW: %10.1f\n", red_dragon) : 0;
+		red_dragon += (double) (chain * (chain + 1)); // constants are calculated only at the end ...
 
 		// reset
 		chain = 0;

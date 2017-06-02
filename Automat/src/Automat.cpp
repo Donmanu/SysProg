@@ -87,9 +87,8 @@ void Automat::ungetChar(int count) {
 		perror("[A] Illegal unget()");
 		this->column = 0;
 	} else {
-		this->column -= count;
 		this->counter -= count;
-		this->blockIncrement = count;
+		this->blockIncrement += count;
 	}
 	// buffer->unget() has been done by Scanner for us
 }
@@ -120,7 +119,6 @@ void Automat::readChar(char c) {
 		// the char we just pass to our state has been ungotten
 		// so wait for next 'real' new read
 		this->blockIncrement--;
-		this->column++; // TODO: ????
 	}
 }
 
@@ -128,8 +126,7 @@ void Automat::readChar(char c) {
  * Another approach would be to take the count variable and get the according
  * amount of characters from the buffer ...
  *
- * TODO At least we should use some better mechanism like in the StringTable.resize() ...
- * TODO Should be possible to merge the meaning of last_string_len and counter -> this func becomes "incrementWithAppendChar"
+ * TODO Should be possible to merge the meaning of last_string_len and counter -> this func becomes "incrementWithAppendChar", changes needed in unget()!
  *
  * O(n^2) with n length of identifier/number ...
  */
@@ -151,23 +148,18 @@ char* Automat::getLastString() {
 }
 
 long int Automat::getIntegerValue() {
-	/* strtol:
+	/* strtol():
 	On success, the function returns the converted integral number as a long int value.
 	If no valid conversion could be performed, a zero value is returned (0L).
 	If the value read is out of the range of representable values by a long int,
-		the function returns LONG_MAX or LONG_MIN (defined in <climits>), and errno is set to ERANGE.
-	 */
+		the function returns LONG_MAX or LONG_MIN (defined in <climits>), and errno is set to ERANGE. */
 	long int result = strtol(this->last_string, NULL, 10);
 
 	if (errno == ERANGE) {
-		// TODO ?
 		printf("'%s' in line %d column %d is out of range! Automatically set to %ld (%s)\n", this->last_string, this->getLine(), this->getColumn(), result, result == LONG_MAX ? "LONG_MAX" : "LONG_MIN");
 		perror("Parsing number failed");
 		errno = 0; // regard as handled
 	}
-	//for (int i = 0; this->last_string[i] != '\0'; i++) {
-	//	result = result * 10 + this->last_string[i] - '0';
-	//}
 	return result;
 }
 
