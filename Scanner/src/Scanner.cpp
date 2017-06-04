@@ -23,10 +23,10 @@ Scanner::Scanner(char* filename) {
 }
 
 Scanner::~Scanner() {
-	delete[] this->keywords; // delete only array, keys get deleted with symboltable
 	delete this->automat;
 	delete this->buffer;
 	delete this->symboltable;
+	delete[] this->keywords; // delete only array, keys get deleted with symboltable
 }
 
 void Scanner::initSymbols() {

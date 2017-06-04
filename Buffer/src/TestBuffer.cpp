@@ -1,10 +1,4 @@
 #include "../includes/Buffer.h"
-//#include <iostream> already is in Buffer.h
-
-/* TODO Make test suite ... */
-//int FAIL = 1;
-//int SUCCESS = 0;
-//void doTest(char* name, int testFct[, int expect]);
 
 int main(int argc, char **argv) {
 	Buffer* buffer;

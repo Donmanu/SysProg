@@ -8,6 +8,8 @@
 #ifndef Automat_H_
 #define Automat_H_
 
+#define TAB_WIDTH (8)
+
 #include <unistd.h>
 #include <string.h>
 #include <cstdlib> // strtol()

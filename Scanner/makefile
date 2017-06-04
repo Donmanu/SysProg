@@ -12,7 +12,7 @@ OBJDIR = objs
 # enthaelt das ausfuehrbare File zum Testen
 BINDIRTEST = debug
 
-
+# Abhaengigkeiten:
 AUTOMATDIR = ../Automat
 
 BUFFERDIR = ../Buffer

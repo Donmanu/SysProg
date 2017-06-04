@@ -1,5 +1,5 @@
 #
-#	baut das komplette Scanner Projekt
+#	baut das komplette Scanner+Parser Projekt
 #
 OBJDIR = objs
 
@@ -11,10 +11,12 @@ SYMBOLTABLEDIR = Symboltable
 
 SCANNERDIR = Scanner
 
+PARSERDIR = Parser
 
 
-all:	automatOBJs bufferOBJs symboltableOBJs scanner  
-	@echo "target all"
+
+all:	automatOBJs bufferOBJs symboltableOBJs scanner parser
+	@echo "target 'all' finished"
 
 	
 # rm 	remove
@@ -25,6 +27,8 @@ clean:
 	rm -f $(SYMBOLTABLEDIR)/$(OBJDIR)/*.o
 	rm -f $(SCANNERDIR)/$(OBJDIR)/*.o
 	rm -f $(SCANNERDIR)/debug/*
+	rm -f $(PARSERDIR)/$(OBJDIR)/*.o
+	rm -f $(PARSERDIR)/debug/*
 	
 
 automatOBJs:
@@ -42,4 +46,9 @@ symboltableOBJs:
 scanner: 
 	$(MAKE) -C $(SCANNERDIR) makeTestScanner
 
+#parserOBJs:
+#	$(MAKE) -C $(PARSERDIR) ParserOBJTarget
+
+parser:
+	$(MAKE) -C $(PARSERDIR) makeTestParser
 	

@@ -5,7 +5,9 @@
  *      Author: donmanu
  */
 
-#include "../includes/Parser.h"
+#include "../includes/Parser.h" // contains scanner.h
+
+/*------------- Parser --------------*/
 
 Parser::Parser(char* input) {
 	this->scanner = new Scanner(input);
@@ -17,45 +19,45 @@ Parser::~Parser() {
 }
 
 Node Parser::prog() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::decls() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::decl() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::array() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::statements() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::statement() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::exp() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::exp2() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::index() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::op_exp() {
-	return new Node();
+	return * new Node();
 }
 
 Node Parser::op() {
-	return new Node();
+	return * new Node();
 }

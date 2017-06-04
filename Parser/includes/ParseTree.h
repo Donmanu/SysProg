@@ -9,30 +9,32 @@
 #define PARSER_INCLUDES_PARSETREE_H_
 
 class Node {
-public:
-	Node();
-	virtual ~Node();
+	public:
+		Node(void);
+		virtual ~Node(void);
 
-	void setLeftChild();
-	Node* getLeftChild();
-	void setRightChild();
-	Node* getRightChild();
+		void setLeftChild(Node*);
+		Node* getLeftChild(void);
+		void setRightChild(Node*);
+		Node* getRightChild(void);
 
-	bool isLeaf();
+		bool isLeaf(void);
 
-private:
-	Node* left;
-	Node* right;
+	private:
+		Node* left;
+		Node* right;
 };
 
 class ParseTree {
-public:
-	ParseTree();
-	virtual ~ParseTree();
+	public:
+		ParseTree(void);
+		virtual ~ParseTree(void);
 
-	// ??
-private:
-	Node root;
+		// The root node could represent a parse tree in itself
+		// TODO offer some helpful functions here, to work with the whoel tree
+
+	private:
+		Node root;
 };
 
 #endif /* PARSER_INCLUDES_PARSETREE_H_ */

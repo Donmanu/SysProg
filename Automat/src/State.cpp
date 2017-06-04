@@ -304,6 +304,7 @@ void StateCommentEnd::read(char c, Automat* m) {
 	}
 }
 
+// TODO Remove?
 void StateUnknown::read(char c, Automat* m){
 	m->setCurrentState(StateStart::makeState());
 	m->getScanner()->mkToken(TokenType::TokenUnknown);
