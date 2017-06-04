@@ -16,37 +16,20 @@ const char *const Scanner::KEYWORDS[] = {"write", "read", "if", "IF", "else", "E
 Scanner::Scanner(char* filename) {
 	this->notoken = true;
 	this->automat = new Automat(*this);
-	try {
-		this->buffer = new Buffer(filename);
-	} catch (.../*all*/) {
-		// at this point, buffer is no more
-		perror("Error while buffering");
-		exit(errno);
-	}
-	//this->current_token;
+	this->buffer = new Buffer(filename);
 	this->symboltable = new Symboltable();
 	this->keywords = new Key*[Scanner::KEYWORD_ARRAY_LENGTH];
 	this->initSymbols();
 }
 
 Scanner::~Scanner() {
+	delete[] this->keywords; // delete only array, keys get deleted with symboltable
 	delete this->automat;
 	delete this->buffer;
 	delete this->symboltable;
-	delete[] this->keywords;
 }
 
 void Scanner::initSymbols() {
-
-	/*this->keywords[1] = this->symboltable->insert();
-	this->keywords[2] = this->symboltable->insert();
-	this->keywords[3] = this->symboltable->insert();
-	this->keywords[4] = this->symboltable->insert();
-	this->keywords[5] = this->symboltable->insert();
-	this->keywords[6] = this->symboltable->insert();
-	this->keywords[7] = this->symboltable->insert();
-	this->keywords[8] = this->symboltable->insert();*/
-
 	for (int i = 0; i < Scanner::KEYWORD_ARRAY_LENGTH; i++) {
 		this->keywords[i] = this->symboltable->insert(Scanner::KEYWORDS[i]);
 		this->keywords[i]->getInformation()->decrementOccurrences(); // revert default insert-action
@@ -62,9 +45,10 @@ Token Scanner::nextToken() {
 	return this->current_token;
 }
 
+/*
+ * Removes information pertaining only to the last token in case it has no meaning on the new one (value, lexem, ...)
+ */
 void Scanner::freeToken() {
-	// more like resetToken();
-	// a.k.a. remove information pertaining only to the last token (value, lexem, ...)
 	this->current_token.type = TokenType::TokenStop;
 	this->current_token.line = -1337; // because some offset errors leading to -1, we set to some other magic number
 	this->current_token.column = -1337;

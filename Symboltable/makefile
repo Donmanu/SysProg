@@ -38,19 +38,23 @@ makeTestSymboltable: $(OBJDIR)/Information.o $(OBJDIR)/StringTab.o $(OBJDIR)/Sym
 $(OBJDIR)/Information.o : $(SRCDIR)/Information.cpp $(HEADERDIR)/Information.h
 	@echo "g++ $*.cpp"
 	g++ -g -c -Wall $(SRCDIR)/Information.cpp -o $(OBJDIR)/Information.o
+	#g++ -O3 -c -Wall $(SRCDIR)/Information.cpp -o $(OBJDIR)/Information.o
 
 $(OBJDIR)/StringTab.o : $(SRCDIR)/StringTab.cpp $(HEADERDIR)/StringTab.h
 	@echo "g++ $*.cpp"
 	g++ -g -c -Wall $(SRCDIR)/StringTab.cpp -o $(OBJDIR)/StringTab.o
+	#g++ -O3 -c -Wall $(SRCDIR)/StringTab.cpp -o $(OBJDIR)/StringTab.o
 
 $(OBJDIR)/Symboltable.o : $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
 	@echo "g++ $*.cpp"
 	g++ -g  -c -Wall $(SRCDIR)/Symboltable.cpp -o $(OBJDIR)/Symboltable.o
+	#g++ -O3  -c -Wall $(SRCDIR)/Symboltable.cpp -o $(OBJDIR)/Symboltable.o
 #
 #
 $(BINDIRTEST)/TestSymboltable.o :  $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Information.h $(HEADERDIR)/StringTab.h $(HEADERDIR)/Symboltable.h
 	@echo "g++ $*.cpp"
 	g++ -g  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o
+	#g++ -O3  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o
 #
 
 

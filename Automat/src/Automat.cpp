@@ -8,10 +8,8 @@
 Automat::Automat(IScanner& scan) {
 	this->scanner = &scan;
 	this->state_current = StateStart::makeState();
-	this->last_final_state = NULL;
 	this->string_buffer_length = Automat::STRING_BUFFER_STEP;
 	this->last_string = new char[Automat::STRING_BUFFER_STEP];
-	this->last_string_len = 0;
 	this->blockIncrement = 0;
 	this->counter = 0;
 	this->column = 0;
@@ -22,16 +20,8 @@ Automat::~Automat() {
 	delete[] this->last_string;
 }
 
-void Automat::setScanner(IScanner& scanner) {
-	this->scanner = &scanner;
-}
-
 void Automat::setCurrentState(State* state) {
 	this->state_current = state;
-}
-
-void Automat::setLastFinalState(State* state) {
-	this->last_final_state = state;
 }
 
 IScanner* Automat::getScanner() {
@@ -40,10 +30,6 @@ IScanner* Automat::getScanner() {
 
 State* Automat::getCurrentState() {
 	return this->state_current;
-}
-
-State* Automat::getLastFinalState() {
-	return this->last_final_state;
 }
 
 int Automat::getColumn() {
@@ -55,7 +41,7 @@ int Automat::getLine() {
 }
 
 /*
- * "incrementWithoutAppendChar"
+ * "incrementWithoutAppend"
  */
 void Automat::incrementCounter() {
 	this->counter++;
@@ -77,7 +63,6 @@ int Automat::getCounter() {
 void Automat::resetCounter() {
 	this->counter = 0;
 	memset(this->last_string, 0, this->string_buffer_length);
-	this->last_string_len = 0;
 }
 
 void Automat::ungetChar(int count) {
@@ -90,7 +75,7 @@ void Automat::ungetChar(int count) {
 		this->counter -= count;
 		this->blockIncrement += count;
 	}
-	// buffer->unget() has been done by Scanner for us
+	// buffer->unget() has already been done by Scanner
 }
 
 /*
@@ -126,12 +111,10 @@ void Automat::readChar(char c) {
  * Another approach would be to take the count variable and get the according
  * amount of characters from the buffer ...
  *
- * TODO Should be possible to merge the meaning of last_string_len and counter -> this func becomes "incrementWithAppendChar", changes needed in unget()!
- *
- * O(n^2) with n length of identifier/number ...
  */
-void Automat::appendCharToString(char c) {
-	if (this->last_string_len >= this->string_buffer_length - 1) { // >= instead of > : keep last place for '\0'
+void Automat::incrementAndAppend(char c) {
+	if (this->counter >= this->string_buffer_length - 1) {
+		// extend string buffer
 		char* tmp = this->last_string;
 		this->string_buffer_length += Automat::STRING_BUFFER_STEP;
 		this->last_string = new char[this->string_buffer_length];
@@ -139,8 +122,7 @@ void Automat::appendCharToString(char c) {
 		strcpy(this->last_string, tmp);
 		delete[] tmp;
 	}
-	this->last_string[this->last_string_len] = c; // overwrite last '\0'
-	this->last_string_len++;
+	this->last_string[this->counter++] = c;
 }
 
 char* Automat::getLastString() {

@@ -9,6 +9,7 @@
 
 makeTestAutomat: StateTarget AutomatTarget TestAutomatTarget
 	g++ -g objs/State.o objs/Automat.o debug/TestAutomat.o -o debug/AutomatTest
+	#g++ -O3 objs/State.o objs/Automat.o debug/TestAutomat.o -o debug/AutomatTest
 	
 
 # compilieren des Files Automat.cpp zu Automat.o, 
@@ -18,17 +19,20 @@ makeTestAutomat: StateTarget AutomatTarget TestAutomatTarget
 # -g --> debug Informationen erzeugen
 # -Wall --> alle meldungen erzeugen (Warning all)
 
-StateTarget : src/State.cpp includes/State.h 
-	g++ -g	-c -Wall src/State.cpp -o objs/State.o 
+StateTarget : src/State.cpp includes/State.h
+	g++ -g -c -Wall src/State.cpp -o objs/State.o 
+	#g++ -O3 -c -Wall src/State.cpp -o objs/State.o 
 
 
-AutomatTarget :  src/Automat.cpp includes/Automat.h 
-	g++ -g  -c -Wall src/Automat.cpp -o objs/Automat.o  
+AutomatTarget :  src/Automat.cpp includes/Automat.h
+	g++ -g -c -Wall src/Automat.cpp -o objs/Automat.o  
+	#g++ -O3 -c -Wall src/Automat.cpp -o objs/Automat.o  
 
 
 # TestAutomat.o ist abhängig von src/TestAutomat.cpp und src/Automat.h
 TestAutomatTarget :  src/TestAutomat.cpp includes/State.h includes/Automat.h
-	g++ -g  -c -Wall src/TestAutomat.cpp  -o debug/TestAutomat.o  
+	g++ -g -c -Wall src/TestAutomat.cpp  -o debug/TestAutomat.o
+	#g++ -O3 -c -Wall src/TestAutomat.cpp  -o debug/TestAutomat.o
 
 
 

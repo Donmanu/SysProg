@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		do {
 			t = scanner->nextToken();
 
-			// scanner->debugPrint();
+			//scanner->debugPrint();
 
 			// Write file
 			out << tokenTypeToName[t.type] << " in line " << t.line << "\tin column " << t.column;
@@ -82,12 +82,14 @@ int main(int argc, char **argv) {
 
 		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
-		delete scanner;
 
 		time_t end = clock();
 		printf("Took %f s\n", double(end - start) / CLOCKS_PER_SEC);
 		std::ifstream file(argv[args], std::ifstream::ate | std::ifstream::binary);
 		printf("Crunched with %f MB/s\n", file.tellg() * CLOCKS_PER_SEC / double(end - start) / 1e6 /*MB*/);
+
+		//scanner->debugPrint();
+		delete scanner;
 	}
 	out.close();
 

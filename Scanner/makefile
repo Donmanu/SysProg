@@ -55,7 +55,7 @@ makeTestScanner: $(OBJS) ScannerTest
 $(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
 	@echo "g++ $*.cpp"
 	g++ -g  -c -Wall  -o $@  $<
-	#g++ -c -Wall -O0 -o $@  $<  # < put this in, if you suspect debug and/or optimization problems
+	#g++ -c -Wall -O3 -o $@  $<
 
 # 
 # $@ name des object files
@@ -63,8 +63,8 @@ $(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
 
 
 ScannerTest: $(SRCDIR)/TestScanner.cpp $(HEADERDIR)/Scanner.h
-	g++ -g  -c -O0 -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
-	#g++ -c -O0 -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
+	g++ -g -c -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
+	#g++ -O3 -c -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
 	g++ -g $(BINDIRTEST)/TestScanner.o $(OBJDIR)/*.o $(AUTOMATDIR)/$(OBJDIR)/*.o $(BUFFERDIR)/$(OBJDIR)/*.o $(SYMBOLTABLEDIR)/$(OBJDIR)/*.o -o $(BINDIRTEST)/ScannerTest
 
 # loeschen aller files im verzeichnis $(OBJDIR) und $(BINDIRTEST) und neu erstellen

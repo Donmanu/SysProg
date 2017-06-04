@@ -5,28 +5,30 @@
  *      Author: donmanu
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <error.h>
-#include <errno.h>
-#include <err.h>
+#include <stdio.h>  // printf()
+#include <stdlib.h> // exit()
+#include <string.h> // strlen(), strcpy()
+#include <error.h>  // perrer()
+#include <errno.h>  // EINVAL ...
+#include <err.h>    // warn(), err()
+
+#include "../../Symboltable/includes/StringTabNode.h"
 
 #ifndef SYMBOLTABLE_INCLUDES_INFORMATION_H_
 #define SYMBOLTABLE_INCLUDES_INFORMATION_H_
 
 class Information {
 	public:
-		Information(const char* lexem);
+		Information(StringTabNode*);
 		virtual ~Information();
 		bool compareLexem(const char* lexem);
-		char* getLexem();
+		const char* getLexem();
 		void incrementOccurrences(void);
 		void decrementOccurrences(void);
 		int getOccurrences();
 
 	private:
-		char *lexem;
+		StringTabNode* lexemWrapper;
 		int occurrences;
 };
 

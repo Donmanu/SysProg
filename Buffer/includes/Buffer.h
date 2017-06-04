@@ -17,27 +17,27 @@
 #include <unistd.h>
 
 class Buffer {
-public:
-	Buffer(char*);
-	virtual ~Buffer();
-	char getChar();
-	char ungetChar();
+	public:
+		Buffer(char*);
+		virtual ~Buffer(void);
 
-private:
-	void allocateMemory(char **buffer);
-	void openFile(char *file_name);
-	void readFile(char **buffer);
-	void swapBuffer();
+		char getChar(void);
+		void ungetChar(void);
 
-	static const size_t BUFFER_SIZE = 512;
-	static const size_t ALIGNMENT = 512;
-	char *buffer_current;
-	char *buffer_previous;
-	ssize_t bytes_read;
-	char current_char;
-	int file_handle;
-	unsigned int position;
-	bool buffer_swapped_back;
+	private:
+		void allocateMemory(char **buffer);
+		void openFile(char *file_name);
+		void readFile(char **buffer);
+		void swapBuffer(void);
+
+		static const size_t BUFFER_SIZE = 512;
+		static const size_t ALIGNMENT = 512;
+		char *buffer_current;
+		char *buffer_previous;
+		ssize_t bytes_read;
+		int file_handle;
+		unsigned int position;
+		bool buffer_swapped_back;
 };
 
 #endif /* BUFFER_H_ */

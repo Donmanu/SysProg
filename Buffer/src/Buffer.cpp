@@ -18,11 +18,10 @@
 Buffer::Buffer(char *file_name) {
 	this->buffer_current = NULL;
 	this->buffer_previous = NULL;
-	this->current_char = '\0'; // TODO remove debug
 	this->bytes_read = 0;
 	this->file_handle = 0;
 	this->position = 0;
-	this->buffer_swapped_back = true;       // regard buffers as if back-swapped initially!
+	this->buffer_swapped_back = true; // regard buffers as if back-swapped initially!
 	this->allocateMemory(& this->buffer_current);
 	this->allocateMemory(& this->buffer_previous);
 	this->openFile(file_name);
@@ -56,7 +55,7 @@ void Buffer::allocateMemory(char **buffer) {
 	errno = posix_memalign((void**) buffer, Buffer::ALIGNMENT, Buffer::BUFFER_SIZE);
 	if (errno) { // EINVAL (error: invalid alignment, not a power of 2) or ENOMEM (error: no memory)
 		perror("Error allocating memory!");
-		throw errno;
+		exit(EXIT_FAILURE);
 	} else {
 		// not really needed, but it silents valgrind in regards to "uninitialized value(s)"-errors
 		memset(*buffer, 0, Buffer::BUFFER_SIZE);
@@ -101,13 +100,13 @@ void Buffer::readFile(char **buffer) {
 
 /*
  * this method increments the position{position} for
- * each call and returns the current character{current_char}
+ * each call and returns the current character.
  *
  * If needed, the buffers will be swapped and the previous buffer
  * will be overwritten with the next block of characters
  * from the file.
  *
- * @return: current character{current_char}
+ * @return: current character at read position
  */
 char Buffer::getChar() {
 	if (this->position >= Buffer::BUFFER_SIZE) {
@@ -122,18 +121,17 @@ char Buffer::getChar() {
 		}
 		this->position = 0;
 	}
-	this->current_char = this->buffer_current[this->position++]; // TODO remove debug, we don't need to save the char
-	return this->current_char;
+	return this->buffer_current[this->position++];
 }
 
 /*
- * this function decrements the position{position}
+ * This function decrements the position{position}
  * or sets the previous buffer{buffer_previous} as the
  * current buffer{buffer_current} if the position{position}
  * is zero. Throws an error if the buffer was already
  * swapped and the buffer would have to be swapped again.
  */
-char Buffer::ungetChar() {
+void Buffer::ungetChar() {
 	if (this->position > 0) {
 		this->position--;
 	} else if (!this->buffer_swapped_back) {
@@ -146,12 +144,10 @@ char Buffer::ungetChar() {
 		perror("[B] can't go back two buffers");
 		throw errno;
 	}
-
-	return buffer_current[this->position]; // if anybody is interested ...
 }
 
 /*
- * this function sets the current buffer{buffer_current}
+ * This function sets the current buffer{buffer_current}
  * as the previous buffer{buffer_previous} and sets
  * the position{position} to zero and the flag that
  * indicates if the buffer had to be swapped due to
@@ -159,7 +155,7 @@ char Buffer::ungetChar() {
  */
 void Buffer::swapBuffer() {
 	//printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?
-	// the print above is wrong the first time!
+	// the print above is misleading the first time!
 	char *buffer_temp = this->buffer_previous;
 	this->buffer_previous = this->buffer_current;
 	this->buffer_current = buffer_temp;

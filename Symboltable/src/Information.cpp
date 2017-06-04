@@ -7,6 +7,8 @@
 
 #include "../includes/Information.h"
 
+/*---------------------- Key --------------------------*/
+
 Key::Key(unsigned int h, Information* info) {
 	this->information = info;
 	this->hash = h;
@@ -32,34 +34,29 @@ void Key::setHash(unsigned int h) {
 	this->hash = h;
 }
 
-Information::Information(const char* lexem) {
-	this->occurrences = 0; // Caveat: when Info is created, it could also be a keyword without occurrences (yet)!
-	if (lexem != NULL) {
-		this->lexem = new char[strlen(lexem) + 1];
-		strcpy(this->lexem, lexem);
-	} else {
-		errno = EINVAL; // invalid arg
-		perror("NULL given as lexem to Information()! Doing fallback ...");
-		this->lexem = new char[1];
-		this->lexem[0] = '\0';
-	}
+
+/*------------------- Information -----------------------*/
+
+Information::Information(StringTabNode* lexem) {
+	this->lexemWrapper = lexem;
+	this->occurrences = 1;
 }
 
 Information::~Information() {
-	delete[] this->lexem;
+	delete this->lexemWrapper;
 }
 
 bool Information::compareLexem(const char* lexem) {
 	if (lexem == NULL) {
 		errno = EINVAL;
 		perror("NULL given to compareLexem()");
-		return false;
+		exit(EXIT_FAILURE);
 	}
-	return !strcmp(this->lexem, lexem);
+	return !strcmp(this->lexemWrapper->getLexem(), lexem);
 }
 
-char* Information::getLexem(){
-	return this->lexem;
+const char* Information::getLexem(){
+	return this->lexemWrapper->getLexem();
 }
 
 void Information::incrementOccurrences() {

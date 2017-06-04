@@ -21,34 +21,34 @@ class State;
 class Automat {
 public:
 	Automat(IScanner&);
-	virtual ~Automat();
-	void setScanner(IScanner& scanner);
-	void setCurrentState(State* state);
-	void setLastFinalState(State* state);
-	IScanner* getScanner();
-	State* getCurrentState();
-	int getColumn();
-	int getLine();
-	State* getLastFinalState();
-	void incrementCounter();
-	void incrementNewline();
-	void incrementTabulator();
-	int getCounter();
-	void resetCounter();
-	void ungetChar(int);
-	void readChar(char);
-	void appendCharToString(char c);
-	char* getLastString();
-	long int getIntegerValue();
-	char getUnknownCharacter();
+	virtual ~Automat(void);
+
+	// interface for states:
+	void      setCurrentState(State* state);
+	IScanner* getScanner(void);
+	State*    getCurrentState(void);
+	int       getCounter(void);
+	void      resetCounter(void);
+	void      incrementCounter(void);
+	void      incrementAndAppend(char c);
+
+	// interface for scanner:
+	void     ungetChar(int);
+	void     readChar(char);
+	int      getColumn(void);
+	int      getLine(void);
+	char*    getLastString(void);
+	long int getIntegerValue(void);
+	char     getUnknownCharacter(void);
 
 private:
+	void incrementNewline(void);
+	void incrementTabulator(void);
+
 	IScanner* scanner;
 	State* state_current;
-	State* last_final_state;
-	char* last_string; // holder, identifiers, integers and unknowns
-	int last_string_len;
-	int counter; // basically the same as last_string_len TODO refactor to merge counter with last_string_len (appendToString(c){... counter++; ...} )
+	char* last_string; // holder for: identifiers, integers and unknowns
+	int counter;
 	int column;
 	int line;
 	int blockIncrement;

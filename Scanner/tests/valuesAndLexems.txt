@@ -9,7 +9,7 @@ ts : [123,234,345  ,  456,567];
 123.123.123.321
 345,450,123,212.2
 so(); many(); different(); words(); to(); insert(); into(); the(); StringTable();
-:* Crazy, how for every task, there is a tool online: http://www.dave-reed.com/Nifty/randSeq.html *:
+Crazy, how for every task, there is a tool online: http://www.dave-reed.com/Nifty/randSeq.html
 pMa Cbb pvL QhH wqz PSa tUX lPc Kqi MuU Plk lMi mxn YKC Yqu KgH TLO OHA oVD isW
 kwv IPS DIY SUP EnN Pji pXd nVe zOk ISY RPB EoV Zfc ojc jIb UqM wpm cYC aSJ eWF
 fJX OoZ cmv ASt ptm CaK SMh Xoi nsf XEA Pje fff BnK gzM LhN mcc ctz taD VyT xFL
