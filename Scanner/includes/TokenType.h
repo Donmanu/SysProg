@@ -41,7 +41,7 @@ namespace TokenType {
 		TokenStop // Metatoken: No more tokens to come	//27
 	};
 
-	static const char* tokenName[] = {
+	static const char* tokenNameAligned[] = {
 		"TokenUnknown\t\t", // a.k.a. TokenError		//0
 		"TokenInteger\t\t",								//1
 		"TokenIdentifier\t\t",							//2
@@ -70,6 +70,68 @@ namespace TokenType {
 		"TokenElse\t\t",								//25
 		"TokenInt\t\t",									//26
 		"TokenStop\t\t"									//27
+	};
+
+	static const char* tokenName[] = {
+		"TokenUnknown", // a.k.a. TokenError	//0
+		"TokenInteger",							//1
+		"TokenIdentifier",						//2
+		"TokenPlus",							//3
+		"TokenMinus",							//4
+		"TokenColon",							//5
+		"TokenStar",							//6
+		"TokenLessThan",						//7
+		"TokenGreaterThan",						//8
+		"TokenEquals",							//9
+		"TokenColonEquals",						//10
+		"TokenEqualsColonEquals",				//11
+		"TokenExclamationMark",					//12
+		"TokenAndAnd",							//13
+		"TokenSemiColon",						//14
+		"TokenParenthesisOpen",					//15
+		"TokenParenthesisClose",				//16
+		"TokenSquareBracketsOpen",				//17
+		"TokenSquareBracketsClose", 			//18
+		"TokenCurlyBracesOpen",					//19
+		"TokenCurlyBracesClose",				//20
+		"TokenWrite",							//21
+		"TokenRead",							//22
+		"TokenIf",								//23
+		"TokenWhile",							//24
+		"TokenElse",							//25
+		"TokenInt",								//26
+		"TokenStop"								//27
+	};
+
+	static const char* tokenNameShort[] = {
+		"Unknown", // a.k.a. TokenError	//0
+		"Integer",						//1
+		"Identifier",					//2
+		"Plus",							//3
+		"Minus",						//4
+		"Colon",						//5
+		"Star",							//6
+		"LessThan",						//7
+		"GreaterThan",					//8
+		"Equals",						//9
+		"ColonEquals",					//10
+		"EqualsColonEquals",			//11
+		"ExclamationMark",				//12
+		"AndAnd",						//13
+		"SemiColon",					//14
+		"ParenthesisOpen",				//15
+		"ParenthesisClose",				//16
+		"TokenSquareBracketsOpen",		//17
+		"SquareBracketsClose", 			//18
+		"CurlyBracesOpen",				//19
+		"CurlyBracesClose",				//20
+		"Write",						//21
+		"Read",							//22
+		"If",							//23
+		"While",						//24
+		"Else",							//25
+		"Int",							//26
+		"Stop"							//27
 	};
 }
 
