@@ -40,6 +40,37 @@ namespace TokenType {
 
 		TokenStop // Metatoken: No more tokens to come	//27
 	};
+
+	static const char* tokenName[] = {
+		"TokenUnknown\t\t", // a.k.a. TokenError		//0
+		"TokenInteger\t\t",								//1
+		"TokenIdentifier\t\t",							//2
+		"TokenPlus\t\t",								//3
+		"TokenMinus\t\t",								//4
+		"TokenColon\t\t",								//5
+		"TokenStar\t\t",								//6
+		"TokenLessThan\t\t",							//7
+		"TokenGreaterThan\t",							//8
+		"TokenEquals\t\t",								//9
+		"TokenColonEquals\t",							//10
+		"TokenEqualsColonEquals\t",						//11
+		"TokenExclamationMark\t",						//12
+		"TokenAndAnd\t\t",								//13
+		"TokenSemiColon\t\t",							//14
+		"TokenParenthesisOpen\t",						//15
+		"TokenParenthesisClose\t",						//16
+		"TokenSquareBracketsOpen\t",					//17
+		"TokenSquareBracketsClose", // 24 chars = 6 \t	//18
+		"TokenCurlyBracesOpen\t",						//19
+		"TokenCurlyBracesClose\t",						//20
+		"TokenWrite\t\t",								//21
+		"TokenRead\t\t",								//22
+		"TokenIf\t\t\t",								//23
+		"TokenWhile\t\t",								//24
+		"TokenElse\t\t",								//25
+		"TokenInt\t\t",									//26
+		"TokenStop\t\t"									//27
+	};
 }
 
 #endif /* SCANNER_INCLUDES_TOKENTYPE_H_ */

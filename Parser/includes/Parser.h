@@ -14,23 +14,28 @@
 class Parser {
 	public:
 		Parser(char*);
-		~Parser();
+		~Parser(void);
 
-		Node prog();
-		Node decls();
-		Node decl();
-		Node array();
-		Node statements();
-		Node statement();
-		Node exp();
-		Node exp2();
-		Node index();
-		Node op_exp();
-		Node op();
+		Node prog(void);
+		Node decls(void);
+		Node decl(void);
+		Node array(void);
+		Node statements(void);
+		Node statement(void);
+		Node exp(void);
+		Node exp2(void);
+		Node index(void);
+		Node op_exp(void);
+		Node op(void);
+
+		Node terminalId(void);
+		Node terminalInt(void);
+
+		void nextToken(void);
 
 	private:
 		Scanner* scanner;
-		Token* current_token;
+		Token current_token;
 };
 
 #endif /* PARSER_INCLUDES_PARSER_H_ */

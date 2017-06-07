@@ -31,7 +31,7 @@ class ParseTree {
 		virtual ~ParseTree(void);
 
 		// The root node could represent a parse tree in itself
-		// TODO offer some helpful functions here, to work with the whoel tree
+		// TODO offer some helpful functions here, to work with the whole tree
 
 	private:
 		Node root;
