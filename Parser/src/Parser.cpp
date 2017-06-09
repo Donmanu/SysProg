@@ -55,7 +55,7 @@ Parser::~Parser() {
 }
 
 void Parser::parse() {
-	this->prog(); // TODO what to do with the return? parseTree.root = ?
+	this->prog();
 }
 
 /* PROG  ::=  DECLS  STATEMENTS
@@ -77,8 +77,9 @@ void Parser::prog() {
 	case TokenType::TokenWhile:
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen:
+	case TokenType::TokenStop: // TODO or break immediately?
 		this->nonTerminalNode();
-		this->decls();	// last action of function chain shall be nextToken();
+		this->decls();
 		this->nonTerminalNode();
 		this->statements();
 		break;
@@ -119,6 +120,7 @@ void Parser::decls() {
 	case TokenType::TokenWhile:
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen:
+	case TokenType::TokenStop: // epsilon-DECLS
 		break;
 	default:
 		this->error();
@@ -213,6 +215,7 @@ void Parser::statements() {
 		}
 		break;
 	case TokenType::TokenCurlyBracesClose:
+	case TokenType::TokenStop:  // epsilon-STATEMENTS
 		break;
 	default:
 		this->error();
@@ -397,7 +400,7 @@ void Parser::exp() {
 	case TokenType::TokenInteger:
 		this->nonTerminalNode();
 		this->exp2();
-		this->nextToken();
+		//this->nextToken(); already done in exp2
 		this->nonTerminalNode();
 		this->op_exp();
 		break;
@@ -536,7 +539,7 @@ void Parser::op_exp() {
 	case TokenType::TokenAndAnd:
 		this->nonTerminalNode();
 		this->op();
-		this->nextToken();
+		//this->nextToken();
 		this->nonTerminalNode();
 		this->exp();
 		break;
@@ -615,6 +618,7 @@ void Parser::nextToken() {
 
 void Parser::error() {
 	errno = EINVAL;
+	printf("Unexpected token %s in line %d, column %d\n", TokenType::tokenNameShort[this->current_token.type], this->current_token.line, this->current_token.column);
 	perror("Illegal Token Sequence");
 	exit(EXIT_FAILURE);
 }

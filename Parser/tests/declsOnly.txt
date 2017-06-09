@@ -1,0 +1,6 @@
+int superInt;
+int[700] foo;
+int bar; int crrkc;
+
+
+int[1] a;

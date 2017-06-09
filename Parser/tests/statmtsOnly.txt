@@ -1,0 +1,10 @@
+fnu := 7;
+if   (fnu > 7) write(1);
+else write(2);
+
+fnu[123] := 12 * fnu[122];
+
+while(1 = baz[i])
+    baz[i + 1] := read(x);
+
+:* Should all be legal ... *:
