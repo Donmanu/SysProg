@@ -15,15 +15,21 @@ void printVersion(void);
 
 int main(int argc, char **argv) {
 	//TODO: parse arguments
-	printHelp();
-	printVersion();
+	//printHelp();
+	//printVersion();
 
-	Parser* parser = new Parser(argv[1]);
+	for (int i = 1; i < argc; i++) {
+		printf("  --- Parsing file %s ---\n", argv[i]);
+		Parser* parser = new Parser(argv[i]);
 
-	parser->parse();
-	//parser.prog(); // TODO
+		parser->parse();
 
-	delete parser;
+		printf("  --- Successfully parsed file %s ---\n\n", argv[i]);
+
+		parser->debugPrint();
+
+		delete parser;
+	}
 }
 
 void parseArgs(int argc, char **argv) {

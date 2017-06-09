@@ -17,6 +17,8 @@ class Parser {
 		~Parser(void);
 		void parse(void);
 
+		void debugPrint(void);
+
 	private:
 		void prog(void);
 		void decls(void);

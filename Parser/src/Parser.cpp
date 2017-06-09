@@ -51,7 +51,7 @@ Parser::Parser(char* input) {
 
 Parser::~Parser() {
 	delete this->scanner;
-	delete this->parse_tree;
+	//delete this->parse_tree;  // TODO Getting segFaults somewhere deep in the tree!! Got a Loop!?!
 }
 
 void Parser::parse() {
@@ -620,5 +620,11 @@ void Parser::error() {
 	errno = EINVAL;
 	printf("Unexpected token %s in line %d, column %d\n", TokenType::tokenNameShort[this->current_token.type], this->current_token.line, this->current_token.column);
 	perror("Illegal Token Sequence");
+	this->parse_tree->debugPrint();
 	exit(EXIT_FAILURE);
+}
+
+void Parser::debugPrint() {
+	this->scanner->debugPrint();
+	this->parse_tree->debugPrint();
 }

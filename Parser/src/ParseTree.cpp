@@ -5,6 +5,8 @@
  *      Author: arthur
  */
 
+#define MAX_PRINT (2056)
+
 #include <stdlib.h>
 
 #include "../includes/ParseTree.h"
@@ -47,7 +49,7 @@ Node* Node::getParent() {
 void Node::addChild(Node* child) {
 	Node * c = this->child;
 	if (c == NULL) {
-		c = child;
+		this->child = child;
 	} else {
 		while (c->hasSibling()) // better for(i = children... ?
 			c = c->getSibling();
@@ -89,6 +91,10 @@ bool Node::isLeaf() {
 
 bool Node::hasSibling() {
 	return !!this->sibling;
+}
+
+TokenType::Type Node::getTokenType() {
+	return this->token_type;
 }
 
 /*---------- NodeId ------------*/
@@ -143,12 +149,54 @@ void NodeInt::setValue(int value) {
 
 ParseTree::ParseTree() {
 	this->root = new Node();
+	this->printDepth = new char[MAX_PRINT];
 }
 
 ParseTree::~ParseTree() {
 	delete this->root; // triggers destructor chain
+	delete[] this->printDepth;
 }
 
 Node* ParseTree::getRoot() {
 	return this->root;
+}
+
+void ParseTree::debugPrint() {
+	printf("  --- ParseTree: ---\n");
+	this->recursivePrint(this->root);
+	printf("\n");
+}
+
+void ParseTree::recursivePrint(Node* thisRoot) {
+	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
+
+	printf("(%s)\n", TokenType::tokenNameShort[thisRoot->getTokenType()]);
+
+	Node* child = thisRoot->getChild();
+
+	while (child)
+	{
+		Node* next = child->getSibling();
+		printf("%s `--", this->printDepth);
+		this->push(next ? '|' : ' ');
+		this->recursivePrint(child);
+		this->pop();
+		child = child->getSibling();
+	}
+}
+
+void ParseTree::push(char c) {
+    this->printDepth[di++] = ' ';
+    this->printDepth[di++] = c;
+    this->printDepth[di++] = ' ';
+    this->printDepth[di++] = ' ';
+    this->printDepth[di] = '\0';
+    if (di >= MAX_PRINT - 4) {
+    	perror("No more space for printing ...");
+    	exit(EXIT_FAILURE);
+    }
+}
+
+void ParseTree::pop() {
+	this->printDepth[di -= 4] = 0;
 }

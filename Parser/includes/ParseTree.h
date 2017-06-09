@@ -32,6 +32,8 @@ class Node {
 		bool hasSibling(void);
 		//bool isOnlyChild(void); ??
 
+		TokenType::Type getTokenType(void);
+
 	protected:
 		int children;
 		Node* parent;
@@ -71,8 +73,16 @@ class ParseTree {
 		// The root node could represent a parse tree in itself
 		// TODO offer some helpful functions here, to work with the whole tree
 
+		void debugPrint();
+
 	private:
+		void recursivePrint(Node*);
+		void push(char);
+		void pop();
 		Node* root;
+
+		char* printDepth;
+		int di;
 };
 
 #endif /* PARSER_INCLUDES_PARSETREE_H_ */

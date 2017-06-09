@@ -1,10 +1,11 @@
 fnu := 7;
-if   (fnu > 7) write(1);
+if   (fnu > 7) write(1)   :* no semicolon after only one statement *:
 else write(2);
 
-fnu[123] := 12 * fnu[122];
-
-while(1 = baz[i])
+fnu[123] := 12 : fnu[122];
+i := 8123640238940;
+j := -87236;
+while(1 = baz[i[j]])
     baz[i + 1] := read(x);
 
 :* Should all be legal ... *:
