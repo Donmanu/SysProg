@@ -45,16 +45,16 @@ Parser::Parser(char* input) {
 	// TODO some try/catch error and args handling ...
 	// go:
 	this->current_token = this->scanner->nextToken();
-	this->prog(); // TODO what to do with the return? parseTree.root = ?
+	this->parse_tree = new ParseTree();
 }
 
 Parser::~Parser() {
 	delete this->scanner;
+	delete this->parse_tree;
 }
 
-Node Parser::parse() {
-	this->nextToken();  // < TODO
-	return this->prog();
+void Parser::parse() {
+	this->prog(); // TODO what to do with the return? parseTree.root = ?
 }
 
 /* PROG  ::=  DECLS  STATEMENTS
@@ -67,7 +67,7 @@ Node Parser::parse() {
  * "if"				-> DECLS STATEMENTS
  * "{"				-> DECLS STATEMENTS
  */
-Node Parser::prog() {
+void Parser::prog() {
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenInt:
@@ -77,14 +77,11 @@ Node Parser::prog() {
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen:
 		this->decls();	// last action of function chain shall be nextToken();
-		this->nextToken();
 		this->statements();
 		break;
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* DECLS  ::=  DECL  ";"  DECLS  |  €
@@ -97,12 +94,15 @@ Node Parser::prog() {
  * "if"				-> €
  * "{"				-> €
  */
-Node Parser::decls() {
+void Parser::decls() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenInt:
 		this->decl();
 		if (this->current_token.type == TokenType::TokenSemiColon) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->decls();
 		} else {
@@ -119,17 +119,18 @@ Node Parser::decls() {
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* DECL  ::=  "int"  ARRAY  identifier
  * ------------------------------------
  * "int"			-> int ARRAY identifier
  */
-Node Parser::decl() {
+void Parser::decl() {
+	Node node;
 	if (this->current_token.type == TokenType::TokenInt) {
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		this->array();
 		if (this->current_token.type == TokenType::TokenIdentifier) {
@@ -141,8 +142,6 @@ Node Parser::decl() {
 	} else {
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* ARRAY  ::=  "["  integer  "]"  |  €
@@ -150,16 +149,21 @@ Node Parser::decl() {
  * "["				-> [ integer ]
  * "identifier"		-> €
  */
-Node Parser::array() {
+void Parser::array() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		if (this->current_token.type == TokenType::TokenInteger) {
 			this->terminalInt();
 			this->nextToken();
 			if (this->current_token.type == TokenType::TokenSquareBracketsClose) {
 				// TODO success: addToParseTree(this->current_token);
+				node = new Node(this->current_token.type);
+				this->addToParseTree(node);
 				this->nextToken();
 			} else {
 				this->error();
@@ -173,8 +177,6 @@ Node Parser::array() {
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* STATEMENTS  ::=  STATEMENT  ";"  STATEMENTS  |  €
@@ -187,7 +189,8 @@ Node Parser::array() {
  * "{"				-> STATEMENT ; STATEMENTS
  * "}"				-> €
  */
-Node Parser::statements() {
+void Parser::statements() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenWrite:
@@ -198,6 +201,8 @@ Node Parser::statements() {
 		this->statement();
 		if (this->current_token.type == TokenType::TokenSemiColon) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->statements();
 		} else {
@@ -209,8 +214,6 @@ Node Parser::statements() {
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* STATEMENT  ::=  identifier  INDEX  ":="  EXP  |
@@ -229,7 +232,8 @@ Node Parser::statements() {
  * "else"			-> €
  * ";"				-> €
  */
-Node Parser::statement() {
+void Parser::statement() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->terminalId();
@@ -237,6 +241,8 @@ Node Parser::statement() {
 		this->index();
 		if (this->current_token.type == TokenType::TokenColonEquals) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->exp();
 		} else {
@@ -245,13 +251,19 @@ Node Parser::statement() {
 		break;
 	case TokenType::TokenWrite:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				// TODO success: addToParseTree(this->current_token);
+				node = new Node(this->current_token.type);
+				this->addToParseTree(node);
 				this->nextToken();
 			} else {
 				this->error();
@@ -262,9 +274,13 @@ Node Parser::statement() {
 		break;
 	case TokenType::TokenRead:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			if (this->current_token.type == TokenType::TokenIdentifier) {
 				this->terminalId();
@@ -272,6 +288,8 @@ Node Parser::statement() {
 				this->index();
 				if (this->current_token.type == TokenType::TokenParenthesisClose) {
 					// TODO success: addToParseTree(this->current_token);
+					node = new Node(this->current_token.type);
+					this->addToParseTree(node);
 					this->nextToken();
 				} else {
 					this->error();
@@ -285,13 +303,19 @@ Node Parser::statement() {
 		break;
 	case TokenType::TokenWhile:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				// TODO success: addToParseTree(this->current_token);
+				node = new Node(this->current_token.type);
+				this->addToParseTree(node);
 				this->nextToken();
 				this->statement();
 			} else {
@@ -303,17 +327,25 @@ Node Parser::statement() {
 		break;
 	case TokenType::TokenIf:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				// TODO success: addToParseTree(this->current_token);
+				node = new Node(this->current_token.type);
+				this->addToParseTree(node);
 				this->nextToken();
 				this->statement();
 				if (this->current_token.type == TokenType::TokenElse) {
 					// TODO success: addToParseTree(this->current_token);
+					node = new Node(this->current_token.type);
+					this->addToParseTree(node);
 					this->nextToken();
 					this->statement();
 				} else {
@@ -328,10 +360,14 @@ Node Parser::statement() {
 		break;
 	case TokenType::TokenCurlyBracesOpen:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		this->statements();
 		if (this->current_token.type == TokenType::TokenCurlyBracesClose) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 		} else {
 			this->error();
@@ -343,7 +379,6 @@ Node Parser::statement() {
 	default:
 		this->error();
 	}
-	return * new Node();
 }
 
 /* EXP  ::=  EXP2 OP_EXP
@@ -354,7 +389,7 @@ Node Parser::statement() {
  * "!"			-> EXP2 OP_EXP
  * "integer"	-> EXP2 OP_EXP
  */
-Node Parser::exp() {
+void Parser::exp() {
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenParenthesisOpen:
@@ -368,8 +403,6 @@ Node Parser::exp() {
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* EXP2  ::=  "("  EXP  ")"  |
@@ -384,7 +417,8 @@ Node Parser::exp() {
  * "!"				-> ! EXP2
  * "integer"		-> integer
  */
-Node Parser::exp2() {
+void Parser::exp2() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->terminalId();
@@ -393,10 +427,14 @@ Node Parser::exp2() {
 		break;
 	case TokenType::TokenParenthesisOpen:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		this->exp();
 		if (this->current_token.type == TokenType::TokenParenthesisClose) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 		} else {
 			this->error();
@@ -405,18 +443,20 @@ Node Parser::exp2() {
 	case TokenType::TokenMinus:
 	case TokenType::TokenExclamationMark:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		this->exp2();
 		break;
 	case TokenType::TokenInteger:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		break;
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* INDEX  ::=  "["  EXP  "]"  |  €
@@ -433,14 +473,19 @@ Node Parser::exp2() {
  * "="		-> €
  * "&&"		-> €
  */
-Node Parser::index() {
+void Parser::index() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		// TODO success: addToParseTree(this->current_token);
+		node = new Node(this->current_token.type);
+		this->addToParseTree(node);
 		this->nextToken();
 		this->exp();
 		if (this->current_token.type == TokenType::TokenSquareBracketsClose) {
 			// TODO success: addToParseTree(this->current_token);
+			node = new Node(this->current_token.type);
+			this->addToParseTree(node);
 			this->nextToken();
 		} else {
 			this->error();
@@ -460,16 +505,10 @@ Node Parser::index() {
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* OP_EXP  ::=  OP  EXP  |  €
  * ---------------------------
- * "else" 	-> €
- * "]"		-> €
- * ")"		-> €
- * ";"		-> €
  * "+"		-> OP EXP
  * "-"		-> OP EXP
  * "*"		-> OP EXP
@@ -478,14 +517,13 @@ Node Parser::index() {
  * ">"		-> OP EXP
  * "="		-> OP EXP
  * "&&"		-> OP EXP
+ * "else" 	-> €
+ * "]"		-> €
+ * ")"		-> €
+ * ";"		-> €
  */
-Node Parser::op_exp() {
+void Parser::op_exp() {
 	switch (this->current_token.type) {
-	case TokenType::TokenElse:
-	case TokenType::TokenSquareBracketsClose:
-	case TokenType::TokenParenthesisClose:
-	case TokenType::TokenSemiColon:
-		break;
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
 	case TokenType::TokenStar:
@@ -498,18 +536,22 @@ Node Parser::op_exp() {
 		this->nextToken();
 		this->exp();
 		break;
+	case TokenType::TokenElse:
+	case TokenType::TokenSquareBracketsClose:
+	case TokenType::TokenParenthesisClose:
+	case TokenType::TokenSemiColon:
+		break;
 	default:
 		this->error();
 	}
-
-	return * new Node();
 }
 
 /* OP  ::=  "+"  |  "-"  |  "*"  |
  *          ":"  |  "<"  |  ">"  |
  *          "="  |  "=:="  |  "&&"
  */
-Node Parser::op() {
+void Parser::op() {
+	Node node;
 	switch (this->current_token.type) {
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
@@ -520,25 +562,32 @@ Node Parser::op() {
 	case TokenType::TokenEquals:
 	case TokenType::TokenEqualsColonEquals:
 	case TokenType::TokenAndAnd:
+		node = new Node(this->current_token.type);
 		// TODO success: addToParseTree(this->current_token);
+		this->addToParseTree(node);
 		nextToken();
 		break;
 	default:
 		this->error();
 	}
-	return * new Node();
 }
 
 /* identifier */
-Node Parser::terminalId() {
+void Parser::terminalId() {
 	// TODO success: addToParseTree(this->current_token);
-	return * new Node();
+	Node node = new Node(this->current_token.type);
+	this->addToParseTree(node);
 }
 
 /* integer */
-Node Parser::terminalInt() {
+void Parser::terminalInt() {
 	// TODO success: addToParseTree(this->current_token);
-	return * new Node();
+	Node node = new Node(this->current_token.type);
+	this->addToParseTree(node);
+}
+
+void Parser::addToParseTree(Node node) {
+	// TODO: this->parse_tree->addNode(node); ?
 }
 
 void Parser::nextToken() {

@@ -15,7 +15,16 @@ Node::Node() {
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
+	this->token_type = TokenType::TokenStop;
 }
+
+Node::Node(int token_type) {
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = token_type;
+}
+
 Node::~Node() {
 	delete this->sibling;
 	delete this->child;

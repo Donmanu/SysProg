@@ -15,29 +15,31 @@ class Parser {
 	public:
 		Parser(char*);
 		~Parser(void);
+		void parse(void);
 
-		Node parse(void);
+	private:
+		void prog(void);
+		void decls(void);
+		void decl(void);
+		void array(void);
+		void statements(void);
+		void statement(void);
+		void exp(void);
+		void exp2(void);
+		void index(void);
+		void op_exp(void);
+		void op(void);
 
-		Node prog(void);
-		Node decls(void);
-		Node decl(void);
-		Node array(void);
-		Node statements(void);
-		Node statement(void);
-		Node exp(void);
-		Node exp2(void);
-		Node index(void);
-		Node op_exp(void);
-		Node op(void);
+		void terminalId(void);
+		void terminalInt(void);
 
-		Node terminalId(void);
-		Node terminalInt(void);
-
+		void addToParseTree(Node node);
 		void nextToken(void);
 		void error(void);
 
-	private:
 		Scanner* scanner;
+		Node* current_node;
+		ParseTree* parse_tree;
 		Token current_token;
 };
 

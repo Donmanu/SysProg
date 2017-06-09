@@ -11,6 +11,7 @@
 class Node {
 	public:
 		Node(void);
+		Node(int token_tyoe);
 		virtual ~Node(void);
 
 		void addChild(Node*);
@@ -29,6 +30,7 @@ class Node {
 		int children;
 		Node* child;
 		Node* sibling;
+		TokenType token_type;
 };
 
 class ParseTree {
