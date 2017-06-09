@@ -32,8 +32,10 @@ class Parser {
 
 		void terminalId(void);
 		void terminalInt(void);
+		void terminalNode(void);
+		void nonTerminalNode(void);
 
-		void addToParseTree(Node* node);
+		void addToParseTree(Node*);
 		void nextToken(void);
 		void error(void);
 
