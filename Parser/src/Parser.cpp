@@ -52,31 +52,164 @@ Parser::~Parser() {
 	delete this->scanner;
 }
 
-/* PROG  ::=  DECLS  STATEMENTS */
+Node Parser::parse() {
+	this->nextToken();  // < TODO
+	return this->prog();
+}
+
+/* PROG  ::=  DECLS  STATEMENTS
+ * -------------------------------------
+ * "identifier"		-> DECLS STATEMENTS
+ * "int"			-> DECLS STATEMENTS
+ * "write"			-> DECLS STATEMENTS
+ * "read"			-> DECLS STATEMENTS
+ * "while"			-> DECLS STATEMENTS
+ * "if"				-> DECLS STATEMENTS
+ * "{"				-> DECLS STATEMENTS
+ */
 Node Parser::prog() {
-	// nextToken();  < TODO
-	// this->decls();      // last action of function chain shall be nextToken();
-	// this->statements();
+	switch (this->current_token.type) {
+	case TokenType::TokenIdentifier:
+	case TokenType::TokenInt:
+	case TokenType::TokenWrite:
+	case TokenType::TokenRead:
+	case TokenType::TokenWhile:
+	case TokenType::TokenIf:
+	case TokenType::TokenCurlyBracesOpen:
+		this->decls();	// last action of function chain shall be nextToken();
+		this->nextToken();
+		this->statements();
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* DECLS  ::=  DECL  ";"  DECLS  |  € */
+/* DECLS  ::=  DECL  ";"  DECLS  |  €
+ * -----------------------------------
+ * "int"			-> DECL ; DECLS
+ * "identifier"		-> €
+ * "write"			-> €
+ * "read"			-> €
+ * "while"			-> €
+ * "if"				-> €
+ * "{"				-> €
+ */
 Node Parser::decls() {
+	switch (this->current_token.type) {
+	case TokenType::TokenInt:
+		this->decl();
+		if (this->current_token.type == TokenType::TokenSemiColon) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->decls();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenIdentifier:
+	case TokenType::TokenWrite:
+	case TokenType::TokenRead:
+	case TokenType::TokenWhile:
+	case TokenType::TokenIf:
+	case TokenType::TokenCurlyBracesOpen:
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* DECL  ::=  "int"  ARRAY  identifier */
+/* DECL  ::=  "int"  ARRAY  identifier
+ * ------------------------------------
+ * "int"			-> int ARRAY identifier
+ */
 Node Parser::decl() {
+	if (this->current_token.type == TokenType::TokenInt) {
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		this->array();
+		if (this->current_token.type == TokenType::TokenIdentifier) {
+			this->terminalId();
+			this->nextToken();
+		} else {
+			this->error();
+		}
+	} else {
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* ARRAY  ::=  "["  integer  "]"  |  € */
+/* ARRAY  ::=  "["  integer  "]"  |  €
+ * ------------------------------------
+ * "["				-> [ integer ]
+ * "identifier"		-> €
+ */
 Node Parser::array() {
+	switch (this->current_token.type) {
+	case TokenType::TokenSquareBracketsOpen:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		if (this->current_token.type == TokenType::TokenInteger) {
+			this->terminalInt();
+			this->nextToken();
+			if (this->current_token.type == TokenType::TokenSquareBracketsClose) {
+				// TODO success: addToParseTree(this->current_token);
+				this->nextToken();
+			} else {
+				this->error();
+			}
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenIdentifier:
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* STATEMENTS  ::=  STATEMENT  ";"  STATEMENTS  |  € */
+/* STATEMENTS  ::=  STATEMENT  ";"  STATEMENTS  |  €
+ * --------------------------------------------------
+ * "identifier"		-> STATEMENT ; STATEMENTS
+ * "write"			-> STATEMENT ; STATEMENTS
+ * "read"			-> STATEMENT ; STATEMENTS
+ * "while"			-> STATEMENT ; STATEMENTS
+ * "if"				-> STATEMENT ; STATEMENTS
+ * "{"				-> STATEMENT ; STATEMENTS
+ * "}"				-> €
+ */
 Node Parser::statements() {
+	switch (this->current_token.type) {
+	case TokenType::TokenIdentifier:
+	case TokenType::TokenWrite:
+	case TokenType::TokenRead:
+	case TokenType::TokenWhile:
+	case TokenType::TokenIf:
+	case TokenType::TokenCurlyBracesOpen:
+		this->statement();
+		if (this->current_token.type == TokenType::TokenSemiColon) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->statements();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenCurlyBracesClose:
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
@@ -86,13 +219,156 @@ Node Parser::statements() {
  *                 "{"  STATEMENTS  "}"  |
  *                 "if"  "("  EXP  ")"  STATEMENT  "else"  STATEMENT  |
  *                 "while"  "("  EXP  ")"  STATEMENT
+ * ---------------------------------------------------------------------
+ * "identifier"		-> identifier INDEX := EXP
+ * "write"			-> write ( EXP )
+ * "read"			-> read ( identifier INDEX )
+ * "while"			-> while ( EXP ) STATEMENT
+ * "if"				-> if ( EXP ) STATEMENT else STATEMENT
+ * "{"				-> { STATEMENTS }
+ * "else"			-> €
+ * ";"				-> €
  */
 Node Parser::statement() {
+	switch (this->current_token.type) {
+	case TokenType::TokenIdentifier:
+		this->terminalId();
+		this->nextToken();
+		this->index();
+		if (this->current_token.type == TokenType::TokenColonEquals) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->exp();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenWrite:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->exp();
+			if (this->current_token.type == TokenType::TokenParenthesisClose) {
+				// TODO success: addToParseTree(this->current_token);
+				this->nextToken();
+			} else {
+				this->error();
+			}
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenRead:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			if (this->current_token.type == TokenType::TokenIdentifier) {
+				this->terminalId();
+				this->nextToken();
+				this->index();
+				if (this->current_token.type == TokenType::TokenParenthesisClose) {
+					// TODO success: addToParseTree(this->current_token);
+					this->nextToken();
+				} else {
+					this->error();
+				}
+			} else {
+				this->error();
+			}
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenWhile:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->exp();
+			if (this->current_token.type == TokenType::TokenParenthesisClose) {
+				// TODO success: addToParseTree(this->current_token);
+				this->nextToken();
+				this->statement();
+			} else {
+				this->error();
+			}
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenIf:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+			this->exp();
+			if (this->current_token.type == TokenType::TokenParenthesisClose) {
+				// TODO success: addToParseTree(this->current_token);
+				this->nextToken();
+				this->statement();
+				if (this->current_token.type == TokenType::TokenElse) {
+					// TODO success: addToParseTree(this->current_token);
+					this->nextToken();
+					this->statement();
+				} else {
+					this->error();
+				}
+			} else {
+				this->error();
+			}
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenCurlyBracesOpen:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		this->statements();
+		if (this->current_token.type == TokenType::TokenCurlyBracesClose) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenElse:
+	case TokenType::TokenSemiColon:
+		break;
+	default:
+		this->error();
+	}
 	return * new Node();
 }
 
-/* EXP  ::=  EXP2  OP  EXP */
+/* EXP  ::=  EXP2 OP_EXP
+ * ---------------------------
+ * "identifier"	-> EXP2 OP_EXP
+ * "("			-> EXP2 OP_EXP
+ * "-"			-> EXP2 OP_EXP
+ * "!"			-> EXP2 OP_EXP
+ * "integer"	-> EXP2 OP_EXP
+ */
 Node Parser::exp() {
+	switch (this->current_token.type) {
+	case TokenType::TokenIdentifier:
+	case TokenType::TokenParenthesisOpen:
+	case TokenType::TokenMinus:
+	case TokenType::TokenExclamationMark:
+	case TokenType::TokenInteger:
+		this->exp2();
+		this->nextToken();
+		this->op_exp();
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
@@ -101,18 +377,131 @@ Node Parser::exp() {
  *            integer  |
  *            "-"  EXP2  |
  *            "!"  EXP2
+ * ------------------------------------
+ * "identifier"		-> identifier INDEX
+ * "("				-> ( EXP )
+ * "-"				-> - EXP2
+ * "!"				-> ! EXP2
+ * "integer"		-> integer
  */
 Node Parser::exp2() {
+	switch (this->current_token.type) {
+	case TokenType::TokenIdentifier:
+		this->terminalId();
+		this->nextToken();
+		this->index();
+		break;
+	case TokenType::TokenParenthesisOpen:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		this->exp();
+		if (this->current_token.type == TokenType::TokenParenthesisClose) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenMinus:
+	case TokenType::TokenExclamationMark:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		this->exp2();
+		break;
+	case TokenType::TokenInteger:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* INDEX  ::=  "["  EXP  "]"  |  € */
+/* INDEX  ::=  "["  EXP  "]"  |  €
+ * --------------------------------
+ * "["		-> [ EXP ]
+ * ")"		-> €
+ * ";"		-> €
+ * "+"		-> €
+ * "-"		-> €
+ * "*"		-> €
+ * ":"		-> €
+ * "<"		-> €
+ * ">"		-> €
+ * "="		-> €
+ * "&&"		-> €
+ */
 Node Parser::index() {
+	switch (this->current_token.type) {
+	case TokenType::TokenSquareBracketsOpen:
+		// TODO success: addToParseTree(this->current_token);
+		this->nextToken();
+		this->exp();
+		if (this->current_token.type == TokenType::TokenSquareBracketsClose) {
+			// TODO success: addToParseTree(this->current_token);
+			this->nextToken();
+		} else {
+			this->error();
+		}
+		break;
+	case TokenType::TokenParenthesisClose:
+	case TokenType::TokenSemiColon:
+	case TokenType::TokenPlus:
+	case TokenType::TokenMinus:
+	case TokenType::TokenStar:
+	case TokenType::TokenColon:
+	case TokenType::TokenLessThan:
+	case TokenType::TokenGreaterThan:
+	case TokenType::TokenEquals:
+	case TokenType::TokenAndAnd:
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
-/* OP_EXP  ::=  OP  EXP  |  € */
+/* OP_EXP  ::=  OP  EXP  |  €
+ * ---------------------------
+ * "else" 	-> €
+ * "]"		-> €
+ * ")"		-> €
+ * ";"		-> €
+ * "+"		-> OP EXP
+ * "-"		-> OP EXP
+ * "*"		-> OP EXP
+ * ":"		-> OP EXP
+ * "<"		-> OP EXP
+ * ">"		-> OP EXP
+ * "="		-> OP EXP
+ * "&&"		-> OP EXP
+ */
 Node Parser::op_exp() {
+	switch (this->current_token.type) {
+	case TokenType::TokenElse:
+	case TokenType::TokenSquareBracketsClose:
+	case TokenType::TokenParenthesisClose:
+	case TokenType::TokenSemiColon:
+		break;
+	case TokenType::TokenPlus:
+	case TokenType::TokenMinus:
+	case TokenType::TokenStar:
+	case TokenType::TokenColon:
+	case TokenType::TokenLessThan:
+	case TokenType::TokenGreaterThan:
+	case TokenType::TokenEquals:
+	case TokenType::TokenAndAnd:
+		this->op();
+		this->nextToken();
+		this->exp();
+		break;
+	default:
+		this->error();
+	}
+
 	return * new Node();
 }
 
@@ -135,19 +524,20 @@ Node Parser::op() {
 		nextToken();
 		break;
 	default:
-		// TODO error
-		break;
+		this->error();
 	}
 	return * new Node();
 }
 
 /* identifier */
 Node Parser::terminalId() {
+	// TODO success: addToParseTree(this->current_token);
 	return * new Node();
 }
 
 /* integer */
 Node Parser::terminalInt() {
+	// TODO success: addToParseTree(this->current_token);
 	return * new Node();
 }
 
@@ -156,4 +546,10 @@ void Parser::nextToken() {
 	// this->last_token = this->current_token; ?
 	// do some other management?
 	this->current_token = this->scanner->nextToken();
+}
+
+void Parser::error() {
+	errno = EINVAL;
+	perror("Illegal Token Sequence");
+	exit(EXIT_FAILURE);
 }

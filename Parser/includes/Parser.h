@@ -16,6 +16,8 @@ class Parser {
 		Parser(char*);
 		~Parser(void);
 
+		Node parse(void);
+
 		Node prog(void);
 		Node decls(void);
 		Node decl(void);
@@ -32,6 +34,7 @@ class Parser {
 		Node terminalInt(void);
 
 		void nextToken(void);
+		void error(void);
 
 	private:
 		Scanner* scanner;
