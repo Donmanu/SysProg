@@ -50,6 +50,11 @@ int main(int argc, char **argv) {
 
 		} while (t.type != TokenType::TokenStop);
 
+		// Add-on:
+		//t = scanner->nextToken(); out << TokenType::tokenName[t.type] << " in line " << t.line << "\tin column " << t.column << std::endl;
+		//t = scanner->nextToken(); out << TokenType::tokenName[t.type] << " in line " << t.line << "\tin column " << t.column << std::endl;
+		//t = scanner->nextToken(); out << TokenType::tokenName[t.type] << " in line " << t.line << "\tin column " << t.column << std::endl;
+
 		printf("Test ended. All tokens from %s fetched.\n", argv[args]);
 		out <<  std::endl << "    --- END OF " << argv[args] << " ---" <<  std::endl <<  std::endl;
 

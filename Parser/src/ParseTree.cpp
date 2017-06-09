@@ -12,32 +12,60 @@
 /*----------------- Node -----------*/
 
 Node::Node() {
-	this->left = NULL;
-	this->right = NULL;
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
 }
 Node::~Node() {
-	delete this->left;
-	delete this->right;
+	delete this->sibling;
+	delete this->child;
 }
 
-void Node::setLeftChild(Node* left) {
-	this->left = left;
+void Node::addChild(Node* child) {
+	Node * c = this->child;
+	if (c == NULL) {
+		c = child;
+	} else {
+		while (c->hasSibling()) // better for(i = children... ?
+			c = c->getSibling();
+		c->setSibling(child);
+	}
+	this->children++;
 }
 
-Node* Node::getLeftChild() {
-	return this->left;
+void Node::setChild(Node* child) {
+	this->child = child;
 }
 
-void Node::setRightChild(Node* right) {
-	this->right = right;
+Node* Node::getChild() {
+	return this->child;
 }
 
-Node* Node::getRightChild() {
-	return this->right;
+void Node::addSibling(Node* sibling) {
+	Node * c = this->sibling;
+	if (c == NULL) {
+		c = sibling;
+	} else {
+		while (c->hasSibling())
+			c = c->getSibling();
+		c->setSibling(sibling);
+	}
+}
+
+void Node::setSibling(Node* sibling) {
+	this->sibling = sibling;
+}
+
+Node* Node::getSibling() {
+	return this->sibling;
 }
 
 bool Node::isLeaf() {
-	return !this->left && !this->right;
+	return !this->child;
+}
+
+bool Node::hasSibling() {
+	return !!this->sibling;
 }
 
 /*---------- ParseTree ------------*/

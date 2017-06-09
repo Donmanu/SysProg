@@ -13,16 +13,22 @@ class Node {
 		Node(void);
 		virtual ~Node(void);
 
-		void setLeftChild(Node*);
-		Node* getLeftChild(void);
-		void setRightChild(Node*);
-		Node* getRightChild(void);
+		void addChild(Node*);
+		void setChild(Node*);
+		Node* getChild(void);
+
+		void addSibling(Node*);
+		void setSibling(Node*);
+		Node* getSibling(void);
 
 		bool isLeaf(void);
+		bool hasSibling(void);
+		//bool isOnlyChild(void); ??
 
 	private:
-		Node* left;
-		Node* right;
+		int children;
+		Node* child;
+		Node* sibling;
 };
 
 class ParseTree {
