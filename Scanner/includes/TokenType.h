@@ -115,16 +115,16 @@ namespace TokenType {
 		"GreaterThan",					//8
 		"Equals",						//9
 		"ColonEquals",					//10
-		"EqualsColonEquals",			//11
+		"EqualColonEqual",				//11
 		"ExclamationMark",				//12
 		"AndAnd",						//13
 		"SemiColon",					//14
-		"ParenthesisOpen",				//15
-		"ParenthesisClose",				//16
-		"TokenSquareBracketsOpen",		//17
-		"SquareBracketsClose", 			//18
-		"CurlyBracesOpen",				//19
-		"CurlyBracesClose",				//20
+		"ParenthOpen",					//15
+		"ParenthClose",					//16
+		"SquarBrackOpen",				//17
+		"SquarBrackClos", 				//18
+		"CurlyBraceOpen",				//19
+		"CurlyBraceClos",				//20
 		"Write",						//21
 		"Read",							//22
 		"If",							//23
@@ -132,6 +132,37 @@ namespace TokenType {
 		"Else",							//25
 		"Int",							//26
 		"Stop"							//27
+	};
+
+	static const char* tokenNameMini[] = {
+		"?", // a.k.a. TokenError	//0
+		"123",						//1
+		"abc",						//2
+		"+",						//3
+		"-",						//4
+		":",						//5
+		"*",						//6
+		"<",						//7
+		">",						//8
+		"=",						//9
+		":=",						//10
+		"=:=",						//11
+		"!",						//12
+		"&&",						//13
+		";",						//14
+		"(",						//15
+		")",						//16
+		"[",						//17
+		"]", 						//18
+		"{",						//19
+		"}",						//20
+		"WRIT",						//21
+		"READ",						//22
+		"IF",						//23
+		"WHIL",						//24
+		"ELSE",						//25
+		"INT",						//26
+		"#"							//27
 	};
 }
 

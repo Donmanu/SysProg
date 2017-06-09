@@ -162,7 +162,7 @@ Node* ParseTree::getRoot() {
 }
 
 void ParseTree::debugPrint() {
-	printf("  --- ParseTree: ---\n");
+	printf("--- PARSE_TREE: ---\n");
 	this->recursivePrint(this->root);
 	printf("\n");
 }
@@ -170,7 +170,7 @@ void ParseTree::debugPrint() {
 void ParseTree::recursivePrint(Node* thisRoot) {
 	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
 
-	printf("(%s)\n", TokenType::tokenNameShort[thisRoot->getTokenType()]);
+	printf("(%s)\n", TokenType::tokenNameMini[thisRoot->getTokenType()]);
 
 	Node* child = thisRoot->getChild();
 
