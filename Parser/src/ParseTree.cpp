@@ -12,13 +12,23 @@
 /*----------------- Node -----------*/
 
 Node::Node() {
+	this->parent = NULL;
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
 }
 
-Node::Node(TokenType::Type token_type) {
+Node::Node(Node* parent) {
+	this->parent = parent;
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = TokenType::TokenStop;
+}
+
+Node::Node(Node* parent, TokenType::Type token_type) {
+	this->parent = parent;
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
@@ -28,6 +38,10 @@ Node::Node(TokenType::Type token_type) {
 Node::~Node() {
 	delete this->sibling;
 	delete this->child;
+}
+
+Node* Node::getParent() {
+	return this->parent;
 }
 
 void Node::addChild(Node* child) {
@@ -79,8 +93,9 @@ bool Node::hasSibling() {
 
 /*---------- NodeId ------------*/
 
-NodeId::NodeId(Information* info) {
+NodeId::NodeId(Node* parent, Information* info) {
 //	this->Node(TokenType::TokenIdentifier); // does not work like this
+	this->parent = parent;
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
@@ -102,8 +117,9 @@ void NodeId::setInformation(Information* info) {
 
 /*---------- NodeInt ------------*/
 
-NodeInt::NodeInt(int value) {
+NodeInt::NodeInt(Node* parent, int value) {
 //	this->Node(TokenType::TokenInteger); // does not work like this
+	this->parent = parent;
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
@@ -126,10 +142,13 @@ void NodeInt::setValue(int value) {
 /*---------- ParseTree ------------*/
 
 ParseTree::ParseTree() {
-	//this->root;
+	this->root = new Node();
 }
 
 ParseTree::~ParseTree() {
-	delete &this->root; // triggers destructor chain
+	delete this->root; // triggers destructor chain
 }
 
+Node* ParseTree::getRoot() {
+	return this->root;
+}

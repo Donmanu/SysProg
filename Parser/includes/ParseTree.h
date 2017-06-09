@@ -14,8 +14,11 @@
 class Node {
 	public:
 		Node(void);
-		Node(TokenType::Type);
+		Node(Node*);
+		Node(Node*, TokenType::Type);
 		virtual ~Node(void);
+
+		Node* getParent();
 
 		void addChild(Node*);
 		void setChild(Node*);
@@ -31,14 +34,15 @@ class Node {
 
 	protected:
 		int children;
+		Node* parent;
 		Node* child;
 		Node* sibling;
 		TokenType::Type token_type;
 };
 
-class NodeId : Node {
+class NodeId : public Node {
 	public:
-		NodeId(Information*);
+		NodeId(Node*, Information*);
 		virtual ~NodeId();
 		Information* getInformation();
 		void setInformation(Information*);
@@ -47,9 +51,9 @@ class NodeId : Node {
 		Information* information;
 };
 
-class NodeInt : Node {
+class NodeInt : public Node {
 	public:
-		NodeInt(int);
+		NodeInt(Node*, int);
 		virtual ~NodeInt();
 		int getValue();
 		void setValue(int);
@@ -63,11 +67,12 @@ class ParseTree {
 		ParseTree(void);
 		virtual ~ParseTree(void);
 
+		Node* getRoot(void);
 		// The root node could represent a parse tree in itself
 		// TODO offer some helpful functions here, to work with the whole tree
 
 	private:
-		Node root;
+		Node* root;
 };
 
 #endif /* PARSER_INCLUDES_PARSETREE_H_ */
