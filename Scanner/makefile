@@ -49,6 +49,7 @@ OBJS = $(OBJDIR)/Scanner.o \
 	
 	
 # Variante mit guten Makefile-Kenntnissen
+.PHONY: makeTestScanner  # phony: avoids file name conflicts and improves performance
 makeTestScanner: $(OBJS) ScannerTest
 
 
@@ -62,6 +63,7 @@ $(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
 # $< erste abhaengigkeit
 
 
+.PHONY: ScannerTest  # phony: avoids file name conflicts and improves performance
 ScannerTest: $(SRCDIR)/TestScanner.cpp $(HEADERDIR)/Scanner.h
 	g++ -g -c -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
 	#g++ -O3 -c -Wall src/TestScanner.cpp -o $(BINDIRTEST)/TestScanner.o  
@@ -69,6 +71,7 @@ ScannerTest: $(SRCDIR)/TestScanner.cpp $(HEADERDIR)/Scanner.h
 
 # loeschen aller files im verzeichnis $(OBJDIR) und $(BINDIRTEST) und neu erstellen
 
+.PHONY: cleanScanner  # phony: avoids file name conflicts and improves performance
 cleanScanner:
 	rm -rf $(OBJDIR)/*.o
 	rm -rf $(BINDIRTEST)/*

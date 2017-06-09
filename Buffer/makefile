@@ -21,6 +21,7 @@ BINDIRTEST = debug
 # -g --> debug Informationen erzeugen
 # -o --> name des output-files
 
+.PHONY: makeTestBuffer  # phony: avoids file name conflicts and improves performance
 makeTestBuffer: BufferTarget TestBufferTarget
 	g++ -g $(OBJDIR)/Buffer.o $(BINDIRTEST)/TestBuffer.o -o $(BINDIRTEST)/BufferTest
 	#g++ -O3 $(OBJDIR)/Buffer.o $(BINDIRTEST)/TestBuffer.o -o $(BINDIRTEST)/BufferTest
@@ -33,11 +34,13 @@ makeTestBuffer: BufferTarget TestBufferTarget
 # -g --> debug Informationen erzeugen
 # -Wall --> alle meldungen erzeugen (Warning all)
 
+.PHONY: BufferTarget  # phony: avoids file name conflicts and improves performance
 BufferTarget :  $(SRCDIR)/Buffer.cpp $(HEADERDIR)/Buffer.h
 	g++ -g -c -Wall  $(SRCDIR)/Buffer.cpp -o $(OBJDIR)/Buffer.o
 	#g++ -O3 -c -Wall  $(SRCDIR)/Buffer.cpp -o $(OBJDIR)/Buffer.o
 
 #TestBuffer.o ist abhaengig von TestBuffer.cpp und Buffer.h
+.PHONY: TestBufferTarget  # phony: avoids file name conflicts and improves performance
 TestBufferTarget :  $(SRCDIR)/TestBuffer.cpp $(HEADERDIR)/Buffer.h
 	g++ -g -c -Wall $(SRCDIR)/TestBuffer.cpp -o $(BINDIRTEST)/TestBuffer.o
 	#g++ -O3 -c -Wall $(SRCDIR)/TestBuffer.cpp -o $(BINDIRTEST)/TestBuffer.o
@@ -47,6 +50,7 @@ TestBufferTarget :  $(SRCDIR)/TestBuffer.cpp $(HEADERDIR)/Buffer.h
 
 # loeschen aller files im verzeichnis $(OBJDIR) und $(BINDIRTEST) und neu compilieren
 
+.PHONY: cleanBuffer  # phony: avoids file name conflicts and improves performance
 cleanBuffer:
 	rm -f $(OBJDIR)/*.o
 	rm -f $(BINDIRTEST)/*
@@ -55,6 +59,7 @@ cleanBuffer:
 
 # dieses Target wird vom makefile des Gesamtprojekts verwendet
 # objs fuer GesamtProjekt loeschen und dann neu erzeugen
+.PHONY: BufferOBJTarget  # phony: avoids file name conflicts and improves performance
 BufferOBJTarget:
 	$(MAKE) BufferTarget
 
