@@ -1,0 +1,8 @@
+:* Von Folie #16 *:
+int n;
+int[3] m;
+n := 3 + 4;
+n := 3*n--5;
+write(n);
+
+:* 26? *:
