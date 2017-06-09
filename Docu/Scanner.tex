@@ -49,11 +49,24 @@ final      %|draft,     wie Bilder eingebunden sind
   sensitive=false,
   comment=[l]{\#}{//}{;},
   morecomment=[s]{/*}{*/},
-  commentstyle=\color{darkgrey}\ttfamily,
+  commentstyle=\color{darkgray}\ttfamily,
   stringstyle=\color{red}\ttfamily,
   morestring=[b]',
   morestring=[b]", % shorter delimiter first!
   morestring=[b]"""
+}
+
+\lstdefinelanguage{SysProgLang}{
+  basicstyle=\small,
+  identifierstyle=\color{black},
+  sensitive=true,
+  comment=[l]{:*},
+  morecomment=[s]{:*}{*:},
+  commentstyle=\color{darkgray}\ttfamily,
+  %stringstyle=\color{red}\ttfamily,
+  %morestring=[b]',
+  %morestring=[b]",
+  %morestring=[b]"""
 }
 %\usepackage{mathtools} % mainly for := sign, mathtools is not available :(
 % http://tex.stackexchange.com/questions/4216/how-to-typeset-correctly
@@ -102,8 +115,7 @@ final      %|draft,     wie Bilder eingebunden sind
 
 % META INFO:
 \title{Scanner}
-\author{Arthur Jagiella \and \texttt{jaar1013@hs-karlsruhe.de}}
-\author{Manuel Giesinger\and \texttt{gima10XX@hs-karlsruhe.de}}
+\author{Arthur Jagiella \hspace{1cm} \texttt{jaar1013@hs-karlsruhe.de} \and Manuel Giesinger \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}}
 \date{\today}
 
 
@@ -122,45 +134,103 @@ final      %|draft,     wie Bilder eingebunden sind
 % °_°_°_°_°_°_°_°_°_°_°_
 %    MAIN MATTER
 % °_°_°_°_°_°_°_°_°_°_°_
-\begin{abstract}
-Bla bla.
+\textbf{Schlüsselworte}: Scanner, Parser, Compiler, Token, Tokenizer, Buffer, Hashmap, List, Tree, Parse Tree.
 
-Nächster Absatz. XXX
-\end{abstract}
-\textbf{Schlüsselworte}: Scanner, Parser, Compiler, Token, Tokenizer, Buffer, Hashmap.
 
 \section{Einleitung} % sub-, subsub-, paragraph, subparagraph
-Hallo Welt. Vgl.\cite{bestArticle}.
+Diese Arbeit ist im Rahmen des Kurses „Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
 
-\subsection{Foo, quo vadis?}
-Lösung:
-% Code. Als externer Text-Import: \lstinputlisting[language=Python, caption={Beschreibung}, label={lst:ref}]{./pfad/zu/codeFile.py}
-\begin{lstlisting}[language=PseudoCode,caption={XXX},label=lst:code1]
-function code() {
-  return EXIT_FAILURE;
-}
+\subsection{Aufgabenstellung gesamt}
+Im Kurs „Systemnahes Programmieren“ geht es inhaltlich um die Programmierung in C++ unter Verzicht auf die Nutzung von Standardbibliotheken. Die Implementierung von Puffern, verketteten Listen, Hashtabellen und Baumstrukturen soll per Hand erfolgen. Hierzu wird als Anwendung ein Compiler für eine fiktive Sprache implementiert.
+
+\subsection{Aufgabenstellung Scanner} 
+Als Teil des Compilers ist die Aufgabe des Scanners eine Source-Datei einzulesen und in ihre syntaktischen Bestandteile zu zerlegen - man pricht von \emph{tokenizing}. Dazu bedarf es zum einen eines Puffer-Speichers für den Dateiinhalt. Zum anderen ist die Token-Erkennung mithilfe eines deterministischen endlichen Automaten umgesetzt.
+Parallel zur syntaktischen Analyse werden bereits erste Informationen über die Token gesammelt. Diese hält eine Symboltabelle bereit, welche als hash-map realisiert wird.
+
+
+\section{Der Puffer}
+
+
+
+\section{Der Automat}
+
+
+
+\section{Die Symboltabelle}
+
+
+
+\section{Der Scanner}
+Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz.
+
+
+\subsection{Programmaufruf}
+Die ausführbare ScannerTest liest als Parameter eine beliebig lange Liste von Dateinamen ein. Zum Beispiel wie in Listing \ref{lst:scantest} alle Dateien eines Ordners mit Bash-Expansion.
+\begin{lstlisting}[language=PseudoCode, caption={Aufruf von ScannerTest}, label=lst:scantest]
+~/$ ./proj/Scanner/debug/ScannerTest tests/*
 \end{lstlisting}
+Für jede Datei wird ein Scanner erzeugt, es werden alle Zeichen eingelesen und die jeweiligen Ergebnisse zusammen in eine Datei $out.txt$ geschrieben. Dies sieht dann zum Beispiel aus wie in Listing \ref{lst:scanout}.
+\begin{lstlisting}[language=PseudoCode, caption={Dateiausgabe von ScannerTest}, label=lst:scanout]
+TokenStop in line 1	in column 0
 
-\subsection{Bar im Wandel der Zeit}
-Auf nimmer Wiedersehen, du grausame Welt
+    --- END OF tests/empty.txt ---
 
-\section{XXX}
-In dem nun folgenden, zeigen wir $P=NP$.
+TokenIdentifier in line 1	in column 1	Lexem: The
+TokenIdentifier in line 1	in column 5	Lexem: Project
+TokenIdentifier in line 1	in column 13	Lexem: Gutenberg
+TokenIdentifier in line 1	in column 23	Lexem: EBook
+\end{lstlisting}
+Parallel werden mögliche Fehler und weitere Informationen auf der Console ausgegeben.
 
-\subsection{Beweis} \label{subsec:aircontrol}
-Easy
+\section{Tests}
+Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben.
 
-\begin{wrapfigure}[13]{Rth}{0.45\textwidth}
-    \centering
-    \includegraphics[width=0.45\textwidth]{./pics/pic.png}
-	\caption[format=plain]{Voll der Text XXX}
-	\label{fig:ref1}
-\end{wrapfigure}
+\begin{description}
+\item{anything.txt} Ein potentiell sinnvolles Codebeispiel mit einer bunten Mischung verschiedener Tokens und Kommentare. Ein allgemeiner Testfall ohne besonderen Fokus. Eher als Parsertest nützlich.
 
-Wie in Bild \ref{fig:ref1} gezeigt, ... XXX
+\item{empty.txt} Eine komplett leere Datei, 0 Byte groß. Fokus dieses Testfalls ist die Funktion des Buffers -- also ob etwas schief geht, wenn schon zu Beginn nichts einzulesen ist.
 
-\section{Schluss}
-Wie dieser Überblick dem Leser hoffentlich vermitteln konnte XXX
+\item{desert.txt} Eine Datei mit verschiedenen Whitespaces: Space, Newline und Tabulator. Fokus dieses Tests ist der Grenzfall, dass der Automat zwar viele Zeichen zu verarbeiten hat, aber nie ein Token entstehen sollte.
+
+\item{EquCol2.txt} Da wir in diesem Bereich des Automaten lange Zeit Probleme hatten, die \code{line} und \code{column} korrekt anzugeben, haben wir unter \url{http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/} alle möglichen Permutationen von $":"$, $"="$, $":="$, $"=:="$ und $":**:"$ erzeugen lassen. Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
+\begin{lstlisting}[language=SysProgLang, caption={EquCol2.txt}, label=lst:testEquCol2]
+=:=:=:=:**:
+=:=::**:=:=
+=:==:=::**:
+=:==:=:**::
+=:=:**::=:=
+=:=:**:=:=:
+=::=:**:=:=
+=::==:=:**:
+=:=:=:**::=
+line10
+=:=:=:=:**:
+\end{lstlisting}
+Anschließend haben wir (stichprobenweise) verglichen, ob
+\begin{enumerate}
+\item \code{line} der Anzahl der Zeilen in der Datei entspricht,
+\item \code{column} niemals $< 1$ oder $> 11$ ist,
+\item Die Token korrekt und an der richtigen Stelle erkannt werden.
+\end{enumerate}
+Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens zu testen. Dies würde aber mit $21! = 5 \cdot 10^{19}$ Möglichkeiten unsere Kapazitäten sprengen.
+
+\item{legalComments.txt} Dieser Test fokussiert sich auf alle erdenklichen Fälle um und in Kommentaren ($:* *:$). Innerhalb sind alle Zeichen erlaubt. Insbesondere auch $":"$ und $"*"$ allein. Desweiteren endet der letzte Kommentar nicht (bzw. mit $EOF$).
+
+\item{theBible.txt} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \url{http://www.gutenberg.org/cache/epub/10/pg10.txt} und dient vor allem für Performanz- und Speicherleck-Überprüfung.
+
+\item{longWords.txt} Enthält Identifier mit versch. Wortlängen jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
+
+\item{manyWords.txt} Enthält viele sich wiederholende Identifier. Fokus ist Performanz- und Konsistenzüberprüfung der Symboltabelle bei wiederholtem \code{resize()}.
+
+\item{unknown.txt} Enthält alle dem Scanner unbekannten ASCII-Zeichen.
+
+\item{values.txt} Enthält viele Zahlenwerte, die mit \code{strtol()} zu parsen sind.
+
+\end{description}
+
+
+%\section{Schluss}
+
 
 
 
@@ -180,13 +250,13 @@ Wie dieser Überblick dem Leser hoffentlich vermitteln konnte XXX
 \end{description}
 
 
-\begin{thebibliography}{99}
-
-\bibitem{bestArticle}
-  \textsc{WIKIPEDIA}:
-  \emph{Hallo-Welt-Programm}.
-  https://de.wikipedia.org/wiki/Hallo-Welt-Programm.
-
-\end{thebibliography}
+%\begin{thebibliography}{99}
+%
+%\bibitem{bestArticle}
+%  \textsc{WIKIPEDIA}:
+%  \emph{Hallo-Welt-Programm}.
+%  https://de.wikipedia.org/wiki/Hallo-Welt-Programm.
+%
+%\end{thebibliography}
 
 \end{document}
