@@ -77,6 +77,52 @@ bool Node::hasSibling() {
 	return !!this->sibling;
 }
 
+/*---------- NodeId ------------*/
+
+NodeId::NodeId(Information* info) {
+//	this->Node(TokenType::TokenIdentifier); // does not work like this
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = TokenType::TokenIdentifier;
+	this->information = info;
+}
+
+NodeId::~NodeId() {
+	this->~Node();
+}
+
+Information* NodeId::getInformation() {
+	return this->information;
+}
+
+void NodeId::setInformation(Information* info) {
+	this->information = info;
+}
+
+/*---------- NodeInt ------------*/
+
+NodeInt::NodeInt(int value) {
+//	this->Node(TokenType::TokenInteger); // does not work like this
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = TokenType::TokenIdentifier;
+	this->value = value;
+}
+
+NodeInt::~NodeInt() {
+	this->~Node();
+}
+
+int NodeInt::getValue() {
+	return this->value;
+}
+
+void NodeInt::setValue(int value) {
+	this->value = value;
+}
+
 /*---------- ParseTree ------------*/
 
 ParseTree::ParseTree() {

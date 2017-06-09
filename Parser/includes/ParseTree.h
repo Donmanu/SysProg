@@ -9,11 +9,12 @@
 #define PARSER_INCLUDES_PARSETREE_H_
 
 #include "../../Scanner/includes/TokenType.h"
+#include "../../Symboltable/includes/Information.h"
 
 class Node {
 	public:
 		Node(void);
-		Node(TokenType::Type token_type);
+		Node(TokenType::Type);
 		virtual ~Node(void);
 
 		void addChild(Node*);
@@ -28,11 +29,33 @@ class Node {
 		bool hasSibling(void);
 		//bool isOnlyChild(void); ??
 
-	private:
+	protected:
 		int children;
 		Node* child;
 		Node* sibling;
 		TokenType::Type token_type;
+};
+
+class NodeId : Node {
+	public:
+		NodeId(Information*);
+		virtual ~NodeId();
+		Information* getInformation();
+		void setInformation(Information*);
+
+	private:
+		Information* information;
+};
+
+class NodeInt : Node {
+	public:
+		NodeInt(int);
+		virtual ~NodeInt();
+		int getValue();
+		void setValue(int);
+
+	private:
+		int value;
 };
 
 class ParseTree {
