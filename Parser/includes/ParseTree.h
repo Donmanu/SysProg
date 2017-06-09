@@ -8,10 +8,12 @@
 #ifndef PARSER_INCLUDES_PARSETREE_H_
 #define PARSER_INCLUDES_PARSETREE_H_
 
+#include "../../Scanner/includes/TokenType.h"
+
 class Node {
 	public:
 		Node(void);
-		Node(int token_tyoe);
+		Node(TokenType::Type token_type);
 		virtual ~Node(void);
 
 		void addChild(Node*);
@@ -30,7 +32,7 @@ class Node {
 		int children;
 		Node* child;
 		Node* sibling;
-		TokenType token_type;
+		TokenType::Type token_type;
 };
 
 class ParseTree {

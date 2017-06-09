@@ -95,7 +95,7 @@ void Parser::prog() {
  * "{"				-> €
  */
 void Parser::decls() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenInt:
 		this->decl();
@@ -126,7 +126,7 @@ void Parser::decls() {
  * "int"			-> int ARRAY identifier
  */
 void Parser::decl() {
-	Node node;
+	Node* node;
 	if (this->current_token.type == TokenType::TokenInt) {
 		// TODO success: addToParseTree(this->current_token);
 		node = new Node(this->current_token.type);
@@ -150,7 +150,7 @@ void Parser::decl() {
  * "identifier"		-> €
  */
 void Parser::array() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		// TODO success: addToParseTree(this->current_token);
@@ -190,7 +190,7 @@ void Parser::array() {
  * "}"				-> €
  */
 void Parser::statements() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenWrite:
@@ -233,7 +233,7 @@ void Parser::statements() {
  * ";"				-> €
  */
 void Parser::statement() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->terminalId();
@@ -418,7 +418,7 @@ void Parser::exp() {
  * "integer"		-> integer
  */
 void Parser::exp2() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->terminalId();
@@ -474,7 +474,7 @@ void Parser::exp2() {
  * "&&"		-> €
  */
 void Parser::index() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		// TODO success: addToParseTree(this->current_token);
@@ -551,7 +551,7 @@ void Parser::op_exp() {
  *          "="  |  "=:="  |  "&&"
  */
 void Parser::op() {
-	Node node;
+	Node* node;
 	switch (this->current_token.type) {
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
@@ -575,18 +575,18 @@ void Parser::op() {
 /* identifier */
 void Parser::terminalId() {
 	// TODO success: addToParseTree(this->current_token);
-	Node node = new Node(this->current_token.type);
+	Node* node = new Node(this->current_token.type);
 	this->addToParseTree(node);
 }
 
 /* integer */
 void Parser::terminalInt() {
 	// TODO success: addToParseTree(this->current_token);
-	Node node = new Node(this->current_token.type);
+	Node* node = new Node(this->current_token.type);
 	this->addToParseTree(node);
 }
 
-void Parser::addToParseTree(Node node) {
+void Parser::addToParseTree(Node* node) {
 	// TODO: this->parse_tree->addNode(node); ?
 }
 

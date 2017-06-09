@@ -18,7 +18,7 @@ Node::Node() {
 	this->token_type = TokenType::TokenStop;
 }
 
-Node::Node(int token_type) {
+Node::Node(TokenType::Type token_type) {
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
