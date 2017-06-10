@@ -1,0 +1,15 @@
+:* Declarations *:
+
+:* Statements *:
+write(
+  i[(abc[1]) + (abc - abc * abc) : 
+    abc < abc > abc = (abc =:=
+    ((abc) && abc))]
+  : 2;
+);
+{
+    i[12] := (x) - (4);
+    arr[7] := 1;
+    arr[76 := 2;
+    arr[5] := 3;
+};

@@ -9,7 +9,7 @@
 #define PARSER_INCLUDES_PARSER_H_
 
 #include "../../Scanner/includes/Scanner.h"
-#include "ParseTree.h"
+#include "ParseTree.h"  // incl "RuleType.h"
 
 class Parser {
 	public:
@@ -46,6 +46,7 @@ class Parser {
 		Node* current_node;
 		ParseTree* parse_tree;
 		Token current_token;
+		RuleType::Type current_rule;
 };
 
 #endif /* PARSER_INCLUDES_PARSER_H_ */

@@ -1,6 +1,11 @@
 int superInt;
 int[700] foo;
 int bar; int crrkc;
+int[100] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+int const900;
+
+
+    int INT;
 
 
 int[1] a;

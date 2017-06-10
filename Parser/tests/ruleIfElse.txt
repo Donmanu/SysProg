@@ -1,0 +1,56 @@
+:* Declarations *:
+
+:* Statements *:
+
+if(1)
+    write(0)
+ELSE
+    write(1)
+;
+
+if(abc[0])
+    write(0)
+else
+    write(-1)
+;
+;
+;
+if(7 * 7 =:= 56)
+    write(0)
+else {
+    write(1);
+    write(2);
+    write(3);
+}                   ;
+
+if(!1) {
+    x := 3
+}
+else write(1) ;
+
+IF(1 && 2 && 3)
+    read(arr)
+else
+    write(arr[3])
+;
+
+IF                         (    0   :**:) {
+    write(0);
+    write(0);
+    write(0);
+} 
+
+
+ELSE            {
+    write     (
+    1
+    )
+  ;
+    write(1)
+    ;
+    write(1);
+                            }
+
+
+;
+

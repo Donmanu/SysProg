@@ -10,12 +10,15 @@
 
 #include "../../Scanner/includes/TokenType.h"
 #include "../../Symboltable/includes/Information.h"
+#include "RuleType.h"
 
 class Node {
 	public:
 		Node(void);
 		Node(Node*);
 		Node(Node*, TokenType::Type);
+		Node(Node*, RuleType::Type);
+		Node(Node*, TokenType::Type, RuleType::Type);
 		virtual ~Node(void);
 
 		Node* getParent();
@@ -33,6 +36,7 @@ class Node {
 		//bool isOnlyChild(void); ??
 
 		TokenType::Type getTokenType(void);
+		RuleType::Type getRuleType(void);
 
 	protected:
 		int children;
@@ -40,6 +44,7 @@ class Node {
 		Node* child;
 		Node* sibling;
 		TokenType::Type token_type;
+		RuleType::Type rule_type;
 };
 
 class NodeId : public Node {
@@ -66,7 +71,7 @@ class NodeInt : public Node {
 
 class ParseTree {
 	public:
-		ParseTree(void);
+		ParseTree(Node*);
 		virtual ~ParseTree(void);
 
 		Node* getRoot(void);
@@ -77,12 +82,12 @@ class ParseTree {
 
 	private:
 		void recursivePrint(Node*);
-		void push(char);
-		void pop();
+		void indent(char);
+		void unIndent();
 		Node* root;
 
-		char* printDepth;
-		int di;
+		char* printLine;
+		int depth;
 };
 
 #endif /* PARSER_INCLUDES_PARSETREE_H_ */

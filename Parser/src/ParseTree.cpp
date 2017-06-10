@@ -5,7 +5,7 @@
  *      Author: arthur
  */
 
-#define MAX_PRINT (2056)
+#define MAX_PRINT (400)
 
 #include <stdlib.h>
 
@@ -19,6 +19,7 @@ Node::Node() {
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
+	this->rule_type = RuleType::terminal;
 }
 
 Node::Node(Node* parent) {
@@ -27,6 +28,7 @@ Node::Node(Node* parent) {
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
+	this->rule_type = RuleType::terminal;
 }
 
 Node::Node(Node* parent, TokenType::Type token_type) {
@@ -35,11 +37,30 @@ Node::Node(Node* parent, TokenType::Type token_type) {
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = token_type;
+	this->rule_type = RuleType::terminal;
+}
+
+Node::Node(Node* parent, RuleType::Type rule) {
+	this->parent = parent;
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = TokenType::TokenStop;
+	this->rule_type = rule;
+}
+
+Node::Node(Node* parent, TokenType::Type token, RuleType::Type rule) {
+	this->parent = parent;
+	this->sibling = NULL;
+	this->child = NULL;
+	this->children = 0;
+	this->token_type = token;
+	this->rule_type = rule;
 }
 
 Node::~Node() {
-	delete this->sibling;
 	delete this->child;
+	delete this->sibling;
 }
 
 Node* Node::getParent() {
@@ -69,7 +90,7 @@ Node* Node::getChild() {
 void Node::addSibling(Node* sibling) {
 	Node * c = this->sibling;
 	if (c == NULL) {
-		c = sibling;
+		this->sibling = sibling;
 	} else {
 		while (c->hasSibling())
 			c = c->getSibling();
@@ -97,6 +118,10 @@ TokenType::Type Node::getTokenType() {
 	return this->token_type;
 }
 
+RuleType::Type Node::getRuleType() {
+	return this->rule_type;
+}
+
 /*---------- NodeId ------------*/
 
 NodeId::NodeId(Node* parent, Information* info) {
@@ -106,6 +131,7 @@ NodeId::NodeId(Node* parent, Information* info) {
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = TokenType::TokenIdentifier;
+	this->rule_type = RuleType::terminal;
 	this->information = info;
 }
 
@@ -130,6 +156,7 @@ NodeInt::NodeInt(Node* parent, int value) {
 	this->child = NULL;
 	this->children = 0;
 	this->token_type = TokenType::TokenInteger;
+	this->rule_type = RuleType::terminal;
 	this->value = value;
 }
 
@@ -147,16 +174,16 @@ void NodeInt::setValue(int value) {
 
 /*---------- ParseTree ------------*/
 
-ParseTree::ParseTree() {
-	this->root = new Node();
+ParseTree::ParseTree(Node* root) {
+	this->root = root;
 
-	this->di = 0;
-	this->printDepth = new char[MAX_PRINT];
+	this->depth = 0;
+	this->printLine = new char[MAX_PRINT];
 }
 
 ParseTree::~ParseTree() {
 	delete this->root; // triggers destructor chain
-	delete[] this->printDepth;
+	delete[] this->printLine;
 }
 
 Node* ParseTree::getRoot() {
@@ -172,33 +199,36 @@ void ParseTree::debugPrint() {
 void ParseTree::recursivePrint(Node* thisRoot) {
 	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
 
-	printf("(%s)\n", TokenType::tokenNameMini[thisRoot->getTokenType()]);
+	if (thisRoot->getRuleType() == RuleType::terminal)
+		printf("[%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()]);
+	else
+		printf("(%s)\n", RuleType::ruleName[thisRoot->getRuleType()]);
 
 	Node* child = thisRoot->getChild();
 
 	while (child)
 	{
 		Node* next = child->getSibling();
-		printf("%s `--", this->printDepth);
-		this->push(next ? '|' : ' ');
+		printf("%s `--", this->printLine);
+		this->indent(next ? '|' : ' ');
 		this->recursivePrint(child);
-		this->pop();
+		this->unIndent();
 		child = child->getSibling();
 	}
 }
 
-void ParseTree::push(char c) {
-    this->printDepth[di++] = ' ';
-    this->printDepth[di++] = c;
-    this->printDepth[di++] = ' ';
-    this->printDepth[di++] = ' ';
-    this->printDepth[di] = '\0';
-    if (di >= MAX_PRINT - 4) {
-    	perror("No more space for printing ...");
+void ParseTree::indent(char c) {
+    this->printLine[this->depth++] = ' ';
+    this->printLine[this->depth++] = c;
+    this->printLine[this->depth++] = ' ';
+    this->printLine[this->depth++] = ' ';
+    this->printLine[this->depth] = '\0';
+    if (this->depth >= MAX_PRINT - 4) {
+    	perror("WARNING! No more space for printing? Exiting for safety ...");
     	exit(EXIT_FAILURE);
     }
 }
 
-void ParseTree::pop() {
-	this->printDepth[di -= 4] = 0;
+void ParseTree::unIndent() {
+	this->printLine[this->depth -= 4] = '\0';
 }

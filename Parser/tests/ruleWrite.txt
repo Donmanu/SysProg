@@ -1,0 +1,12 @@
+:* Declarations *:
+
+
+:* Statements: write( EXP ) *:
+
+write(abc[!1]);
+
+write(((12)));
+
+write(1 * 2 : 3);
+
+write(abc[1 * 2 : 3]);

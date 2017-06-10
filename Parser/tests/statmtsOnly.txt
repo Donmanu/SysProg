@@ -1,11 +1,17 @@
+:* Should all be legal syntax ... *:
 fnu := 7;
-if   (fnu > 7) write(1)   :* no semicolon after only one statement *:
+if   (fnu > 7) write(1)       :* no semicolon after only one statement *:
 else write(2);
+{};                           :* empty braces need to finish with ; *:
 
 fnu[123] := 12 : fnu[122];
 i := 8123640238940;
 j := -87236;
-while(1 = baz[i[j]])
+while(1 = baz[i[j]])          :* type error *:
     baz[i + 1] := read(x);
-
-:* Should all be legal ... *:
+    
+while(1 = baz[i[j]]) {        :* type error *:
+    baz[i + 1] := read(x);
+    write(baz[i - 1]);
+    i := i + 2;
+}

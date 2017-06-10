@@ -1,0 +1,14 @@
+:* Declarations *:
+
+
+:* Statements: read() *:
+read(var);
+read(var[2]);
+read(word);
+
+        read
+(
+        const
+       )
+  
+    ;

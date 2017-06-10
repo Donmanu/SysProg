@@ -1,0 +1,22 @@
+:* Declarations *:
+
+
+:* Statements *:
+
+WHILE(true[0])
+
+
+WHILE  (1)
+
+
+while (-(iNt[1])) {};
+
+while (3 < 2) {
+    read(var);
+    write(9128371289);
+    while (3 > 2   ) {};
+    
+    WHILE   (1)
+        const := 1000;
+    
+};

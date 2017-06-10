@@ -1,0 +1,10 @@
+:* Declarations *:
+
+
+:* Statements *:
+a := -12;
+b := !a;
+c := -b;
+d := ---!!12;
+e := -!-
+!-!-!   arr[-!a];

@@ -41,6 +41,7 @@ namespace TokenType {
 		TokenStop // Metatoken: No more tokens to come	//27
 	};
 
+	/* Full translation for the enum with added padding, so every name has same width with TABSTOP = 8! */
 	static const char* tokenNameAligned[] = {
 		"TokenUnknown\t\t", // a.k.a. TokenError		//0
 		"TokenInteger\t\t",								//1
@@ -72,6 +73,7 @@ namespace TokenType {
 		"TokenStop\t\t"									//27
 	};
 
+	/* Full translation for the enum */
 	static const char* tokenName[] = {
 		"TokenUnknown", // a.k.a. TokenError	//0
 		"TokenInteger",							//1
@@ -103,6 +105,7 @@ namespace TokenType {
 		"TokenStop"								//27
 	};
 
+	/* Short translation for the enum, max 15 chars wide */
 	static const char* tokenNameShort[] = {
 		"Unknown", // a.k.a. TokenError	//0
 		"Integer",						//1
@@ -134,6 +137,7 @@ namespace TokenType {
 		"Stop"							//27
 	};
 
+	/* Short translation for the enum, max 4 chars wide */
 	static const char* tokenNameMini[] = {
 		"?", // a.k.a. TokenError	//0
 		"123",						//1
@@ -162,7 +166,7 @@ namespace TokenType {
 		"WHIL",						//24
 		"ELSE",						//25
 		"INT",						//26
-		"#"							//27
+		"EOF"						//27
 	};
 }
 

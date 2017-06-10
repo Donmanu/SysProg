@@ -1,0 +1,9 @@
+:* Declarations *:
+int abc;
+
+:* Statements *:
+abc := (abc) + (abc - abc * abc) : abc < abc > abc = (abc =:= ((abc) && abc));
+
+true := -!-!!!-!(!---7);
+
+not := x =:= y;
