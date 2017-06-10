@@ -16,6 +16,7 @@ class Parser {
 		Parser(char*);
 		~Parser(void);
 		void parse(void);
+		// TODO void makeCode(char*);
 
 		void debugPrint(void);
 
@@ -32,12 +33,12 @@ class Parser {
 		void op_exp(void);
 		void op(void);
 
-		void terminalId(void);
-		void terminalInt(void);
-		void terminalNode(void);
-		void nonTerminalNode(void);
-
+		void addTerminalId(void);
+		void addTerminalInt(void);
+		void addTerminalNode(void);
+		void addNonTerminalNode(void);
 		void addToParseTree(Node*);
+
 		void nextToken(void);
 		void error(void);
 

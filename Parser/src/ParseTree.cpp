@@ -129,7 +129,7 @@ NodeInt::NodeInt(Node* parent, int value) {
 	this->sibling = NULL;
 	this->child = NULL;
 	this->children = 0;
-	this->token_type = TokenType::TokenIdentifier;
+	this->token_type = TokenType::TokenInteger;
 	this->value = value;
 }
 
@@ -149,6 +149,8 @@ void NodeInt::setValue(int value) {
 
 ParseTree::ParseTree() {
 	this->root = new Node();
+
+	this->di = 0;
 	this->printDepth = new char[MAX_PRINT];
 }
 
