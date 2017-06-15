@@ -20,6 +20,7 @@ Node::Node() {
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
 	this->rule_type = RuleType::terminal;
+	this->data_type = DataType::noType;
 }
 
 Node::Node(Node* parent) {
@@ -29,6 +30,7 @@ Node::Node(Node* parent) {
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
 	this->rule_type = RuleType::terminal;
+	this->data_type = DataType::noType;
 }
 
 Node::Node(Node* parent, TokenType::Type token_type) {
@@ -38,6 +40,7 @@ Node::Node(Node* parent, TokenType::Type token_type) {
 	this->children = 0;
 	this->token_type = token_type;
 	this->rule_type = RuleType::terminal;
+	this->data_type = DataType::noType;
 }
 
 Node::Node(Node* parent, RuleType::Type rule) {
@@ -47,6 +50,7 @@ Node::Node(Node* parent, RuleType::Type rule) {
 	this->children = 0;
 	this->token_type = TokenType::TokenStop;
 	this->rule_type = rule;
+	this->data_type = DataType::noType;
 }
 
 Node::Node(Node* parent, TokenType::Type token, RuleType::Type rule) {
@@ -56,6 +60,7 @@ Node::Node(Node* parent, TokenType::Type token, RuleType::Type rule) {
 	this->children = 0;
 	this->token_type = token;
 	this->rule_type = rule;
+	this->data_type = DataType::noType;
 }
 
 Node::~Node() {
@@ -140,6 +145,7 @@ NodeId::NodeId(Node* parent, Information* info) {
 	this->children = 0;
 	this->token_type = TokenType::TokenIdentifier;
 	this->rule_type = RuleType::terminal;
+	this->data_type = DataType::noType;
 	this->information = info;
 }
 
@@ -165,6 +171,7 @@ NodeInt::NodeInt(Node* parent, int value) {
 	this->children = 0;
 	this->token_type = TokenType::TokenInteger;
 	this->rule_type = RuleType::terminal;
+	this->data_type = DataType::noType;  // as we split parsing from type checking, we do not set intType already
 	this->value = value;
 }
 

@@ -572,12 +572,12 @@ void Parser::addTerminalId() {
 /* integer */
 void Parser::addTerminalInt() {
 	Node* node = new NodeInt(this->current_node, this->current_token.value);
-	this->current_node->addChild(node); // add, but don't follow
+	this->current_node->addChild(node); // add, but stay in parent node
 }
 
 void Parser::addTerminalNode() {
 	Node* node = new Node(this->current_node, this->current_token.type);
-	this->current_node->addChild(node); // add, but don't follow
+	this->current_node->addChild(node); // add, but stay in parent node
 }
 
 void Parser::addNonTerminalNode() {
@@ -585,6 +585,7 @@ void Parser::addNonTerminalNode() {
 	this->addToParseTree(node); // add and descent
 }
 
+/* This function adds a new node to the tree also also immediately goes to that node */
 void Parser::addToParseTree(Node* child) {
 	// TODO: this->parse_tree->addNode(current_node); ?
 	this->current_node->addChild(child);
