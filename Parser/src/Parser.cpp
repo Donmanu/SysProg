@@ -84,7 +84,7 @@ void Parser::prog() {
 		this->statements();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent(); // back to the roots
 }
@@ -111,7 +111,7 @@ void Parser::decls() {
 			this->addNonTerminalNode();
 			this->decls();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenIdentifier:
@@ -124,7 +124,7 @@ void Parser::decls() {
 		this->addNonTerminalNode();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -144,10 +144,10 @@ void Parser::decl() {
 			this->addTerminalId();
 			this->nextToken();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 	} else {
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -170,16 +170,16 @@ void Parser::array() {
 				this->addTerminalNode();
 				this->nextToken();
 			} else {
-				this->error();
+				this->errorParse();
 			}
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenIdentifier:
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -211,7 +211,7 @@ void Parser::statements() {
 			this->addNonTerminalNode();
 			this->statements();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenCurlyBracesClose:
@@ -219,7 +219,7 @@ void Parser::statements() {
 		this->addNonTerminalNode();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -254,7 +254,7 @@ void Parser::statement() {
 			this->addNonTerminalNode();
 			this->exp();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenWrite:
@@ -269,10 +269,10 @@ void Parser::statement() {
 				this->addTerminalNode();
 				this->nextToken();
 			} else {
-				this->error();
+				this->errorParse();
 			}
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenRead:
@@ -290,13 +290,13 @@ void Parser::statement() {
 					this->addTerminalNode();
 					this->nextToken();
 				} else {
-					this->error();
+					this->errorParse();
 				}
 			} else {
-				this->error();
+				this->errorParse();
 			}
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenWhile:
@@ -313,10 +313,10 @@ void Parser::statement() {
 				this->addNonTerminalNode();
 				this->statement();
 			} else {
-				this->error();
+				this->errorParse();
 			}
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenIf:
@@ -338,13 +338,13 @@ void Parser::statement() {
 					this->addNonTerminalNode();
 					this->statement();
 				} else {
-					this->error();
+					this->errorParse();
 				}
 			} else {
-				this->error();
+				this->errorParse();
 			}
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenCurlyBracesOpen:
@@ -356,7 +356,7 @@ void Parser::statement() {
 			this->addTerminalNode();
 			this->nextToken();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenElse:
@@ -364,7 +364,7 @@ void Parser::statement() {
 		this->addTerminalNode();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -391,7 +391,7 @@ void Parser::exp() {
 		this->op_exp();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -426,7 +426,7 @@ void Parser::exp2() {
 			this->addTerminalNode();
 			this->nextToken();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenMinus:
@@ -441,7 +441,7 @@ void Parser::exp2() {
 		this->nextToken();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -473,7 +473,7 @@ void Parser::index() {
 			this->addTerminalNode();
 			this->nextToken();
 		} else {
-			this->error();
+			this->errorParse();
 		}
 		break;
 	case TokenType::TokenParenthesisClose:
@@ -490,7 +490,7 @@ void Parser::index() {
 		this->addTerminalNode();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -532,7 +532,7 @@ void Parser::op_exp() {
 	case TokenType::TokenSemiColon:
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -557,7 +557,7 @@ void Parser::op() {
 		nextToken();
 		break;
 	default:
-		this->error();
+		this->errorParse();
 	}
 	this->current_node = this->current_node->getParent();
 }
@@ -598,7 +598,7 @@ void Parser::nextToken() {
 	this->current_token = this->scanner->nextToken();
 }
 
-void Parser::error() {
+void Parser::errorParse() {
 	this->parse_tree->debugPrint();
 	errno = EINVAL;
 	printf("Unexpected token '%s' in line %d, column %d while parsing %s\n",
@@ -608,6 +608,73 @@ void Parser::error() {
 			RuleType::ruleName[this->current_rule]);
 	perror("Illegal Token Sequence");
 	exit(EXIT_FAILURE);
+}
+
+void Parser::checkType() {
+	this->checkType(this->parse_tree->getRoot());
+}
+
+void Parser::checkType(Node* node) {
+	// 1) Check this type
+	switch (node->getRuleType()) {
+	case RuleType::terminal:
+		// TODO do identifier type check
+		break;
+	case RuleType::op: // TODO do we have a problem with negative numbers here?
+		// As long as DataType and TokenType would stay in according sync,
+		// we could just calculate it like "DataType = TokenType - 5;" or so ...
+		switch (node->getTokenType()) {
+		case TokenType::TokenPlus:
+			node->setDataType(DataType::opPlus);
+			break;
+		case TokenType::TokenMinus:
+			node->setDataType(DataType::opMinus);
+			break;
+		case TokenType::TokenStar:
+			node->setDataType(DataType::opMult);
+			break;
+		case TokenType::TokenColon:
+			node->setDataType(DataType::opDiv);
+			break;
+		case TokenType::TokenLessThan:
+			node->setDataType(DataType::opLess);
+			break;
+		case TokenType::TokenGreaterThan:
+			node->setDataType(DataType::opGreater);
+			break;
+		case TokenType::TokenEquals:
+			node->setDataType(DataType::opEqual);
+			break;
+		case TokenType::TokenEqualsColonEquals:
+			node->setDataType(DataType::opUnEqual);
+			break;
+		case TokenType::TokenAndAnd:
+			node->setDataType(DataType::opAnd);
+			break;
+		default:
+			this->errorType(node);
+		}
+		break;
+	default:
+		// noType is already set as default
+		// do nothing
+		break;
+	}
+
+	// 2) Check children
+	Node* ch = node->getChild();
+	while (ch != NULL) {
+		this->checkType(ch);
+		ch = ch->getSibling();
+	}
+}
+
+void Parser::errorType(Node* node) {
+	this->debugPrint();
+	printf("TypeError at token %s in line %d, column %d\n", TokenType::tokenNameShort[node->getTokenType()], -1, -1); // TODO we don't have line/col info on every node!
+	errno = EINVAL;
+	perror("TypeError");
+	exit(errno);
 }
 
 void Parser::debugPrint() {

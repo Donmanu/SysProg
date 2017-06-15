@@ -126,6 +126,10 @@ DataType::Type Node::getDataType() {
 	return this->data_type;
 }
 
+void Node::setDataType(DataType::Type type) {
+	this->data_type = type;
+}
+
 /*---------- NodeId ------------*/
 
 NodeId::NodeId(Node* parent, Information* info) {

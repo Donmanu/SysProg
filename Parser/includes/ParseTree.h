@@ -39,6 +39,7 @@ class Node {
 		TokenType::Type getTokenType(void);
 		RuleType::Type getRuleType(void);
 		DataType::Type getDataType(void);
+		void setDataType(DataType::Type);
 
 	protected:
 		int children;

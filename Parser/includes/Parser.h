@@ -16,6 +16,7 @@ class Parser {
 		Parser(char*);
 		~Parser(void);
 		void parse(void);
+		void checkType(void);
 		// TODO void makeCode(char*);
 
 		void debugPrint(void);
@@ -40,7 +41,10 @@ class Parser {
 		void addToParseTree(Node*);
 
 		void nextToken(void);
-		void error(void);
+		void errorParse(void);
+
+		void checkType(Node*);
+		void errorType(Node*);
 
 		Scanner* scanner;
 		Node* current_node;

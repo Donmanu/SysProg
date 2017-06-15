@@ -26,6 +26,10 @@ int main(int argc, char **argv) {
 
 		printf("  --- Successfully parsed file %s ---\n\n", argv[i]);
 
+		parser->checkType();
+
+		printf("  --- Successfully type-checked file %s ---\n\n", argv[i]);
+
 		parser->debugPrint();
 
 		delete parser;
@@ -91,7 +95,7 @@ void printVersion(void) {
 		    "  Setup:\n"
 		    "    Buffer size: %d\n"
 		    "    Assumed tabulator width: %d\n"
-		    "    \n" // TODO
+		    "    \n" // TODO SymTab: initSize, hash params  Parser: ?
 		    "    ";
 	printf(vers, 512 /*Buffer::BUFFER_SIZE is private*/, TAB_WIDTH);
 }
