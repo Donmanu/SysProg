@@ -8,6 +8,9 @@
 #ifndef SCANNER_INCLUDES_TOKENTYPE_H_
 #define SCANNER_INCLUDES_TOKENTYPE_H_
 
+// for name arrays:
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 namespace TokenType {
 	enum Type {
 		TokenUnknown, // a.k.a. TokenError				//0

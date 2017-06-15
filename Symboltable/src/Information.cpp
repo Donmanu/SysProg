@@ -40,6 +40,7 @@ void Key::setHash(unsigned int h) {
 Information::Information(StringTabNode* lexem) {
 	this->lexemWrapper = lexem;
 	this->occurrences = 1;
+	this->type = DataType::noType;
 }
 
 Information::~Information() {
@@ -63,9 +64,7 @@ void Information::incrementOccurrences() {
 	this->occurrences++;
 }
 
-/*
- * Really only needed for keywords
- */
+/* Really only needed for keywords */
 void Information::decrementOccurrences() {
 	this->occurrences--;
 }
@@ -74,3 +73,9 @@ int Information::getOccurrences() {
 	return this->occurrences;
 }
 
+void Information::setType(DataType::Type type) {
+	this->type = type;
+}
+DataType::Type Information::getType(void) {
+	return this->type;
+}

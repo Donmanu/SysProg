@@ -11,6 +11,7 @@
 #include "../../Scanner/includes/TokenType.h"
 #include "../../Symboltable/includes/Information.h"
 #include "RuleType.h"
+#include "DataType.h"
 
 class Node {
 	public:
@@ -37,6 +38,7 @@ class Node {
 
 		TokenType::Type getTokenType(void);
 		RuleType::Type getRuleType(void);
+		DataType::Type getDataType(void);
 
 	protected:
 		int children;
@@ -45,6 +47,7 @@ class Node {
 		Node* sibling;
 		TokenType::Type token_type;
 		RuleType::Type rule_type;
+		DataType::Type data_type;
 };
 
 class NodeId : public Node {

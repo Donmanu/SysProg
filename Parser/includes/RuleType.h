@@ -8,6 +8,9 @@
 #ifndef RULETYPE_H_
 #define RULETYPE_H_
 
+// for name array:
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 namespace RuleType {
 
 	enum Type {

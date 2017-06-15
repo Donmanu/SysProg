@@ -122,6 +122,10 @@ RuleType::Type Node::getRuleType() {
 	return this->rule_type;
 }
 
+DataType::Type Node::getDataType() {
+	return this->data_type;
+}
+
 /*---------- NodeId ------------*/
 
 NodeId::NodeId(Node* parent, Information* info) {
@@ -200,9 +204,9 @@ void ParseTree::recursivePrint(Node* thisRoot) {
 	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
 
 	if (thisRoot->getRuleType() == RuleType::terminal)
-		printf("[%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()]);
+		printf("[%s:%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()], DataType::dataName[thisRoot->getDataType()]);
 	else
-		printf("(%s)\n", RuleType::ruleName[thisRoot->getRuleType()]);
+		printf("(%s)\n", RuleType::ruleName[thisRoot->getRuleType()]); // should have data_type, but always == noType;
 
 	Node* child = thisRoot->getChild();
 
