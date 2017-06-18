@@ -84,7 +84,6 @@ void StateStart::read(char c, Automat* m) {
 		case '&':
 			m->incrementAndAppend(c); // if it stands alone 'and' gets "unknown character"
 			m->setCurrentState(StateAnd::makeState());
-			//m->incrementCounter();
 			break;
 		case ':':
 			m->setCurrentState(StateColon::makeState());

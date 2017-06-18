@@ -68,15 +68,6 @@ class StateAnd: public State {
 		static StateAnd instance;
 };
 
-class StateAndAnd: public State {
-	public:
-		void read(char c, Automat *m);
-		static State* makeState();
-
-	private:
-		static StateAndAnd instance;
-};
-
 class StateColon: public State {
 	public:
 		void read(char c, Automat* m);

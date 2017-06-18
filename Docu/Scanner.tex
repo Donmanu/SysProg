@@ -36,8 +36,10 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{courier}     % Mache \ttfamily zum Courier-Font
 \usepackage{color}       % Vor allem für farbigen Code
 \definecolor{lightgray}{rgb}{ .97, .97, .97 }
+\definecolor{lightgrey}{rgb}{ .97, .97, .97 }
 \definecolor{shadow}{rgb}   { .75, .75, .75 }
 \definecolor{darkgray}{rgb} { .4 , .4 , .4  }
+\definecolor{darkgrey}{rgb} { .4 , .4 , .4  }
 \definecolor{blue}{rgb}     { .0 , .15, .45 }    % redefine
 \definecolor{purple}{rgb}   { .6 , .1 , .75 }
 \definecolor{deepblue}{rgb} { .15, .0 , .5  }
@@ -70,13 +72,14 @@ final      %|draft,     wie Bilder eingebunden sind
   %morestring=[b]",
   %morestring=[b]"""
 }
-%\usepackage{mathtools} % mainly for := sign, mathtools is not available :(
+%\usepackage{mathtools} % mainly for := sign, but mathtools is not available :(
+% So we define our own ":=" ...
 % http://tex.stackexchange.com/questions/4216/how-to-typeset-correctly
 \newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt
                      \hbox{\scriptsize.}\hbox{\scriptsize.}}}
                      =}
 \lstset{
-  % keep default basicstyle for \lstinline 
+  basicstyle=\small\ttfamily,
   backgroundcolor=\color{lightgray},
   columns=fixed,    % make monospace. TODO does not work?
   keepspaces=true,
@@ -153,19 +156,39 @@ Parallel zur syntaktischen Analyse werden bereits erste Informationen über die 
 \section{Der Puffer}
 
 \subsection{Aufgabe des Puffers}
-TODO
-
-\subsection{Implementierung}
-TODO
+Um die Langsamkeit der I/O-Operationen der Festplatte abzufedern, wird die zu kompilierende Datei in den Arbeitsspeicher geladen.
+Da dies bei sehr großen Dateien widerrum Probleme bereiten kann, geschieht dies in Schritten von 512 Byte.
 
 \subsection{Erklärung der Funktion}
-TODO
+Der Puffer besteht aus zwei Speicherbereichen (jeweils 512 Bytes groß).
+Diese werden wechselseitig mit dem Inhalt der zu kompilierenden Datei gefüllt.
+Die Speicherbereiche werden dabei nur einmal angelegt und durch das Umlegen eines entsprechenden Zeigers angesprochen.
+Um das Neu-Einlesen des nächsten Datei-Chunks zu steuern, existiert außerdem eine Bool'sche Variable, die angibt, ob der nächste Speicherbereich alt ist und neu eingelesen werden muss.
+Oder ob er bereits neu befüllt wurde und wir durch ein \code{unget()} in den aktuell hinteren Bereich gelangt sind.
 
+\subsection{Implementierung}
+Um höchste Performanz zu erreichen, erfolgt die Allokierung des Speicherbereichs mittels \code{posix_memalign(...)} mit einem \emph{alignment} des Speichers, welches der Puffergröße entspricht.
+Dies beugt Fragmentierung vor und beschleunigt das Einlesen von einem \emph{block-device} unter Linux.
+Beim ersten Einlesen mittels \code{ssize_t read (int, void*, size_t)} wird ggf. versucht gleich beide Bereiche zu füllen. Wir starten also im hinteren Puffer; die Bool'sche Variable ist entsprechend gesetzt.
+
+Der Puffer bietet nach außen (gegenüber dem Automaten) in erster Linie zwei Funktionen an:
+\begin{description}
+\item \code{char Buffer::get(void)} um das nächste Zeichen der Datei zu erhalten.
+\item \code{void Buffer::unget(void)} um im Puffer ein Zeichen zurück zu gehen.
+\end{description}
+Alle weiteren Funktionen sind privat und dienen dem Management von Datei-Ein-/Ausgabe und Speicherverwaltung.
 
 \section{Der Automat}
 
 \subsection{Aufgabe des Automaten}
-Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen. Dazu wird die Logik eines \emph{deterministischen endlichen Automaten} genutzt, wie in \ref{fig:autom} abgebildet. Die Eingabe ist das jeweils nächste Zeichen. In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten
+Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen.
+Dazu wird die Logik eines \emph{deterministischen endlichen Automaten} genutzt, wie in \ref{fig:autom} abgebildet.
+Die Eingabe ist das jeweils nächste Zeichen.
+In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten.
+Da in Kommentaren der Sprache alle Zeichen erlaubt sind, ist das Alphabet des Automaten unendlich groß.
+Praktisch kann man es aber mit $A = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}]$ beschreiben.
+Im Übrigen wird, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird, im Automaten Buch darüber geführt in welcher Zeile und Spalte der Datei wir uns gerade befinden.
+Außerdem werden Integralwerte von Zifferreihen mit \code{strtol(char*)} berechnet.
 
 \subsection{Implementierung}
 TODO
@@ -174,11 +197,15 @@ TODO erwähne Fallstricke mit dem \code{static State}-Ansatz
 
 TODO erkläre State::Restart
 
-TODO erwähne shortCut bei SigleSign, ColEqu und EquColEqu
+TODO erwähne Shortcuts bei SingleSign, ColEqu und EquColEqu (-> keine eigenen States)
 
 \subsection{Aufbau der Zustände}
 
-Der Aufbau ist in Bild \ref{fig:autom} TODO gezeigt.
+Der Aufbau ist in Bild \ref{fig:autom} gezeigt.
+
+TODO Füge \code{mkToken(...)} im Bild ein
+
+TODO Füge \code{appendChar(...)} im Bild ein
 
 %\begin{figure}[Htb]
 %    \centering
@@ -187,12 +214,17 @@ Der Aufbau ist in Bild \ref{fig:autom} TODO gezeigt.
 %	\label{fig:autom}
 %\end{figure}
 
-
-\begin{figure} % outer wrapper
+%% AUTOMATEN-Bild 1: Die wichtigsten Zustände
+\begin{figure}[Htb] % outer wrapper
 \begin{center}
 \begin{tikzpicture}[scale=0.2]
 \tikzstyle{every node}+=[inner sep=0pt]
 % Base generated with http://madebyevan.com/fsm/
+
+% As can be seen on https://www.sharelatex.com/learn/TikZ_package#/Diagrams
+% This code could be designed much more readable and maintainable like:
+%   \draw[->] (RestartNode.west) -- (StartNode.east);
+% but madebyevan.com didn't follow that :(
 
 % States:
 \draw [black] (22.4,-26.2) circle (3.5);
@@ -285,77 +317,105 @@ Der Aufbau ist in Bild \ref{fig:autom} TODO gezeigt.
 \end{center}
 \end{figure}
 
-\begin{figure}
+%% AUTOMATEN-BILD 2, der Rest:
+\begin{figure}[Htb]
 \begin{center}
 \begin{tikzpicture}[scale=0.2]
 \tikzstyle{every node}+=[inner sep=0pt]
 % States
 \draw [black] (57.7,-29.9) circle (3.5);
-\draw (57.7,-29.9) node {$Start$};
 \draw [black] (57.7,-29.9) circle (2.8);
+\draw (57.7,-29.9) node {$Start$};
 
-\draw [black] (30.8,-31.1) circle (3.5);
-\draw (30.8,-31.1) node {$Restart$};
+\draw [black] (27.1,-29.9) circle (3.5);
+\draw (27.1,-29.9) node {$Restart$};
 
 \draw [black] (53.2,-7.4) circle (3.5);
 \draw (53.2,-7.4) node {$And$};
 
-\draw [black] (22.3,-52.5) circle (3.5);
-\draw (22.3,-52.5) node {$Equ$};
-\draw [black] (22.3,-52.5) circle (2.8);
+\draw [black] (57.7,-52.2) circle (3.5);
+\draw [black] (57.7,-52.2) circle (2.8);
+\draw (57.7,-52.2) node {$Equ$};
 
-\draw [black] (10.2,-12.8) circle (3.5);
-\draw (10.2,-12.8) node {$EquCol$};
+\draw [black] (11,-51.2) circle (3.5);
+\draw (10.9,-51.2) node {$EquCol$};
+
+\draw [darkgray] (15.6,-12.6) circle (3.5);
+\draw [darkgray] (15.6,-12.6) node {$X$};
 
 % Lines
-\draw [black] (33.8,-30.97) -- (54.7,-30.03);
-\fill [black] (54.7,-30.03) -- (53.88,-29.57) -- (53.93,-30.57);
-\draw (44.29,-31.04) node [below] {$\epsilon$};			% Restart > Start
+\draw [black] (60.38,-28.577) arc (144:-144:2.25);
+\fill [black] (60.38,-31.22) -- (60.73,-32.1) -- (61.32,-31.29);
+\draw [blue] (64.95,-31.9) node [right] {\small$append(?)$};
+\draw [blue] (64.95,-34.1) node [right] {\small$mkToken(Unknown)$};
+\draw (64.95,-29.9) node [right] {$?$};				% Start > Start
 
-\draw [black] (57.11,-26.96) -- (53.79,-10.34);
+\draw [black] (30.1,-29.9) -- (54.7,-29.9);
+\fill [black] (54.7,-29.9) -- (53.9,-29.4) -- (53.9,-30.4);
+\draw [blue] (42.4,-30.0) node [above] {\small$resetCounter()$};
+\draw (42.4,-30.4) node [below] {$\epsilon$};			% Restart > Start
+
+\draw [black] (57.11,-26.96) arc (5:16.2:86);
 \fill [black] (53.79,-10.34) -- (53.45,-11.22) -- (54.44,-11.03);
-\draw (57.4,-18.34) node [right] {$[\&]$};			% Start > And
+\draw [blue] (57.4,-20.54) node [right] {\small$append(\&)$};
+\draw (57.4,-18.34) node [right] {$[\&]$};				% Start > And
 
-\draw [black] (53.79,-10.34) -- (57.11,-26.96); % TODO make arc
+\draw [black] (53.79,-10.34) arc (-175:-163.8:87);
 \fill [black] (57.11,-26.96) -- (57.45,-26.08) -- (56.46,-26.27);
-\draw (53.5,-18.96) node [left] {$[\&]$};				% And > Start
+\draw [blue] (53.5,-22.16) node [left] {\small$mkToken(And)$};
+\draw (53.5,-19.96) node [left] {$[\&]$};				% And > Start
 
-\draw [black] (51.14,-9.58) -- (32.86,-28.92); % TODO make arc
-\fill [black] (32.86,-28.92) -- (33.77,-28.68) -- (33.05,-27.99);
-\draw (43.47,-16.4) node [left] {$default$};			% And > Restart
+\draw [black] (50.93,-9.36) -- (29.37,-27.94);
+\fill [black] (29.37,-27.94) -- (30.3,-27.8) -- (29.65,-27.04);
+\draw [blue] (36.19,-18.16) node [below] {\small$mkToken(Unknown)$};
+\draw (36.19,-17.96) node [above] {$default$};			% And > Restart
 
-\draw [black] (55.17,-31.51) -- (24.83,-50.89);
-\fill [black] (24.83,-50.89) -- (25.77,-50.88) -- (25.23,-50.03);
-\draw (37.85,-40.7) node [above] {$[=]$};				% Start > Equal
+\draw [black] (57.7,-32.9) -- (57.7,-49.2);
+\fill [black] (57.7,-49.2) -- (58.2,-48.4) -- (57.2,-48.4);
+\draw [blue] (58.4,-41.05) node [right] {\small$increment()$};
+\draw (57.2,-41.05) node [left] {$[=]$};				% Start > Equ
 
-\draw [black] (21.43,-49.63) -- (11.07,-15.67);
-\fill [black] (11.07,-15.67) -- (10.83,-16.58) -- (11.79,-16.29);
-\draw (17.02,-32.03) node [right] {$[:]$};				% Equ > EquCol
+\draw [black] (54.7,-52.14) -- (14,-51.26);
+\fill [black] (14.2,-51.26) -- (15,-51.78) -- (15,-50.78);
+\draw [blue] (34.37,-52.37) node [below] {\small$increment()$};
+\draw (34.37,-51.17) node [above] {$[:]$};				% Equ > EquCol
 
-\draw [black] (13.02,-13.82) -- (54.88,-28.88);
-\fill [black] (54.88,-28.88) -- (54.29,-28.14) -- (53.96,-29.08);
-\draw (30.3,-21.0) node [below] {$[=]$};				% EquCol > Start
+\draw [black] (13.73,-49.96) -- (54.97,-31.14);
+\fill [black] (54.97,-31.14) -- (54.04,-31.02) -- (54.45,-31.93);
+\draw [blue] (36.1,-40.07) node [above] {\small$mkToken(UnEqual)$};
+\draw (36.1,-41.07) node [below] {$[=]$};				% EquCol > Start
 
-\draw [black] (12.44,-14.79) -- (28.56,-29.11);
-\fill [black] (28.56,-29.11) -- (28.29,-28.2) -- (27.63,-28.95);
-\draw (18.5,-23.44) node [below] {$default$};			% EquCol > Restart  TODO : unget(__2__)
+\draw [black] (55.28,-50.43) -- (29.52,-31.67);
+\fill [black] (29.52,-31.67) -- (29.88,-32.54) -- (30.47,-31.73);
+\draw [blue] (48.35,-42.4) node [below] {\small$mkToken(Equals)$};
+\draw [blue] (48.35,-44.5) node [below] {\small$unget(1)$};
+\draw (48.35,-42.1) node [above] {$default$};			% Equ > Restart
 
-\draw [black] (23.41,-49.71) -- (29.69,-33.89);
-\fill [black] (29.69,-33.89) -- (28.93,-34.45) -- (29.86,-34.82);
-\draw (27.3,-42.68) node [right] {$default$};			% Equ > Restart
+\draw [black] (12.81,-48.81) -- (25.29,-32.29);
+\fill [black] (25.29,-32.29) -- (24.41,-32.63) -- (25.21,-33.23);
+\draw [blue] (17.8,-38.75) node [left] {\small$mkToken(Equals)$};
+\draw [blue] (17.8,-40.95) node [left] {\small$unget(2)$};
+\draw (19,-40.95) node [right] {$default$};			% EquCol > Restart  TODO : unget(__2__) zeichnen
+
+\draw [darkgray] (17.26,-15.1) -- (25.44,-27.4);
+\fill [darkgray] (25.44,-27.4) -- (25.41,-26.46) -- (24.58,-27.01);
+\draw [blue] (20,-22.78) node [left] {\small$append(?)$};
+\draw [blue] (20,-25) node [left] {\small$mkToken(Unknown)$};
+\draw [black] (20,-20.58) node [left] {$?$};			% X > Restart
 \end{tikzpicture}
 \end{center}
-\caption{Die Zuständes des Automaten, welche die Token \texttt{And}, \texttt{Equal}, \texttt{ColonEqual} und \texttt{UnEqual} erzeugen. Die Zustände \texttt{Start} und \texttt{Restart} sind die selben wie in Abbildung \ref{fig:autom}. Die Erzeugung des Token \texttt{Unknown} ist in keiner der Abbildungen enthalten.} \label{fig:autom}
+\caption{Die Zuständes des Automaten, welche die Token \texttt{And}, \texttt{Equal}, \texttt{ColonEqual}, \texttt{UnEqual} und \texttt{Unknown} erzeugen.
+Die Zustände \texttt{Start} und \texttt{Restart} sind die selben wie in Abbildung \ref{fig:autom}.
+Der Zustand \texttt{X} steht für jeden möglichen der anderen Zustände dort, außer \texttt{comBegin} und \texttt{comEnd}, da dort nicht-Alphabet Buchstaben erlaubt sind. Das \texttt{?} steht für ein Zeichen außerhalb des Automaten-Alphabets.} \label{fig:autom2}
 \end{figure}
-
-
 
 \section{Die Symboltabelle}
 
 \subsection{Aufgabe der Symboltabelle}
+Die Symboltabelle enthält weitergehende Informationen über Token, insb. ob gefundene Identifier einem \emph{keyword} der Sprache entsprechen oder bereits bekannt sind.
 
 \subsection{Implementierung}
-
+TODO
 
 
 \section{Der Scanner}
@@ -387,13 +447,13 @@ Parallel werden mögliche Fehler und weitere Informationen auf der Console ausge
 Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben.
 
 \begin{description}
-\item{anything.txt} Ein potentiell sinnvolles Codebeispiel mit einer bunten Mischung verschiedener Tokens und Kommentare. Ein allgemeiner Testfall ohne besonderen Fokus. Eher als Parsertest nützlich.
+\item{\texttt{anything.txt}} Ein potentiell sinnvolles Codebeispiel mit einer bunten Mischung verschiedener Tokens und Kommentare. Ein allgemeiner Testfall ohne besonderen Fokus. Eher als Parsertest nützlich.
 
-\item{empty.txt} Eine komplett leere Datei, 0 Byte groß. Fokus dieses Testfalls ist die Funktion des Buffers -- also ob etwas schief geht, wenn schon zu Beginn nichts einzulesen ist.
+\item{\texttt{empty.txt}} Eine komplett leere Datei, 0 Byte groß. Fokus dieses Testfalls ist die Funktion des Buffers -- also ob etwas schief geht, wenn schon zu Beginn nichts einzulesen ist.
 
-\item{desert.txt} Eine Datei mit verschiedenen Whitespaces: Space, Newline und Tabulator. Fokus dieses Tests ist der Grenzfall, dass der Automat zwar viele Zeichen zu verarbeiten hat, aber nie ein Token entstehen sollte.
+\item{\texttt{desert.txt}} Eine Datei mit verschiedenen Whitespaces: Space, Newline und Tabulator. Fokus dieses Tests ist der Grenzfall, dass der Automat zwar viele Zeichen zu verarbeiten hat, aber nie ein Token entstehen sollte.
 
-\item{EquCol2.txt} Da wir in diesem Bereich des Automaten lange Zeit Probleme hatten, die \code{line} und \code{column} korrekt anzugeben, haben wir unter \url{http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/} alle möglichen Permutationen von $":"$, $"="$, $":="$, $"=:="$ und $":**:"$ erzeugen lassen. Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
+\item{\texttt{EquCol2.txt}} Da wir in diesem Bereich des Automaten lange Zeit Probleme hatten, die \code{line} und \code{column} korrekt anzugeben, haben wir unter \url{http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/} alle möglichen Permutationen von $":"$, $"="$, $":="$, $"=:="$ und $":**:"$ erzeugen lassen. Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
 \begin{lstlisting}[language=SysProgLang, caption={EquCol2.txt}, label=lst:testEquCol2]
 =:=:=:=:**:
 =:=::**:=:=
@@ -406,6 +466,7 @@ Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Eini
 =:=:=:**::=
 line10
 =:=:=:=:**:
+[...]
 \end{lstlisting}
 Anschließend haben wir (stichprobenweise) verglichen, ob
 \begin{enumerate}
@@ -415,17 +476,17 @@ Anschließend haben wir (stichprobenweise) verglichen, ob
 \end{enumerate}
 Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens zu testen. Dies würde aber mit $21! = 5 \cdot 10^{19}$ Möglichkeiten unsere Kapazitäten sprengen.
 
-\item{legalComments.txt} Dieser Test fokussiert sich auf alle erdenklichen Fälle um und in Kommentaren ($:* *:$). Innerhalb sind alle Zeichen erlaubt. Insbesondere auch $":"$ und $"*"$ allein. Desweiteren endet der letzte Kommentar nicht (bzw. mit $EOF$).
+\item{\texttt{legalComments.txt}} Dieser Test fokussiert sich auf alle erdenklichen Fälle um und in Kommentaren ($:* *:$). Innerhalb sind alle Zeichen erlaubt. Insbesondere auch $":"$ und $"*"$ allein. Desweiteren endet der letzte Kommentar nicht (bzw. mit $EOF$).
 
-\item{theBible.txt} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \url{http://www.gutenberg.org/cache/epub/10/pg10.txt} und dient vor allem für Performanz- und Speicherleck-Überprüfung.
+\item{\texttt{theBible.txt}} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \url{http://www.gutenberg.org/cache/epub/10/pg10.txt} und dient vor allem der Performanz- und Speicherleck-Überprüfung in der Symboltabelle.
 
-\item{longWords.txt} Enthält Identifier mit versch. Wortlängen jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
+\item{\texttt{longWords.txt}} Enthält Identifier mit versch. Wortlängen jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
 
-\item{manyWords.txt} Enthält viele sich wiederholende Identifier. Fokus ist Performanz- und Konsistenzüberprüfung der Symboltabelle bei wiederholtem \code{resize()}.
+\item{\texttt{manyWords.txt}} Enthält viele, auch sich wiederholende Identifier. Fokus ist Performanz- und Konsistenzüberprüfung der Symboltabelle bei wiederholtem \code{resize()}.
 
-\item{unknown.txt} Enthält alle dem Scanner unbekannten ASCII-Zeichen.
+\item{\texttt{unknown.txt}} Enthält alle dem Scanner unbekannten ASCII-Zeichen, sowie entsprechend zu händelnde Situation wie unmittelbar aufeinander folgende unbekannte Zeichen und unbekannte Zeichen inmitten von Zahlen und Identifieren.
 
-\item{values.txt} Enthält viele Zahlenwerte, die mit \code{strtol()} zu parsen sind.
+\item{\texttt{values.txt}} Enthält viele Zahlenwerte, die mit \code{strtol()} zu parsen sind.
 
 \end{description}
 
