@@ -40,12 +40,6 @@ State* StateIdentifier::makeState() {
 	return &StateIdentifier::instance;
 }
 
-StateSingleSign StateSingleSign::instance;
-
-State* StateSingleSign::makeState() {
-	return &StateSingleSign::instance;
-}
-
 StateAnd StateAnd::instance;
 
 State* StateAnd::makeState() {
@@ -58,12 +52,6 @@ State* StateColon::makeState() {
 	return &StateColon::instance;
 }
 
-StateColonEquals StateColonEquals::instance;
-
-State* StateColonEquals::makeState() {
-	return &StateColonEquals::instance;
-}
-
 StateEquals StateEquals::instance;
 
 State* StateEquals::makeState() {
@@ -74,12 +62,6 @@ StateEqualsColon StateEqualsColon::instance;
 
 State* StateEqualsColon::makeState() {
 	return &StateEqualsColon::instance;
-}
-
-StateEqualsColonEquals StateEqualsColonEquals::instance;
-
-State* StateEqualsColonEquals::makeState() {
-	return &StateEqualsColonEquals::instance;
 }
 
 StateCommentBegin StateCommentBegin::instance;

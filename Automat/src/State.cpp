@@ -155,24 +155,6 @@ void StateIdentifier::read(char c, Automat* m) {
 	}
 }
 
-void StateSingleSign::read(char c, Automat* m) {
-	/* this state really should not read anything */
-	errno = ENOSYS;
-	perror("Reading in StateSingleSign!\n");
-	switch (c) {
-		case ' ':
-		case '\n':
-		case '\t':
-			m->setCurrentState(StateStart::makeState());
-			break;
-		default:
-			// if it's really a single sign (sign!, sign+, sign] and so on), StateStart handles it already
-			// so don't make a token here
-			m->setCurrentState(StateRestart::makeState());
-			m->getCurrentState()->read(c, m);
-	}
-}
-
 /*
  * in-between state for ( ) -> (&) -> ((&&))
  */
@@ -215,17 +197,6 @@ void StateColon::read(char c, Automat* m) {
 }
 
 /*
- * final state
- */
-void StateColonEquals::read(char c, Automat* m) {
-	switch(c) {
-	default:
-		m->setCurrentState(StateStart::makeState());
-		m->getCurrentState()->read(c, m);
-	}
-}
-
-/*
  * in-between state for ((=:=)) and final state for ((=))
  */
 void StateEquals::read(char c, Automat* m) {
@@ -260,14 +231,6 @@ void StateEqualsColon::read(char c, Automat* m) {
 			m->setCurrentState(StateStart::makeState());
 	}
 }
-
-/* epsilon transition into start -> Should never read. TODO Remove? */
-void StateEqualsColonEquals::read(char c, Automat* m) {
-	m->setCurrentState(StateStart::makeState());
-	m->getCurrentState()->read(c, m);
-}
-
-
 
 void StateCommentBegin::read(char c, Automat* m) {
 	if (c == '*' || c == '\0') {
