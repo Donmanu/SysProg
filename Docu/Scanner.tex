@@ -21,6 +21,7 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{graphicx}    % Besserer Bilderimport
 \usepackage{wrapfig}     % Erlaube Text um Bilder
 \usepackage[font={small,it},labelfont={normal}]{caption}  % Bessere Bild-/Code-/Tabellenuntertitel
+\usepackage{tikz}        % Erlaubt das Malen von z.B. State Machines
 
 % Schrift und Optik:
 \usepackage{geometry}
@@ -32,8 +33,9 @@ final      %|draft,     wie Bilder eingebunden sind
 \clubpenalty = 10000
 
 % Code:
+\usepackage{courier}     % Mache \ttfamily zum Courier-Font
 \usepackage{color}       % Vor allem für farbigen Code
-\definecolor{lightgray}{rgb}{ .95, .95, .95 }
+\definecolor{lightgray}{rgb}{ .97, .97, .97 }
 \definecolor{shadow}{rgb}   { .75, .75, .75 }
 \definecolor{darkgray}{rgb} { .4 , .4 , .4  }
 \definecolor{blue}{rgb}     { .0 , .15, .45 }    % redefine
@@ -44,7 +46,7 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{listings}    % Code-Listings
 
 \lstdefinelanguage{PseudoCode}{
-  basicstyle=\small,
+  basicstyle=\small\ttfamily,
   identifierstyle=\color{black},
   sensitive=false,
   comment=[l]{\#}{//}{;},
@@ -57,7 +59,7 @@ final      %|draft,     wie Bilder eingebunden sind
 }
 
 \lstdefinelanguage{SysProgLang}{
-  basicstyle=\small,
+  basicstyle=\small\ttfamily,
   identifierstyle=\color{black},
   sensitive=true,
   comment=[l]{:*},
@@ -114,8 +116,9 @@ final      %|draft,     wie Bilder eingebunden sind
 
 
 % META INFO:
-\title{Scanner}
-\author{Arthur Jagiella \hspace{1cm} \texttt{jaar1013@hs-karlsruhe.de} \and Manuel Giesinger \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}}
+\title{Systemnahe Programmierung eines Compilers\\I. Der Scanner}
+
+\author{Arthur \textsc{Jagiella} \hspace{1cm} \texttt{jaar1013@hs-karlsruhe.de} \and Manuel \textsc{Giesinger} \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}}
 \date{\today}
 
 
@@ -126,7 +129,6 @@ final      %|draft,     wie Bilder eingebunden sind
 \begin{document}
 
 %\include{mytitle}  % als externe .tex-Datei
-\title{Scanner}
 \maketitle
 
 
@@ -141,7 +143,7 @@ final      %|draft,     wie Bilder eingebunden sind
 Diese Arbeit ist im Rahmen des Kurses „Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
 
 \subsection{Aufgabenstellung gesamt}
-Im Kurs „Systemnahes Programmieren“ geht es inhaltlich um die Programmierung in C++ unter Verzicht auf die Nutzung von Standardbibliotheken. Die Implementierung von Puffern, verketteten Listen, Hashtabellen und Baumstrukturen soll per Hand erfolgen. Hierzu wird als Anwendung ein Compiler für eine fiktive Sprache implementiert.
+Im Kurs „Systemnahes Programmieren“ geht es inhaltlich um die Programmierung in C++ unter weitgehendem Verzicht auf die Nutzung von Standardbibliotheken. Die Implementierung von Puffern, verketteten Listen, Hashtabellen und Baumstrukturen soll per Hand erfolgen. Hierzu wird als Anwendung ein Compiler für eine fiktive Sprache implementiert.
 
 \subsection{Aufgabenstellung Scanner} 
 Als Teil des Compilers ist die Aufgabe des Scanners eine Source-Datei einzulesen und in ihre syntaktischen Bestandteile zu zerlegen - man pricht von \emph{tokenizing}. Dazu bedarf es zum einen eines Puffer-Speichers für den Dateiinhalt. Zum anderen ist die Token-Erkennung mithilfe eines deterministischen endlichen Automaten umgesetzt.
@@ -150,35 +152,234 @@ Parallel zur syntaktischen Analyse werden bereits erste Informationen über die 
 
 \section{Der Puffer}
 
+\subsection{Aufgabe des Puffers}
+TODO
+
+\subsection{Implementierung}
+TODO
+
+\subsection{Erklärung der Funktion}
+TODO
 
 
 \section{Der Automat}
+
+\subsection{Aufgabe des Automaten}
+Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen. Dazu wird die Logik eines \emph{deterministischen endlichen Automaten} genutzt, wie in \ref{fig:autom} abgebildet. Die Eingabe ist das jeweils nächste Zeichen. In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten
+
+\subsection{Implementierung}
+TODO
+
+TODO erwähne Fallstricke mit dem \code{static State}-Ansatz
+
+TODO erkläre State::Restart
+
+TODO erwähne shortCut bei SigleSign, ColEqu und EquColEqu
+
+\subsection{Aufbau der Zustände}
+
+Der Aufbau ist in Bild \ref{fig:autom} TODO gezeigt.
+
+%\begin{figure}[Htb]
+%    \centering
+%    \includegraphics[width=0.95\textwidth]{./pics/TODO.png}
+%	\caption[format=plain]{Übergänge zwischen den Zuständen des Automaten}
+%	\label{fig:autom}
+%\end{figure}
+
+
+\begin{figure} % outer wrapper
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+% Base generated with http://madebyevan.com/fsm/
+
+% States:
+\draw [black] (22.4,-26.2) circle (3.5);
+\draw (22.4,-26.2) node {$Start$};
+\draw [black] (22.4,-26.2) circle (2.8);
+\draw [black] (48.5,-28.2) circle (3.5);
+\draw (48.5,-28.2) node {$Numb.$};
+\draw [black] (48.5,-28.2) circle (2.8);
+\draw [black] (22.4,-47.5) circle (3.5);
+\draw (22.4,-47.5) node {$Ident.$};
+\draw [black] (22.4,-47.5) circle (2.8);
+\draw [black] (51.1,-47.5) circle (3.5);
+\draw (51.6,-47.8) node {$Restart$};
+\draw [black] (45.8,-9.8) circle (3.5);
+\draw (45.8,-8.8) node {$ComBegin$};
+\draw [black] (22.4,-9.8) circle (3.5);
+\draw (22.4,-8.8) node {$ComEnd$};
+\draw [black] (74.5,-9.8) circle (3.5);
+\draw (74.5,-9.8) node {$Colon$};
+\draw [black] (74.5,-9.8) circle (2.8);
+
+% Lines:
+\draw [black] (25.39,-26.43) -- (45.51,-27.97);
+\fill [black] (45.51,-27.97) -- (44.75,-27.41) -- (44.67,-28.41);
+\draw (35.11,-27.9) node [below] {$[0-9]$};
+
+% \draw (x,y) arc (start:stop:radius);
+\draw [black] (49.83,-25.524) arc (181.30395:-106.69605:2.25);
+\draw (54.44,-22.71) node [right] {$[0-9]$};
+\fill [black] (51.43,-27.63) -- (52.24,-28.11) -- (52.22,-27.11);
+
+\draw [black] (22.4,-29.2) -- (22.4,-44.5);
+\fill [black] (22.4,-44.5) -- (22.9,-43.7) -- (21.9,-43.7);
+\draw (21.9,-36.85) node [left] {$[A-Za-z]$};
+
+\draw [black] (23.3,-50.35) arc (45.25384:-242.74616:2.25);
+\draw (18.97,-55.26) node [below] {$[0-9A-Za-z]$};
+\fill [black] (20.69,-49.95) -- (19.77,-50.16) -- (20.48,-50.87);
+
+\draw [black] (48.9,-31.17) -- (50.7,-44.53);
+\fill [black] (50.7,-44.53) -- (51.09,-43.67) -- (50.1,-43.8);
+\draw (49.12,-38) node [left] {$default$};
+
+\draw [black] (25.4,-47.5) -- (48.1,-47.5);
+\fill [black] (48.1,-47.5) -- (47.3,-47) -- (47.3,-48);
+\draw (36.75,-48) node [below] {$default$};
+
+\draw [black] (48.69,-45.71) -- (24.81,-27.99);
+\fill [black] (24.81,-27.99) -- (25.15,-28.87) -- (25.75,-28.06);
+\draw (37.75,-36.35) node [above] {$\epsilon$};
+
+\draw [black] (19.588,-27.211) arc (317.50021:29.50021:2.25);
+\draw (15.04,-25.32) node [left] {$[+-*<>=!;()[]{}]$};
+\fill [black] (19.89,-24.58) -- (19.64,-23.67) -- (18.96,-24.41);
+
+% \draw (x,y) arc (startAngl:stopAngl:radius);
+\draw [black] (42.8,-9.8) arc (80:100:50);
+\fill [black] (25.4,-9.8) -- (26.2,-10.3) -- (26.2,-9.3);
+\draw (34.1,-8.3) node [above] {$[*]$};			% ComBegin > ComEnd
+
+\draw [black] (42.8,-9.8) arc (-80:-100:50);
+\fill [black] (42.8,-9.8) -- (42,-9.3) -- (42,-10.3);
+\draw (34.1,-11.3) node [below] {$default$};		% ComEnd > ComBegin
+
+\draw [black] (22.4,-12.8) -- (22.4,-23.2);
+\fill [black] (22.4,-23.2) -- (22.9,-22.4) -- (21.9,-22.4);
+\draw (21.9,-18) node [left] {$[:]$};				% ComEnd > Start
+
+\draw [black] (25.26,-25.3) arc (-80:-66.8:208);
+\fill [black] (71.64,-11.4) -- (70.73,-11.16) -- (71.03,-12.12);
+\draw (49.87,-19.8) node [below] {$[:]$};			% Start > Colon
+
+\draw [black] (71.6,-11.3) arc (100:113.2:208);							% << HIER
+\fill [black] (25.26,-25.3) -- (25.9,-24.55) -- (26.22,-25.5);
+\draw (48.5,-16.57) node [above] {$[=]$};			% Colon > Start
+
+\draw [black] (72.92,-12.35) -- (52.68,-44.95);
+\fill [black] (52.68,-44.95) -- (53.53,-44.54) -- (52.68,-44.01);
+\draw (62.17,-27.36) node [left] {$default$};
+
+\draw [black] (71.5,-9.8) -- (48.8,-9.8);
+\fill [black] (48.8,-9.8) -- (49.6,-10.3) -- (49.6,-9.3);
+\draw (60.15,-9.3) node [above] {$[*]$};			% Colon > ComBegin
+
+\draw [black] (44.477,-7.12) arc (234:-54:2.25);
+\draw (45.8,-2.55) node [above] {$default$};		% ComBegin > ComBegin
+\fill [black] (47.12,-7.12) -- (48,-6.77) -- (47.19,-6.18);
+\end{tikzpicture}
+\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen} \label{fig:autom}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+% States
+\draw [black] (57.7,-29.9) circle (3.5);
+\draw (57.7,-29.9) node {$Start$};
+\draw [black] (57.7,-29.9) circle (2.8);
+
+\draw [black] (30.8,-31.1) circle (3.5);
+\draw (30.8,-31.1) node {$Restart$};
+
+\draw [black] (53.2,-7.4) circle (3.5);
+\draw (53.2,-7.4) node {$And$};
+
+\draw [black] (22.3,-52.5) circle (3.5);
+\draw (22.3,-52.5) node {$Equ$};
+\draw [black] (22.3,-52.5) circle (2.8);
+
+\draw [black] (10.2,-12.8) circle (3.5);
+\draw (10.2,-12.8) node {$EquCol$};
+
+% Lines
+\draw [black] (33.8,-30.97) -- (54.7,-30.03);
+\fill [black] (54.7,-30.03) -- (53.88,-29.57) -- (53.93,-30.57);
+\draw (44.29,-31.04) node [below] {$\epsilon$};			% Restart > Start
+
+\draw [black] (57.11,-26.96) -- (53.79,-10.34);
+\fill [black] (53.79,-10.34) -- (53.45,-11.22) -- (54.44,-11.03);
+\draw (57.4,-18.34) node [right] {$[\&]$};			% Start > And
+
+\draw [black] (53.79,-10.34) -- (57.11,-26.96); % TODO make arc
+\fill [black] (57.11,-26.96) -- (57.45,-26.08) -- (56.46,-26.27);
+\draw (53.5,-18.96) node [left] {$[\&]$};				% And > Start
+
+\draw [black] (51.14,-9.58) -- (32.86,-28.92); % TODO make arc
+\fill [black] (32.86,-28.92) -- (33.77,-28.68) -- (33.05,-27.99);
+\draw (43.47,-16.4) node [left] {$default$};			% And > Restart
+
+\draw [black] (55.17,-31.51) -- (24.83,-50.89);
+\fill [black] (24.83,-50.89) -- (25.77,-50.88) -- (25.23,-50.03);
+\draw (37.85,-40.7) node [above] {$[=]$};				% Start > Equal
+
+\draw [black] (21.43,-49.63) -- (11.07,-15.67);
+\fill [black] (11.07,-15.67) -- (10.83,-16.58) -- (11.79,-16.29);
+\draw (17.02,-32.03) node [right] {$[:]$};				% Equ > EquCol
+
+\draw [black] (13.02,-13.82) -- (54.88,-28.88);
+\fill [black] (54.88,-28.88) -- (54.29,-28.14) -- (53.96,-29.08);
+\draw (30.3,-21.0) node [below] {$[=]$};				% EquCol > Start
+
+\draw [black] (12.44,-14.79) -- (28.56,-29.11);
+\fill [black] (28.56,-29.11) -- (28.29,-28.2) -- (27.63,-28.95);
+\draw (18.5,-23.44) node [below] {$default$};			% EquCol > Restart  TODO : unget(__2__)
+
+\draw [black] (23.41,-49.71) -- (29.69,-33.89);
+\fill [black] (29.69,-33.89) -- (28.93,-34.45) -- (29.86,-34.82);
+\draw (27.3,-42.68) node [right] {$default$};			% Equ > Restart
+\end{tikzpicture}
+\end{center}
+\caption{Die Zuständes des Automaten, welche die Token \texttt{And}, \texttt{Equal}, \texttt{ColonEqual} und \texttt{UnEqual} erzeugen. Die Zustände \texttt{Start} und \texttt{Restart} sind die selben wie in Abbildung \ref{fig:autom}. Die Erzeugung des Token \texttt{Unknown} ist in keiner der Abbildungen enthalten.} \label{fig:autom}
+\end{figure}
 
 
 
 \section{Die Symboltabelle}
 
+\subsection{Aufgabe der Symboltabelle}
+
+\subsection{Implementierung}
+
 
 
 \section{Der Scanner}
-Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz.
+
+\subsection{Aufgabe der Symboltabelle}
+Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz mittels \code{Token mkToken(void)}.
 
 
 \subsection{Programmaufruf}
-Die ausführbare ScannerTest liest als Parameter eine beliebig lange Liste von Dateinamen ein. Zum Beispiel wie in Listing \ref{lst:scantest} alle Dateien eines Ordners mit Bash-Expansion.
+Die ausführbare \emph{ScannerTest} liest als Parameter eine beliebig lange Liste von Dateinamen ein. Zum Beispiel wie in Listing \ref{lst:scantest} alle Dateien eines Ordners mittels Bash-Expansion.
 \begin{lstlisting}[language=PseudoCode, caption={Aufruf von ScannerTest}, label=lst:scantest]
-~/$ ./proj/Scanner/debug/ScannerTest tests/*
+~/project/$ ./Scanner/debug/ScannerTest tests/*
 \end{lstlisting}
-Für jede Datei wird ein Scanner erzeugt, es werden alle Zeichen eingelesen und die jeweiligen Ergebnisse zusammen in eine Datei $out.txt$ geschrieben. Dies sieht dann zum Beispiel aus wie in Listing \ref{lst:scanout}.
-\begin{lstlisting}[language=PseudoCode, caption={Dateiausgabe von ScannerTest}, label=lst:scanout]
-TokenStop in line 1	in column 0
-
-    --- END OF tests/empty.txt ---
-
-TokenIdentifier in line 1	in column 1	Lexem: The
-TokenIdentifier in line 1	in column 5	Lexem: Project
-TokenIdentifier in line 1	in column 13	Lexem: Gutenberg
-TokenIdentifier in line 1	in column 23	Lexem: EBook
+Im Programm wird für jede Datei jeweils ein Scanner-Objekt erzeugt. Dieses beauftragt den Buffer damit, die Datei zu öffnen. Es werden alle Zeichen eingelesen - gescannt - und die jeweiligen Ergebnisse in eine Datei $out.txt$ geschrieben. Dies sieht dann zum Beispiel aus wie in Listing \ref{lst:scanout}.
+\begin{lstlisting}[language=PseudoCode, firstnumber=57, caption={Dateiausgabe von ScannerTest}, label=lst:scanout]
+[...]
+TokenStop            in line 3     in column 0
+   --- END OF Scanner/tests/empty.txt ---
+   --- BEGIN Scanner/tests/theBible.txt ---
+TokenIdentifier	     in line 1     in column 1      Lexem: The
+TokenIdentifier	     in line 1     in column 5      Lexem: Project
+TokenIdentifier	     in line 1     in column 13     Lexem: Gutenberg
+TokenIdentifier      in line 1     in column 23     Lexem: EBook
+[...]
 \end{lstlisting}
 Parallel werden mögliche Fehler und weitere Informationen auf der Console ausgegeben.
 
