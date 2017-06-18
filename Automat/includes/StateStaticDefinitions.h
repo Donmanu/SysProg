@@ -76,10 +76,4 @@ State* StateCommentEnd::makeState() {
 	return &StateCommentEnd::instance;
 }
 
-StateUnknown StateUnknown::instance;
-
-State* StateUnknown::makeState() {
-	return &StateUnknown::instance;
-}
-
 #endif /* AUTOMAT_INCLUDES_STATESTATICDEFINITIONS_H_ */

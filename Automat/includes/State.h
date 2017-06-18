@@ -122,13 +122,4 @@ class StateCommentEnd: public State {
 		static StateCommentEnd instance;
 };
 
-class StateUnknown: public State {
-	public:
-		void read(char c, Automat* m);
-		static State* makeState();
-
-	private:
-		static StateUnknown instance;
-};
-
 #endif /* AUTOMAT_INCLUDES_STATE_H_ */
