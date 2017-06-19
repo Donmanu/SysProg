@@ -158,18 +158,25 @@ Parallel zur syntaktischen Analyse werden bereits erste Informationen über die 
 \subsection{Aufgabe des Puffers}
 Um die Langsamkeit der I/O-Operationen der Festplatte abzufedern, wird die zu kompilierende Datei in den Arbeitsspeicher geladen.
 Da dies bei sehr großen Dateien widerrum Probleme bereiten kann, geschieht dies in Schritten von 512 Byte.
+Der Puffer bietet an den Inhalt der Datei Zeichen für Zeichen zu erhalten.
+Außerdem erlaubt er, wieder zurück im Zeichenstrom zu gehen (siehe Automat \ref{sec:autom}).
 
 \subsection{Erklärung der Funktion}
 Der Puffer besteht aus zwei Speicherbereichen (jeweils 512 Bytes groß).
 Diese werden wechselseitig mit dem Inhalt der zu kompilierenden Datei gefüllt.
 Die Speicherbereiche werden dabei nur einmal angelegt und durch das Umlegen eines entsprechenden Zeigers angesprochen.
 Um das Neu-Einlesen des nächsten Datei-Chunks zu steuern, existiert außerdem eine Bool'sche Variable, die angibt, ob der nächste Speicherbereich alt ist und neu eingelesen werden muss.
-Oder ob er bereits neu befüllt wurde und wir durch ein \code{unget()} in den aktuell hinteren Bereich gelangt sind.
+Oder ob er bereits neu befüllt wurde und wir durch ein \code{unget()} oder initial in den aktuell hinteren Bereich gelangt sind.
+
+Am Ende der Datei liefert der Puffer ein Nullterminal \code{'\0'}.
 
 \subsection{Implementierung}
 Um höchste Performanz zu erreichen, erfolgt die Allokierung des Speicherbereichs mittels \code{posix_memalign(...)} mit einem \emph{alignment} des Speichers, welches der Puffergröße entspricht.
 Dies beugt Fragmentierung vor und beschleunigt das Einlesen von einem \emph{block-device} unter Linux.
-Beim ersten Einlesen mittels \code{ssize_t read (int, void*, size_t)} wird ggf. versucht gleich beide Bereiche zu füllen. Wir starten also im hinteren Puffer; die Bool'sche Variable ist entsprechend gesetzt.
+
+Beim ersten Einlesen mittels \code{ssize_t read (int, void*, size_t)} wird versucht gleich beide Bereiche zu füllen, wenn die Datei groß genug ist.
+Wir starten also im hinteren Puffer; die Bool'sche Variable ist initial entsprechend \code{was_swapped_back = true;} gesetzt.
+Dies erlaubt eine einfachere Behandlung des unwahrscheinlichen Falls, dass ein \code{unget()} zu Beginn der Datei aufgerufen wird.
 
 Der Puffer bietet nach außen (gegenüber dem Automaten) in erster Linie zwei Funktionen an:
 \begin{description}
@@ -178,32 +185,80 @@ Der Puffer bietet nach außen (gegenüber dem Automaten) in erster Linie zwei Fu
 \end{description}
 Alle weiteren Funktionen sind privat und dienen dem Management von Datei-Ein-/Ausgabe und Speicherverwaltung.
 
-\section{Der Automat}
+
+
+
+\section{Der Automat} \label{sec:autom}
 
 \subsection{Aufgabe des Automaten}
 Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen.
 Dazu wird die Logik eines \emph{endlichen deterministischen Automaten} (FSM, \emph{finite state machine}) genutzt, wie in \ref{fig:autom} abgebildet.
 Ein FSM ist dazu geeignet, eine reguläre Grammatik (\textsc{Chomsky}-Hierarchie 3) zu erkennen, was für diesen Zweck völlig ausreichend ist. Der letztliche Parser wird letztlich in der \textsc{Chomsky}-Hierarchie 2 der kontextfreien Sprachen arbeiten.
-Die Eingabe i den Automaten ist das jeweils nächste Zeichen in der zu kompilierenden Datei.
+Die Eingabe in den Automaten ist das jeweils nächste Zeichen in der zu kompilierenden Datei.
 In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten.
 Da in Kommentaren der Sprache alle Zeichen erlaubt sind, ist das Alphabet des Automaten effektiv unendlich groß.
 Praktisch lesen wir zum einen nur 8-bit-Werte ein und prüfen zum anderen nur auf ASCII-Zeichen.
-So lässt sich das Alphabet mit $A = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}]$ beschreiben.
+So lässt sich das Alphabet mit $\sum = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}'\backslash0']$ beschreiben.
 
-Im Übrigen wird im Automaten aufgezeichnet, in welcher Zeile und Spalte der Datei wir uns gerade befinden, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird und bekannt ist, ob per \code{unget()} doppelt gelesen wurde.
+Im Übrigen wird im Automaten aufgezeichnet, in welcher Zeile und Spalte der Datei wir uns gerade befinden, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird und bekannt ist, ob per \code{unget()} doppelt gelesen wurde. Dazu wird auch die Variable \code{count} verwendet, welche so einen doppelten Zweck erfüllt:
+\begin{enumerate}
+\item Sie zeichnet auf, wie weit zurück ein \code{unget()} gehen muss.
+\item Sie merkt sich, wo der Beginn des aktuellen Tokens ist. In Compilern ist es üblich, Warnungen mit Zeilen- und Spaltennummern auf den Beginn eines Tokens zu beziehen. Dies tun wir damit genau so.
+\end{enumerate}
 
 Des weiteren werden Integralwerte von Ziffernreihen mit \code{long strtol(char*)} berechnet.
 
 \subsection{Implementierung}
-TODO
+Für die Umsetzung eines FSM gibt es hauptsächlich zwei Ansätze:
+%\begin{itemize} broken somehow (Font OMS/ccr/m/n/10.95=xccsy10 at 10.95pt not loadable)
+\begin{description}
+\item{Per Adjazenz-Matrix} mit der Dimension $|\mathit{Alphabet}| \times |\mathit{States}|$, in welcher der Zielzustand eines Übergangs von einem Startzustand bei einem Eingabezeichen verzeichnet ist. Der Nachteil ist die Größe dieser Tabelle bei unserem Eingabealphabet.
+\item{Durch direkte Implementierung} der Übergänge als Funktionen, bzw. als \code{switch-case}-Weichen innerhalb der \code{read(char)} Methode eines jeden Zustands.
+\end{description}
+Wir wählten den zweiten Ansatz.
+Dazu erstellten wir eine Klassenhierarchie wie in \ref{fig:states}TODO. Jeder der Zustände implementiert dann die entsprechenden Übergänge mittels einer switch-case-Struktur.
+\begin{figure}[Htb] % outer wrapper
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [red] (50.0,50.0) node {TODO!};
+\end{tikzpicture}
+\end{center}
+\caption{(Gekürztes) Klassendiagramm der Zustände.} \label{fig:states}
+\end{figure}
+Diese ist beispielhaft für den Zustand \texttt{Number} in Listing \ref{lst:states} gezeigt.
 
-TODO Beschreibe Implementierung der States (static, read(), Adjazenzmatrix vs switch-case)
+\begin{lstlisting}[language=C++, firstnumber=116, caption={Ausscchnitt aus \texttt{states.cpp}. Die \code{read()}-Methode des Zustands \texttt{Number}.}, label=lst:state]
+void StateNumber::read(char c, Automat* m) {
+  switch (c) {
+  case '0' ... '9':
+    // integer continues
+    m->incrementAndAppend(c);  // remember c for later strtol()
+    // stay in StateNumber
+    break;
+  case ' ':
+  case '\n':
+  case '\t':
+    // shortcut, don't re-read whitespace
+    m->setCurrentState(StateStart::makeState());
+    m->getScanner()->mkToken(TokenType::TokenInteger);
+    break;
+  default:
+    // integer is finished:
+    m->getScanner()->mkToken(TokenType::TokenInteger);
+    m->setCurrentState(StateRestart::makeState());  // re-read c
+    m->getCurrentState()->read(c, m);      // epsilon transition
+  }
+}
+\end{lstlisting}
 
-TODO erkläre Zusammenspiel mit Scanner (mkToken) und Symboltable (append)
+TODO Beschreibe Implementierung der States (static, read())
 
 TODO erwähne Fallstricke mit dem \code{static State}-Ansatz
 
-TODO erkläre State::Restart
+TODO erkläre Zusammenspiel mit Scanner (mkToken) und Symboltable (append)
+
+TODO erkläre besondere Rolle von State::Restart
 
 TODO erwähne Shortcuts bei SingleSign, ColEqu und EquColEqu (-> keine eigenen States)
 
@@ -213,18 +268,7 @@ TODO Leite in nächstes Kapitel über: states.cpp
 
 Der Aufbau des Automaten bzw. die Zusammenhänge der Zustände in \texttt{states.cpp} ist in Bild \ref{fig:autom} gezeigt. Es sind zwar logische Endzustände als solche markiert. Dies hat für den Ablauf aber keiner weitergehende Bedeutung. Es zählt vor allem, welche Funktionen bei den Übergängen aufgerufen werden.
 
-Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Tokens aus. Die Methode \code{void Automat::increment(void)} erhöht die Variable \code{int Automat::count} um $1$, wohingegen \code{void Automat::append(char)} dies ebenfalls tut, aber zusätzlich das jeweilige Zeichen für die spätere Aufzeichnung in der Symboltabelle bzw. Berechnung mittels \code{strtol()} vorhält.
-
-TODO Füge \code{mkToken(...)} im Bild ein
-
-TODO Füge \code{appendChar(...)} im Bild ein
-
-%\begin{figure}[Htb]
-%    \centering
-%    \includegraphics[width=0.95\textwidth]{./pics/TODO.png}
-%	\caption[format=plain]{Übergänge zwischen den Zuständen des Automaten}
-%	\label{fig:autom}
-%\end{figure}
+Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Tokens aus. Die Methode \code{void Automat::increment(void)} erhöht die Variable \code{int Automat::count} um $1$, wohingegen \code{void Automat::incrementAndAppend(char)} dies ebenfalls tut, aber zusätzlich das jeweilige Zeichen für die spätere Aufzeichnung in der Symboltabelle bzw. Berechnung mittels \code{strtol()} vorhält.
 
 %% AUTOMATEN-Bild 1: Die wichtigsten Zustände
 \begin{figure}[Htb] % outer wrapper
@@ -236,7 +280,7 @@ TODO Füge \code{appendChar(...)} im Bild ein
 % As can be seen on https://www.sharelatex.com/learn/TikZ_package#/Diagrams
 % This code could be designed much more readable and maintainable like:
 %   \draw[->] (RestartNode.west) -- (StartNode.east);
-% but madebyevan.com didn't follow that :(
+% but madebyevan.com didn't do that :(
 
 % States:
 \draw [black] (22.4,-26.2) circle (3.5);
@@ -270,7 +314,6 @@ TODO Füge \code{appendChar(...)} im Bild ein
 \draw [blue] (35.11,-27.3) node [above] {\small$append(...)$};
 \draw (35.11,-27.9) node [below] {$[0-9]$};		% Start > Num
 
-% \draw (x,y) arc (start:stop:radius);
 \draw [black] (49.83,-25.524) arc (181.30395:-106.69605:2.25);
 \fill [black] (51.43,-27.63) -- (52.24,-28.11) -- (52.22,-27.11);
 \draw [blue] (54.44,-26) node [right] {\small$append(...)$};
@@ -310,7 +353,6 @@ TODO Füge \code{appendChar(...)} im Bild ein
 \fill [black] (47.12,-5.12) -- (48,-4.77) -- (47.19,-4.18);
 \draw (45.8,-0.55) node [above] {$default$};		% ComBegin > ComBegin
 
-% \draw (x,y) arc (startAngl:stopAngl:radius);
 \draw [black] (42.8,-7.8) arc (80:100:50);
 \fill [black] (25.4,-7.8) -- (26.2,-8.3) -- (26.2,-7.3);
 \draw (34.1,-6.3) node [above] {$[*]$};			% ComBegin > ComEnd
@@ -342,7 +384,7 @@ TODO Füge \code{appendChar(...)} im Bild ein
 \fill [black] (48.8,-7.8) -- (49.6,-8.3) -- (49.6,-7.3);
 \draw (60.15,-8.3) node [above] {$[*]$};			% Colon > ComBegin
 \end{tikzpicture}
-\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen} \label{fig:autom}
+\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen. $default$ steht hier für Rest von $\sum$, der keinen anderen Übergang erzeugt.} \label{fig:autom}
 \end{center}
 \end{figure}
 
@@ -424,7 +466,7 @@ TODO Füge \code{appendChar(...)} im Bild ein
 \fill [black] (25.29,-32.29) -- (24.41,-32.63) -- (25.21,-33.23);
 \draw [blue] (17.8,-38.75) node [left] {\small$mkToken(Equals)$};
 \draw [blue] (17.8,-40.95) node [left] {\small$unget(2)$};
-\draw (19,-40.95) node [right] {$default$};			% EquCol > Restart  TODO : unget(__2__) zeichnen
+\draw (19,-40.95) node [right] {$default$};			% EquCol > Restart
 
 \draw [darkgray] (17.26,-15.1) -- (25.44,-27.4);
 \fill [darkgray] (25.44,-27.4) -- (25.41,-26.46) -- (24.58,-27.01);
@@ -435,8 +477,11 @@ TODO Füge \code{appendChar(...)} im Bild ein
 \end{center}
 \caption{Die Zuständes des Automaten, welche die Token \texttt{And}, \texttt{Equal}, \texttt{ColonEqual}, \texttt{UnEqual} und \texttt{Unknown} erzeugen.
 Die Zustände \texttt{Start} und \texttt{Restart} sind die selben wie in Abbildung \ref{fig:autom}.
-Der Zustand \texttt{X} steht für jeden möglichen der anderen Zustände dort, außer \texttt{comBegin} und \texttt{comEnd}, da dort nicht-Alphabet Buchstaben erlaubt sind. Das \texttt{?} steht für ein Zeichen außerhalb des Automaten-Alphabets.} \label{fig:autom2}
+Der Zustand \texttt{X} steht für jeden möglichen der anderen Zustände dort, außer \texttt{comBegin} und \texttt{comEnd}, da dort nicht-Alphabet Buchstaben erlaubt sind. Das \texttt{?} steht für ein Zeichen außerhalb des Automaten-Alphabets. Das Nullterminal (EOF) ist der Übersichtlichkeit wegen nicht verzeichnet.} \label{fig:autom2}
 \end{figure}
+
+
+
 
 \section{Die Symboltabelle}
 
@@ -447,10 +492,18 @@ Die Symboltabelle enthält weitergehende Informationen über Token, insb. ob gef
 TODO
 
 
+
+
+
 \section{Der Scanner}
 
-\subsection{Aufgabe der Symboltabelle}
-Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz mittels \code{Token mkToken(void)}.
+\subsection{Aufgabe des Scanners}
+Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz mittels wiederholtem Aufruf von \code{Token Scanner::nextToken(void)}. Die Sequenz endet mit dem speziellen Token \texttt{TokenStop}, welches durch das Einlesen des Nullterminals \code{'\\0'} bzw. \texttt{EOF} erzeugt wird.
+
+
+\subsection{Implementierung}
+Die Methode \code{Token Scanner::nextToken(void)} 'füttert' solange Zeichen an den Automaten, bis in einem seiner Zustände \code{void Scanner::mkToken(TokenType)} aufgerufen wird.
+Dies setzt die Schleifenvariable \code{no_token = false}, so dass das Token erzeugt und zurückgegeben wird.
 
 
 \subsection{Programmaufruf}
@@ -471,6 +524,9 @@ TokenIdentifier      in line 1     in column 23     Lexem: EBook
 [...]
 \end{lstlisting}
 Parallel werden mögliche Fehler und weitere Informationen auf der Console ausgegeben.
+
+
+
 
 \section{Tests}
 Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben.
@@ -520,7 +576,9 @@ Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens 
 \end{description}
 
 
-%\section{Schluss}
+
+
+%\section{Schluss?? Oder nur im Parser?}
 
 
 

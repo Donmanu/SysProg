@@ -117,8 +117,6 @@ void StateNumber::read(char c, Automat* m) {
 	switch (c) {
 		case '0' ... '9':
 			m->incrementAndAppend(c);
-			m->setCurrentState(StateNumber::makeState());
-			//m->incrementCounter();
 			break;
 		case ' ':
 		case '\n':
