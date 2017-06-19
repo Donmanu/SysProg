@@ -182,16 +182,24 @@ Alle weiteren Funktionen sind privat und dienen dem Management von Datei-Ein-/Au
 
 \subsection{Aufgabe des Automaten}
 Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen.
-Dazu wird die Logik eines \emph{deterministischen endlichen Automaten} genutzt, wie in \ref{fig:autom} abgebildet.
-Die Eingabe ist das jeweils nächste Zeichen.
+Dazu wird die Logik eines \emph{endlichen deterministischen Automaten} (FSM, \emph{finite state machine}) genutzt, wie in \ref{fig:autom} abgebildet.
+Ein FSM ist dazu geeignet, eine reguläre Grammatik (\textsc{Chomsky}-Hierarchie 3) zu erkennen, was für diesen Zweck völlig ausreichend ist. Der letztliche Parser wird letztlich in der \textsc{Chomsky}-Hierarchie 2 der kontextfreien Sprachen arbeiten.
+Die Eingabe i den Automaten ist das jeweils nächste Zeichen in der zu kompilierenden Datei.
 In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten.
-Da in Kommentaren der Sprache alle Zeichen erlaubt sind, ist das Alphabet des Automaten unendlich groß.
-Praktisch kann man es aber mit $A = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}]$ beschreiben.
-Im Übrigen wird, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird, im Automaten Buch darüber geführt in welcher Zeile und Spalte der Datei wir uns gerade befinden.
-Außerdem werden Integralwerte von Zifferreihen mit \code{strtol(char*)} berechnet.
+Da in Kommentaren der Sprache alle Zeichen erlaubt sind, ist das Alphabet des Automaten effektiv unendlich groß.
+Praktisch lesen wir zum einen nur 8-bit-Werte ein und prüfen zum anderen nur auf ASCII-Zeichen.
+So lässt sich das Alphabet mit $A = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}]$ beschreiben.
+
+Im Übrigen wird im Automaten aufgezeichnet, in welcher Zeile und Spalte der Datei wir uns gerade befinden, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird und bekannt ist, ob per \code{unget()} doppelt gelesen wurde.
+
+Des weiteren werden Integralwerte von Ziffernreihen mit \code{long strtol(char*)} berechnet.
 
 \subsection{Implementierung}
 TODO
+
+TODO Beschreibe Implementierung der States (static, read(), Adjazenzmatrix vs switch-case)
+
+TODO erkläre Zusammenspiel mit Scanner (mkToken) und Symboltable (append)
 
 TODO erwähne Fallstricke mit dem \code{static State}-Ansatz
 
@@ -199,9 +207,13 @@ TODO erkläre State::Restart
 
 TODO erwähne Shortcuts bei SingleSign, ColEqu und EquColEqu (-> keine eigenen States)
 
+TODO Leite in nächstes Kapitel über: states.cpp
+
 \subsection{Aufbau der Zustände}
 
-Der Aufbau ist in Bild \ref{fig:autom} gezeigt.
+Der Aufbau des Automaten bzw. die Zusammenhänge der Zustände in \texttt{states.cpp} ist in Bild \ref{fig:autom} gezeigt. Es sind zwar logische Endzustände als solche markiert. Dies hat für den Ablauf aber keiner weitergehende Bedeutung. Es zählt vor allem, welche Funktionen bei den Übergängen aufgerufen werden.
+
+Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Tokens aus. Die Methode \code{void Automat::increment(void)} erhöht die Variable \code{int Automat::count} um $1$, wohingegen \code{void Automat::append(char)} dies ebenfalls tut, aber zusätzlich das jeweilige Zeichen für die spätere Aufzeichnung in der Symboltabelle bzw. Berechnung mittels \code{strtol()} vorhält.
 
 TODO Füge \code{mkToken(...)} im Bild ein
 
@@ -228,90 +240,107 @@ TODO Füge \code{appendChar(...)} im Bild ein
 
 % States:
 \draw [black] (22.4,-26.2) circle (3.5);
-\draw (22.4,-26.2) node {$Start$};
 \draw [black] (22.4,-26.2) circle (2.8);
+\draw (22.4,-26.2) node {$Start$};
+
 \draw [black] (48.5,-28.2) circle (3.5);
-\draw (48.5,-28.2) node {$Numb.$};
 \draw [black] (48.5,-28.2) circle (2.8);
+\draw (48.5,-28.2) node {$Numb.$};
+
 \draw [black] (22.4,-47.5) circle (3.5);
-\draw (22.4,-47.5) node {$Ident.$};
 \draw [black] (22.4,-47.5) circle (2.8);
+\draw (22.4,-47.5) node {$Ident.$};
+
 \draw [black] (51.1,-47.5) circle (3.5);
 \draw (51.6,-47.8) node {$Restart$};
-\draw [black] (45.8,-9.8) circle (3.5);
-\draw (45.8,-8.8) node {$ComBegin$};
-\draw [black] (22.4,-9.8) circle (3.5);
-\draw (22.4,-8.8) node {$ComEnd$};
+
 \draw [black] (74.5,-9.8) circle (3.5);
-\draw (74.5,-9.8) node {$Colon$};
 \draw [black] (74.5,-9.8) circle (2.8);
+\draw (74.5,-9.8) node {$Colon$};
+
+\draw [black] (45.8,-7.8) circle (3.5);
+\draw (45.8,-6.8) node {$ComBegin$};
+
+\draw [black] (22.4,-7.8) circle (3.5);
+\draw (22.4,-6.8) node {$ComEnd$};
 
 % Lines:
 \draw [black] (25.39,-26.43) -- (45.51,-27.97);
 \fill [black] (45.51,-27.97) -- (44.75,-27.41) -- (44.67,-28.41);
-\draw (35.11,-27.9) node [below] {$[0-9]$};
+\draw [blue] (35.11,-27.3) node [above] {\small$append(...)$};
+\draw (35.11,-27.9) node [below] {$[0-9]$};		% Start > Num
 
 % \draw (x,y) arc (start:stop:radius);
 \draw [black] (49.83,-25.524) arc (181.30395:-106.69605:2.25);
-\draw (54.44,-22.71) node [right] {$[0-9]$};
 \fill [black] (51.43,-27.63) -- (52.24,-28.11) -- (52.22,-27.11);
+\draw [blue] (54.44,-26) node [right] {\small$append(...)$};
+\draw (54.44,-23.8) node [right] {$[0-9]$};		% Num > Num
 
 \draw [black] (22.4,-29.2) -- (22.4,-44.5);
 \fill [black] (22.4,-44.5) -- (22.9,-43.7) -- (21.9,-43.7);
-\draw (21.9,-36.85) node [left] {$[A-Za-z]$};
+\draw [blue] (21.9,-39.05) node [left] {\small$append(...)$};
+\draw (21.9,-36.85) node [left] {$[A-Za-z]$};		% Start > Id
 
 \draw [black] (23.3,-50.35) arc (45.25384:-242.74616:2.25);
-\draw (18.97,-55.26) node [below] {$[0-9A-Za-z]$};
 \fill [black] (20.69,-49.95) -- (19.77,-50.16) -- (20.48,-50.87);
+\draw [blue] (18.97,-57.46) node [below] {\small$append(...)$};
+\draw (18.97,-55.26) node [below] {$[0-9A-Za-z]$};	% Id > Id
 
 \draw [black] (48.9,-31.17) -- (50.7,-44.53);
 \fill [black] (50.7,-44.53) -- (51.09,-43.67) -- (50.1,-43.8);
-\draw (49.12,-38) node [left] {$default$};
+\draw [blue] (49.12,-39.2) node [left] {\small$mkToken(Integer)$};
+\draw (49.12,-37) node [left] {$default$};			% Num > Restart
 
 \draw [black] (25.4,-47.5) -- (48.1,-47.5);
 \fill [black] (48.1,-47.5) -- (47.3,-47) -- (47.3,-48);
-\draw (36.75,-48) node [below] {$default$};
+\draw (36.75,-48) node [below] {$default$};		% Id > Restart
+\draw [blue] (36.75,-50.2) node [below] {\small$mkToken(Identifier)$};
 
 \draw [black] (48.69,-45.71) -- (24.81,-27.99);
 \fill [black] (24.81,-27.99) -- (25.15,-28.87) -- (25.75,-28.06);
-\draw (37.75,-36.35) node [above] {$\epsilon$};
+\draw [blue] (37.25,-34.35) node [above] {\small$resetCounter()$};
+\draw (37.25,-35.85) node [above] {$\epsilon$};		% Restart > Start
 
 \draw [black] (19.588,-27.211) arc (317.50021:29.50021:2.25);
-\draw (15.04,-25.32) node [left] {$[+-*<>=!;()[]{}]$};
 \fill [black] (19.89,-24.58) -- (19.64,-23.67) -- (18.96,-24.41);
+\draw [blue] (15.04,-26.52) node [left] {\small$mkToken(...)$};
+\draw (15.04,-24.32) node [left] {$[+-*<>=!;()[]{}]$}; % Start > Start
+
+\draw [black] (44.477,-5.12) arc (234:-54:2.25);
+\fill [black] (47.12,-5.12) -- (48,-4.77) -- (47.19,-4.18);
+\draw (45.8,-0.55) node [above] {$default$};		% ComBegin > ComBegin
 
 % \draw (x,y) arc (startAngl:stopAngl:radius);
-\draw [black] (42.8,-9.8) arc (80:100:50);
-\fill [black] (25.4,-9.8) -- (26.2,-10.3) -- (26.2,-9.3);
-\draw (34.1,-8.3) node [above] {$[*]$};			% ComBegin > ComEnd
+\draw [black] (42.8,-7.8) arc (80:100:50);
+\fill [black] (25.4,-7.8) -- (26.2,-8.3) -- (26.2,-7.3);
+\draw (34.1,-6.3) node [above] {$[*]$};			% ComBegin > ComEnd
 
-\draw [black] (42.8,-9.8) arc (-80:-100:50);
-\fill [black] (42.8,-9.8) -- (42,-9.3) -- (42,-10.3);
-\draw (34.1,-11.3) node [below] {$default$};		% ComEnd > ComBegin
+\draw [black] (42.8,-7.8) arc (-80:-100:50);
+\fill [black] (42.8,-7.8) -- (42,-7.3) -- (42,-8.3);
+\draw (34.1,-9.3) node [below] {$default$};		% ComEnd > ComBegin
 
-\draw [black] (22.4,-12.8) -- (22.4,-23.2);
+\draw [black] (22.4,-10.8) -- (22.4,-23.2);
 \fill [black] (22.4,-23.2) -- (22.9,-22.4) -- (21.9,-22.4);
-\draw (21.9,-18) node [left] {$[:]$};				% ComEnd > Start
+\draw (21.9,-17.6) node [left] {$[:]$};			% ComEnd > Start
 
 \draw [black] (25.26,-25.3) arc (-80:-66.8:208);
 \fill [black] (71.64,-11.4) -- (70.73,-11.16) -- (71.03,-12.12);
+\draw [blue] (56.6,-19.4) node [below] {\small$increment()$};
 \draw (49.87,-19.8) node [below] {$[:]$};			% Start > Colon
 
-\draw [black] (71.6,-11.3) arc (100:113.2:208);							% << HIER
+\draw [black] (71.6,-11.3) arc (100:113.2:208);
 \fill [black] (25.26,-25.3) -- (25.9,-24.55) -- (26.22,-25.5);
+\draw [blue] (39.5,-17.57) node [above] {\small$mkToken(ColEqu)$};
 \draw (48.5,-16.57) node [above] {$[=]$};			% Colon > Start
 
 \draw [black] (72.92,-12.35) -- (52.68,-44.95);
 \fill [black] (52.68,-44.95) -- (53.53,-44.54) -- (52.68,-44.01);
-\draw (62.17,-27.36) node [left] {$default$};
+\draw [blue] (64,-29.56) node [right] {\small$mkToken(Colon)$};
+\draw (64,-27.36) node [right] {$default$};		% Colon > Restart
 
-\draw [black] (71.5,-9.8) -- (48.8,-9.8);
-\fill [black] (48.8,-9.8) -- (49.6,-10.3) -- (49.6,-9.3);
-\draw (60.15,-9.3) node [above] {$[*]$};			% Colon > ComBegin
-
-\draw [black] (44.477,-7.12) arc (234:-54:2.25);
-\draw (45.8,-2.55) node [above] {$default$};		% ComBegin > ComBegin
-\fill [black] (47.12,-7.12) -- (48,-6.77) -- (47.19,-6.18);
+\draw [black] (71.5,-9.8) -- (48.8,-7.8);
+\fill [black] (48.8,-7.8) -- (49.6,-8.3) -- (49.6,-7.3);
+\draw (60.15,-8.3) node [above] {$[*]$};			% Colon > ComBegin
 \end{tikzpicture}
 \caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen} \label{fig:autom}
 \end{center}
@@ -503,9 +532,10 @@ Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens 
 
 
 \begin{description}
+\vspace{2cm}
 \item{ABOUT}
     \begin{description}
-    \item{Diese Arbeit} ist im Rahmen des Kurses „Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden.
+    \item{Diese Arbeit} ist im Rahmen des „Labor Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden.
 
     \item{Die Autoren} studieren Informatik (B.Sc.) an o.g. Hochschule.
 \end{description}
