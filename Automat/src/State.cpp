@@ -170,8 +170,6 @@ void StateAnd::read(char c, Automat* m) {
 	}
 }
 
-
-
 /*
  *     in-between state for ":=" and ":*"
  * AND final state for ":"!

@@ -22,6 +22,7 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{wrapfig}     % Erlaube Text um Bilder
 \usepackage[font={small,it},labelfont={normal}]{caption}  % Bessere Bild-/Code-/Tabellenuntertitel
 \usepackage{tikz}        % Erlaubt das Malen von z.B. State Machines
+\usetikzlibrary{positioning,shapes,shadows,arrows}
 
 % Schrift und Optik:
 \usepackage{geometry}
@@ -121,7 +122,11 @@ final      %|draft,     wie Bilder eingebunden sind
 % META INFO:
 \title{Systemnahe Programmierung eines Compilers\\I. Der Scanner}
 
-\author{Arthur \textsc{Jagiella} \hspace{1cm} \texttt{jaar1013@hs-karlsruhe.de} \and Manuel \textsc{Giesinger} \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}}
+\author{
+Manuel \textsc{Giesinger} \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}
+\and
+Arthur \textsc{Jagiella} \hspace{1.35cm} \texttt{jaar1013@hs-karlsruhe.de}
+}
 \date{\today}
 
 
@@ -143,15 +148,16 @@ final      %|draft,     wie Bilder eingebunden sind
 
 
 \section{Einleitung} % sub-, subsub-, paragraph, subparagraph
-Diese Arbeit ist im Rahmen des Kurses „Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
+Diese Arbeit ist im Rahmen der Laborübung „Systemnahes Programmieren“ im Studiengang Informatik (B.Sc.) an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
 
 \subsection{Aufgabenstellung gesamt}
 Im Kurs „Systemnahes Programmieren“ geht es inhaltlich um die Programmierung in C++ unter weitgehendem Verzicht auf die Nutzung von Standardbibliotheken. Die Implementierung von Puffern, verketteten Listen, Hashtabellen und Baumstrukturen soll per Hand erfolgen. Hierzu wird als Anwendung ein Compiler für eine fiktive Sprache implementiert.
 
-\subsection{Aufgabenstellung Scanner} 
+\subsection{Aufgabenstellung Scanner -- diese Arbeit} 
 Als Teil des Compilers ist die Aufgabe des Scanners eine Source-Datei einzulesen und in ihre syntaktischen Bestandteile zu zerlegen - man pricht von \emph{tokenizing}. Dazu bedarf es zum einen eines Puffer-Speichers für den Dateiinhalt. Zum anderen ist die Token-Erkennung mithilfe eines deterministischen endlichen Automaten umgesetzt.
 Parallel zur syntaktischen Analyse werden bereits erste Informationen über die Token gesammelt. Diese hält eine Symboltabelle bereit, welche als hash-map realisiert wird.
 
+Im folgenden wird von den Datenstrukturen \code{Token}, \code{Key} und \code{Information} gesprochen. Die genauere Beschreibung dieser findet sich später in den Kapiteln \ref{sec:symtab} und \ref{sec:scanner}.
 
 \section{Der Puffer}
 
@@ -216,45 +222,69 @@ Für die Umsetzung eines FSM gibt es hauptsächlich zwei Ansätze:
 \item{Durch direkte Implementierung} der Übergänge als Funktionen, bzw. als \code{switch-case}-Weichen innerhalb der \code{read(char)} Methode eines jeden Zustands.
 \end{description}
 Wir wählten den zweiten Ansatz.
-Dazu erstellten wir eine Klassenhierarchie wie in \ref{fig:states}TODO. Jeder der Zustände implementiert dann die entsprechenden Übergänge mittels einer switch-case-Struktur.
+Dazu erstellten wir eine Klassenhierarchie wie in \ref{fig:states} zu sehen.
+
 \begin{figure}[Htb] % outer wrapper
 \begin{center}
-\begin{tikzpicture}[scale=0.2]
-\tikzstyle{every node}+=[inner sep=0pt]
-\draw [red] (50.0,50.0) node {TODO!};
+\begin{tikzpicture}[node distance=0.5cm]
+% See http://www.texample.net/tikz/examples/class-diagram/
+
+% Definitions
+\tikzstyle{abstract}=[rectangle, draw=black, rounded corners, fill=gray!15, drop shadow,
+        text centered, anchor=north, text=black, text width=4.7cm, scale=0.88]
+\tikzstyle{inherit}=[->, >=open triangle 90, thick]
+\tikzstyle{line}=[-, thick]
+
+\node (Mother) [abstract, rectangle split, rectangle split parts=2]
+        {
+            \textbf{State \\ \textit{<<abstract>>}}
+            \nodepart{second}void read(char, FSM*)\\State getState(void)
+        };
+
+% Ugly hack: using three nodes, to make room below Mother:
+\node (AuxNode_StateAnchor) [text width=0.5cm, below=of Mother] {};
+\node (AuxNode_StateAnchor2) [text width=0.5cm, below=of AuxNode_StateAnchor] {};
+\node (AuxNode_StateAnchor3) [text width=0.5cm, below=of AuxNode_StateAnchor2] {};
+
+\node (Child2) [abstract, rectangle split, rectangle split parts=2, left=of AuxNode_StateAnchor3]
+        {
+            \textbf{StateRestart}
+            \nodepart{second}void read(char, FSM*)\\StateRestart getState(void)
+        };
+\node (Child1) [abstract, rectangle split, rectangle split parts=2, left=of Child2]
+        {
+            \textbf{StateStart}
+            \nodepart{second}void read(char, FSM*)\\StateStart getState(void)
+        };
+
+\node (ChildN) [abstract, rectangle split, rectangle split parts=2, right=of AuxNode_StateAnchor3]
+        {
+            \textbf{StateAnd}
+            \nodepart{second}void read(char, FSM*)\\StateAnd getState(void)
+        };
+
+% Inheritance lines
+\draw[inherit] (Child2.north) -- ++(0,0.7) -| (Mother.south);
+\draw[inherit] (Child1.north) -- ++(0,0.7) -| (Mother.south);
+\draw[inherit] (ChildN.north) -- ++(0,0.7) -| (Mother.south);
+
+% Ellipsis. Below center of picture at Mother.north
+\fill[gray!40] (-0.4,-3.9) circle (0.12);
+\fill[gray!40] (0.0,-3.9) circle (0.12);
+\fill[gray!40] (0.4,-3.9) circle (0.12);
+
 \end{tikzpicture}
 \end{center}
 \caption{(Gekürztes) Klassendiagramm der Zustände.} \label{fig:states}
 \end{figure}
-Diese ist beispielhaft für den Zustand \texttt{Number} in Listing \ref{lst:states} gezeigt.
 
-\begin{lstlisting}[language=C++, firstnumber=116, caption={Ausscchnitt aus \texttt{states.cpp}. Die \code{read()}-Methode des Zustands \texttt{Number}.}, label=lst:state]
-void StateNumber::read(char c, Automat* m) {
-  switch (c) {
-  case '0' ... '9':
-    // integer continues
-    m->incrementAndAppend(c);  // remember c for later strtol()
-    // stay in StateNumber
-    break;
-  case ' ':
-  case '\n':
-  case '\t':
-    // shortcut, don't re-read whitespace
-    m->setCurrentState(StateStart::makeState());
-    m->getScanner()->mkToken(TokenType::TokenInteger);
-    break;
-  default:
-    // integer is finished:
-    m->getScanner()->mkToken(TokenType::TokenInteger);
-    m->setCurrentState(StateRestart::makeState());  // re-read c
-    m->getCurrentState()->read(c, m);      // epsilon transition
-  }
-}
-\end{lstlisting}
+Wir folgten bei der Implementierung der Logik, dass diese Zustände für sich stehen, und nicht mit jedem für eine zu kompilierende Datei erstellten Automaten instantiiert werden müssen.
+Daher sind diese Klassen \code{static} definiert. Der Automat übergibt sich selbst (\code{this}) an den lesenden Zustand.
+Dieser setzt dann den neuen Zustand im Automaten und ruft u.U. über diesen den Scanner auf, um ein Token zu erzeugen.
+Vgl. dazu Quelltext \ref{lst:state}.
 
-TODO Beschreibe Implementierung der States (static, read())
-
-TODO erwähne Fallstricke mit dem \code{static State}-Ansatz
+Bei diesem Ansatz ist die ODR-Regel in C/C++ zu beachten, nach der die Definition der entsprechenden statischen Instanzen nur genau einmal erfolgen darf und muss.
+Wir brachten diese Definitionen dazu in einer eigenen Header-Datei unter, welche mit den entsprechenden \emph{include guards} versehen ist.
 
 TODO erkläre Zusammenspiel mit Scanner (mkToken) und Symboltable (append)
 
@@ -268,7 +298,7 @@ TODO Leite in nächstes Kapitel über: states.cpp
 
 Der Aufbau des Automaten bzw. die Zusammenhänge der Zustände in \texttt{states.cpp} ist in Bild \ref{fig:autom} gezeigt. Es sind zwar logische Endzustände als solche markiert. Dies hat für den Ablauf aber keiner weitergehende Bedeutung. Es zählt vor allem, welche Funktionen bei den Übergängen aufgerufen werden.
 
-Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Tokens aus. Die Methode \code{void Automat::increment(void)} erhöht die Variable \code{int Automat::count} um $1$, wohingegen \code{void Automat::incrementAndAppend(char)} dies ebenfalls tut, aber zusätzlich das jeweilige Zeichen für die spätere Aufzeichnung in der Symboltabelle bzw. Berechnung mittels \code{strtol()} vorhält.
+Die Methode \code{Scanner::mkToken(TokenType)} löst im Scanner die Erzeugung eines Tokens aus. Die Methode \code{void Automat::increment(void)} erhöht die Variable \code{int Automat::count} um $1$, wohingegen \code{void Automat::incrementAndAppend(char)} dies ebenfalls tut, aber zusätzlich das jeweilige Zeichen für die spätere Aufzeichnung in der Symboltabelle bzw. Berechnung mittels \code{strtol()} vorhält.
 
 %% AUTOMATEN-Bild 1: Die wichtigsten Zustände
 \begin{figure}[Htb] % outer wrapper
@@ -361,6 +391,10 @@ Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Token
 \fill [black] (42.8,-7.8) -- (42,-7.3) -- (42,-8.3);
 \draw (34.1,-9.3) node [below] {$default$};		% ComEnd > ComBegin
 
+\draw [black] (21.1,-5.12) arc (234:-54:2.25);
+\fill [black] (23.8,-5.12) -- (24.68,-4.77) -- (23.87,-4.18);
+\draw (22.4,-0.55) node [above] {$[*]$};		% ComBegin > ComBegin
+
 \draw [black] (22.4,-10.8) -- (22.4,-23.2);
 \fill [black] (22.4,-23.2) -- (22.9,-22.4) -- (21.9,-22.4);
 \draw (21.9,-17.6) node [left] {$[:]$};			% ComEnd > Start
@@ -384,7 +418,7 @@ Die Methode \code{Scanner::mkToken()} löst im Scanner die Erzeugung eines Token
 \fill [black] (48.8,-7.8) -- (49.6,-8.3) -- (49.6,-7.3);
 \draw (60.15,-8.3) node [above] {$[*]$};			% Colon > ComBegin
 \end{tikzpicture}
-\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen. $default$ steht hier für Rest von $\sum$, der keinen anderen Übergang erzeugt.} \label{fig:autom}
+\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen. $default$ steht hier für den Rest von $\sum$, der keinen anderen Übergang von diesem Knoten erzeugt.} \label{fig:autom}
 \end{center}
 \end{figure}
 
@@ -480,13 +514,42 @@ Die Zustände \texttt{Start} und \texttt{Restart} sind die selben wie in Abbildu
 Der Zustand \texttt{X} steht für jeden möglichen der anderen Zustände dort, außer \texttt{comBegin} und \texttt{comEnd}, da dort nicht-Alphabet Buchstaben erlaubt sind. Das \texttt{?} steht für ein Zeichen außerhalb des Automaten-Alphabets. Das Nullterminal (EOF) ist der Übersichtlichkeit wegen nicht verzeichnet.} \label{fig:autom2}
 \end{figure}
 
+Jeder der Zustände implementiert dann die entsprechenden Übergänge mittels einer switch-case-Struktur.
+Diese ist beispielhaft für den Zustand \texttt{Number} in Listing \ref{lst:state} gezeigt.
+
+% TODO listing gets split by fig:autom2
+\begin{lstlisting}[language=C++, firstnumber=116, caption={Ausscchnitt aus \texttt{states.cpp}. Die \code{read()}-Methode des Zustands \texttt{Number}.}, label=lst:state]
+void StateNumber::read(char c, Automat* m) {
+  switch (c) {
+  case '0' ... '9':
+    // integer continues
+    m->incrementAndAppend(c);  // remember c for later strtol()
+    // stay in StateNumber
+    break;
+  case ' ':
+  case '\n':
+  case '\t':
+    // shortcut: don't re-read whitespace
+    m->setCurrentState(StateStart::makeState());
+    m->getScanner()->mkToken(TokenType::TokenInteger);
+    break;
+  default:
+    // integer is finished:
+    m->getScanner()->mkToken(TokenType::TokenInteger);
+    m->setCurrentState(StateRestart::makeState());  // re-read c
+    m->getCurrentState()->read(c, m);      // epsilon transition
+  }
+}
+\end{lstlisting}
 
 
 
-\section{Die Symboltabelle}
+\section{Die Symboltabelle} \label{sec:symtab}
 
 \subsection{Aufgabe der Symboltabelle}
-Die Symboltabelle enthält weitergehende Informationen über Token, insb. ob gefundene Identifier einem \emph{keyword} der Sprache entsprechen oder bereits bekannt sind.
+Die Symboltabelle enthält weitergehende Informationen über Identifier-Token, insb. ob gefundene Identifier einem \emph{keyword} der Sprache entsprechen oder sonst bereits bekannt sind.
+Hierzu verfügt die Symboltabelle über einen Speicher aller einzigartigen Identifier-Strings, welche mit den Keywords initialisiert wird.
+
 
 \subsection{Implementierung}
 TODO
@@ -495,7 +558,7 @@ TODO
 
 
 
-\section{Der Scanner}
+\section{Der Scanner} \label{sec:scanner}
 
 \subsection{Aufgabe des Scanners}
 Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz mittels wiederholtem Aufruf von \code{Token Scanner::nextToken(void)}. Die Sequenz endet mit dem speziellen Token \texttt{TokenStop}, welches durch das Einlesen des Nullterminals \code{'\\0'} bzw. \texttt{EOF} erzeugt wird.
@@ -505,6 +568,7 @@ Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht di
 Die Methode \code{Token Scanner::nextToken(void)} 'füttert' solange Zeichen an den Automaten, bis in einem seiner Zustände \code{void Scanner::mkToken(TokenType)} aufgerufen wird.
 Dies setzt die Schleifenvariable \code{no_token = false}, so dass das Token erzeugt und zurückgegeben wird.
 
+TODO Beschreibe Zusammenhang Token / Key / Information
 
 \subsection{Programmaufruf}
 Die ausführbare \emph{ScannerTest} liest als Parameter eine beliebig lange Liste von Dateinamen ein. Zum Beispiel wie in Listing \ref{lst:scantest} alle Dateien eines Ordners mittels Bash-Expansion.
@@ -538,7 +602,10 @@ Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Eini
 
 \item{\texttt{desert.txt}} Eine Datei mit verschiedenen Whitespaces: Space, Newline und Tabulator. Fokus dieses Tests ist der Grenzfall, dass der Automat zwar viele Zeichen zu verarbeiten hat, aber nie ein Token entstehen sollte.
 
-\item{\texttt{EquCol2.txt}} Da wir in diesem Bereich des Automaten lange Zeit Probleme hatten, die \code{line} und \code{column} korrekt anzugeben, haben wir unter \url{http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/} alle möglichen Permutationen von $":"$, $"="$, $":="$, $"=:="$ und $":**:"$ erzeugen lassen. Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
+% \vadjust{\penalty10000} verhindert, dass die URL gepagebreaked wird ...
+\item{\texttt{EquCol2.txt}} Da wir in diesem Bereich des Automaten lange Zeit Probleme hatten, die \code{line} und \code{column} korrekt anzugeben, haben wir unter \vadjust{\penalty10000}\url{http://textmechanic.com/text-tools/combination-permutation-tools/permutation-generator/}\vadjust{\penalty0} alle möglichen Permutationen von \texttt{:}, \texttt{=}, \texttt{:=}, \texttt{=:=} und \texttt{:**:} erzeugen lassen.
+Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
+
 \begin{lstlisting}[language=SysProgLang, caption={EquCol2.txt}, label=lst:testEquCol2]
 =:=:=:=:**:
 =:=::**:=:=
@@ -555,15 +622,16 @@ line10
 \end{lstlisting}
 Anschließend haben wir (stichprobenweise) verglichen, ob
 \begin{enumerate}
-\item \code{line} der Anzahl der Zeilen in der Datei entspricht,
-\item \code{column} niemals $< 1$ oder $> 11$ ist,
+\item \code{Automat::line} der Anzahl der Zeilen in der Datei entspricht,
+\item \code{Automat::column} niemals $< 1$ oder $> 11$ ist,
 \item Die Token korrekt und an der richtigen Stelle erkannt werden.
 \end{enumerate}
 Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens zu testen. Dies würde aber mit $21! = 5 \cdot 10^{19}$ Möglichkeiten unsere Kapazitäten sprengen.
 
 \item{\texttt{legalComments.txt}} Dieser Test fokussiert sich auf alle erdenklichen Fälle um und in Kommentaren ($:* *:$). Innerhalb sind alle Zeichen erlaubt. Insbesondere auch $":"$ und $"*"$ allein. Desweiteren endet der letzte Kommentar nicht (bzw. mit $EOF$).
 
-\item{\texttt{theBible.txt}} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \url{http://www.gutenberg.org/cache/epub/10/pg10.txt} und dient vor allem der Performanz- und Speicherleck-Überprüfung in der Symboltabelle.
+% \vadjust{\penalty10000} verhindert, dass die URL gepagebreaked wird ...
+\item{\texttt{theBible.txt}} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \vadjust{\penalty10000}\url{http://www.gutenberg.org/cache/epub/10/pg10.txt}\vadjust{\penalty0} und dient vor allem der Performanz- und Speicherleck-Überprüfung in der Symboltabelle.
 
 \item{\texttt{longWords.txt}} Enthält Identifier mit versch. Wortlängen jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
 
