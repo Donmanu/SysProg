@@ -811,6 +811,98 @@ void Parser::checkType(Node* node) {
 	}
 }
 
+void Parser::makeCode() {
+	this->makeCode(this->parse_tree->getRoot());
+}
+
+void Parser::makeCode(Node* node) {
+	if (node == NULL) {
+		return;
+	}
+	// 1) Check RuleType
+	Node* child = node->getChild();
+
+	switch (node->getRuleType()) {
+	case RuleType::prog:
+		if (child->getRuleType() == RuleType::decls) {
+			this->makeCode(child);
+			child = child->getSibling();
+		}
+		if (child->getRuleType() == RuleType::statements) {
+			this->makeCode(child);
+		} else {
+			// output << "NOP";
+		}
+		// output << "STP";
+		break;
+	case RuleType::decls:
+		if (child->getRuleType() == RuleType::decl) {
+			this->makeCode(child);
+			child = child->getSibling(); // ";" at this point
+			child = child->getSibling(); // "decls" if exists
+		}
+		if (child->getRuleType() == RuleType::decls) {
+			this->makeCode(child);
+		}
+		break;
+	case RuleType::decl:
+		// output << "DS" << "$" << getLexem;
+		bool has_array = false;
+		while (child != NULL) {
+			if (child->getRuleType() == RuleType::array) {
+				has_array = true;
+				this->makeCode(child);
+			}
+			child = child->getSibling();
+		}
+		if (!has_array) {
+			//output << 1;
+		}
+		break;
+	case RuleType::array:
+		//output << getInteger();
+		break;
+	case RuleType::statements:
+		bool has_statements = false;
+		if (child->getRuleType() == RuleType::statement) {
+			this->makeCode(child);
+			child = child->getSibling(); // ";" at this point
+			child = child->getSibling(); // "statements" if exists
+		}
+		if (child->getRuleType() == RuleType::statements) {
+			has_statements = true;
+			this->makeCode(child);
+		}
+		if (!has_statements) {
+			//output << "NOP";
+		}
+		break;
+	case RuleType::statement:
+		// TODO:
+		break;
+	case RuleType::exp:
+		// TODO:
+		break;
+	case RuleType::exp2:
+		// TODO:
+		break;
+	case RuleType::index:
+		// TODO:
+		break;
+	case RuleType::op_exp:
+		// TODO:
+		break;
+	case RuleType::op:
+		// TODO:
+		break;
+	case RuleType::terminal:
+		// TODO:
+		break;
+	default:
+		// TODO: obsolete?
+	}
+}
+
 void Parser::errorType(Node* node) {
 	this->debugPrint();
 	printf("TypeError at token %s in line %d, column %d\n", TokenType::tokenNameShort[node->getTokenType()], -1, -1); // TODO we don't have line/col info on every node!
