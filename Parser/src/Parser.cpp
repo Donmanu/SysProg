@@ -878,22 +878,53 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::statement:
-		// TODO:
+		// TODO: implement this
 		break;
 	case RuleType::exp:
-		// TODO:
+		// TODO: implement this
 		break;
 	case RuleType::exp2:
-		// TODO:
+		// TODO: implement this
 		break;
 	case RuleType::index:
-		// TODO:
+		// TODO: implement this
 		break;
 	case RuleType::op_exp:
-		// TODO:
+		// TODO: validate this....
+		if (child->getRuleType() == RuleType::exp) {
+			this->makeCode(child);
+			child = child->getSibling(); // "op" at this point
+			this->makeCode(child);
+		}
 		break;
 	case RuleType::op:
-		// TODO:
+		switch (child->getDataType()) {
+		case DataType::opPlus:
+			// output << "ADD";
+			break;
+		case DataType::opMinus:
+			// output << "SUB";
+			break;
+		case DataType::opMult:
+			// output << "MUL";
+			break;
+		case DataType::opDiv:
+			// output << "DIV";
+			break;
+		case DataType::opLess:
+			// output << "LES";
+			break;
+		case DataType::opGreater:
+			// noting?
+			break;
+		case DataType::opEqual:
+		case DataType::opUnEqual:
+			// output << "EQU"
+			break;
+		case DataType::opAnd:
+			// output << "AND"
+			break;
+		}
 		break;
 	case RuleType::terminal:
 		// TODO:
