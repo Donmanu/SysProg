@@ -680,8 +680,8 @@ void Parser::op() {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenInteger:
 		// necessary?
-		//this->removeFromParseTree(this->current_node);
-		//this->is_epsilon_transition = true;
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
@@ -734,6 +734,10 @@ void Parser::nextToken() {
 	// this->last_token = this->current_token; ?
 	// do some other management?
 	this->current_token = this->scanner->nextToken();
+	if (this->current_token.line >= 8) {
+		printf("debug this stuff!");
+		this->debugPrint();
+	}
 }
 
 void Parser::errorParse() {

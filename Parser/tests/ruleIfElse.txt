@@ -13,8 +13,8 @@ if(abc[0])
 else
     write(-1)
 ;
-;
-;
+:* ;
+; *:
 if(7 * 7 =:= 56)
     write(0)
 else {
@@ -24,7 +24,7 @@ else {
 }                   ;
 
 if(!1) {
-    x := 3
+    x := 3;	:*	fix?	*:
 }
 else write(1) ;
 
