@@ -22,11 +22,15 @@ class Node {
 		Node(Node*, TokenType::Type, RuleType::Type);
 		virtual ~Node(void);
 
-		Node* getParent();
+		Node* getParent(void);
+		void setParent(Node*);
+		Node* removeNode(Node*);
+		void decrementChildren(void);
 
 		void addChild(Node*);
 		void setChild(Node*);
 		Node* getChild(void);
+		int getChildren(void);
 
 		void addSibling(Node*);
 		void setSibling(Node*);

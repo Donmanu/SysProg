@@ -17,6 +17,8 @@ class Parser {
 		~Parser(void);
 		void parse(void);
 		void checkType(void);
+		void makeCode(void);
+
 		// TODO void makeCode(char*);
 
 		void debugPrint(void);
@@ -39,6 +41,7 @@ class Parser {
 		void addTerminalNode(void);
 		void addNonTerminalNode(void);
 		void addToParseTree(Node*);
+		void removeFromParseTree(Node*);
 
 		void nextToken(void);
 		void errorParse(void);
@@ -46,11 +49,15 @@ class Parser {
 		void checkType(Node*);
 		void errorType(Node*);
 
+		void makeCode(Node*);
+
 		Scanner* scanner;
 		Node* current_node;
 		ParseTree* parse_tree;
 		Token current_token;
 		RuleType::Type current_rule;
+		bool is_epsilon_transition;
+		bool came_from_statement;
 };
 
 #endif /* PARSER_INCLUDES_PARSER_H_ */

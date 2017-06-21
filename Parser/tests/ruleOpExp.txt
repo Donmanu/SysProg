@@ -1,5 +1,5 @@
 :* Declarations *:
-int[] arr;
+int[5] arr;
 
 :* Statements *:
 arr[ 1*2* 3+4] := 5;
