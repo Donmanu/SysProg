@@ -45,6 +45,8 @@ Parser::Parser(char* input) {
 	this->current_rule = RuleType::prog;
 	this->current_node = NULL;
 	this->parse_tree = NULL;
+	this->is_epsilon_transition = false;
+	this->came_from_statement = false;
 }
 
 Parser::~Parser() {
@@ -53,6 +55,7 @@ Parser::~Parser() {
 }
 
 void Parser::parse() {
+	this->current_rule = RuleType::prog;
 	this->current_node = new Node(NULL, TokenType::TokenStop, this->current_rule); // init Root
 	this->parse_tree = new ParseTree(this->current_node);
 	this->current_token = this->scanner->nextToken();
@@ -70,7 +73,6 @@ void Parser::parse() {
  * "{"				-> DECLS STATEMENTS
  */
 void Parser::prog() {
-	this->current_rule = RuleType::prog;
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenInt:
@@ -79,9 +81,10 @@ void Parser::prog() {
 	case TokenType::TokenWhile:
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen:
-	case TokenType::TokenStop: // TODO or break immediately?
 		this->decls();
 		this->statements();
+		break;
+	case TokenType::TokenStop:
 		break;
 	default:
 		this->errorParse();
@@ -101,14 +104,13 @@ void Parser::prog() {
  */
 void Parser::decls() {
 	this->current_rule = RuleType::decls;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenInt:
-		this->addNonTerminalNode();
 		this->decl();
 		if (this->current_token.type == TokenType::TokenSemiColon) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
 			this->decls();
 		} else {
 			this->errorParse();
@@ -120,25 +122,34 @@ void Parser::decls() {
 	case TokenType::TokenWhile:
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen: // TODO how to check if they close?
-	case TokenType::TokenStop: // epsilon-DECLS
-		this->addNonTerminalNode();
+	case TokenType::TokenStop:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
+		break;
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* DECL  ::=  "int"  ARRAY  identifier
  * ------------------------------------
  * "int"			-> int ARRAY identifier
+ * ";"				-> €
  */
 void Parser::decl() {
 	this->current_rule = RuleType::decl;
-	if (this->current_token.type == TokenType::TokenInt) {
+	this->addNonTerminalNode();
+	switch (this->current_token.type) {
+	case TokenType::TokenInt:
 		this->addTerminalNode();
 		this->nextToken();
-		this->addNonTerminalNode();
 		this->array();
 		if (this->current_token.type == TokenType::TokenIdentifier) {
 			this->addTerminalId();
@@ -146,10 +157,21 @@ void Parser::decl() {
 		} else {
 			this->errorParse();
 		}
-	} else {
+		break;
+	case TokenType::TokenSemiColon:
+	case TokenType::TokenStop:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
+		break;
+	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* ARRAY  ::=  "["  integer  "]"  |  €
@@ -159,6 +181,7 @@ void Parser::decl() {
  */
 void Parser::array() {
 	this->current_rule = RuleType::array;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		this->addTerminalNode();
@@ -177,11 +200,20 @@ void Parser::array() {
 		}
 		break;
 	case TokenType::TokenIdentifier:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
+		break;
+	case TokenType::TokenStop:
 		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* STATEMENTS  ::=  STATEMENT  ";"  STATEMENTS  |  €
@@ -196,6 +228,7 @@ void Parser::array() {
  */
 void Parser::statements() {
 	this->current_rule = RuleType::statements;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenWrite:
@@ -203,25 +236,37 @@ void Parser::statements() {
 	case TokenType::TokenWhile:
 	case TokenType::TokenIf:
 	case TokenType::TokenCurlyBracesOpen:
-		this->addNonTerminalNode();
 		this->statement();
 		if (this->current_token.type == TokenType::TokenSemiColon) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
+			this->came_from_statement = true;
 			this->statements();
 		} else {
 			this->errorParse();
 		}
 		break;
 	case TokenType::TokenCurlyBracesClose:
-	case TokenType::TokenStop:  // epsilon-STATEMENTS
-		this->addNonTerminalNode();
+	case TokenType::TokenStop:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
+		break;
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		printf("Current Node = STATEMENTS after delete\n");
+		this->is_epsilon_transition = false;
+	} else if (this->came_from_statement){
+		printf("Current Node = STATEMENTS after STATEMENT/STATEMENTS\n");
+		this->came_from_statement = false; // TODO: check this
+	} else {
+		printf("Current Node = STATEMENTS without delete\n");
+		this->current_node = this->current_node->getParent();
+	}
+
 }
 
 /* STATEMENT  ::=  identifier  INDEX  ":="  EXP  |
@@ -242,16 +287,15 @@ void Parser::statements() {
  */
 void Parser::statement() {
 	this->current_rule = RuleType::statement;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->addTerminalId();
 		this->nextToken();
-		this->addNonTerminalNode();
 		this->index();
 		if (this->current_token.type == TokenType::TokenColonEquals) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
 			this->exp();
 		} else {
 			this->errorParse();
@@ -263,7 +307,6 @@ void Parser::statement() {
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				this->addTerminalNode();
@@ -284,7 +327,6 @@ void Parser::statement() {
 			if (this->current_token.type == TokenType::TokenIdentifier) {
 				this->addTerminalId();
 				this->nextToken();
-				this->addNonTerminalNode();
 				this->index();
 				if (this->current_token.type == TokenType::TokenParenthesisClose) {
 					this->addTerminalNode();
@@ -305,12 +347,10 @@ void Parser::statement() {
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				this->addTerminalNode();
 				this->nextToken();
-				this->addNonTerminalNode();
 				this->statement();
 			} else {
 				this->errorParse();
@@ -325,17 +365,14 @@ void Parser::statement() {
 		if (this->current_token.type == TokenType::TokenParenthesisOpen) {
 			this->addTerminalNode();
 			this->nextToken();
-			this->addNonTerminalNode();
 			this->exp();
 			if (this->current_token.type == TokenType::TokenParenthesisClose) {
 				this->addTerminalNode();
 				this->nextToken();
-				this->addNonTerminalNode();
 				this->statement();
 				if (this->current_token.type == TokenType::TokenElse) {
 					this->addTerminalNode();
 					this->nextToken();
-					this->addNonTerminalNode();
 					this->statement();
 				} else {
 					this->errorParse();
@@ -350,7 +387,7 @@ void Parser::statement() {
 	case TokenType::TokenCurlyBracesOpen:
 		this->addTerminalNode();
 		this->nextToken();
-		this->addNonTerminalNode();
+		this->came_from_statement = true;
 		this->statements();
 		if (this->current_token.type == TokenType::TokenCurlyBracesClose) {
 			this->addTerminalNode();
@@ -361,7 +398,6 @@ void Parser::statement() {
 		break;
 	case TokenType::TokenElse:
 	case TokenType::TokenSemiColon:
-		this->addTerminalNode();
 		break;
 	default:
 		this->errorParse();
@@ -376,24 +412,39 @@ void Parser::statement() {
  * "-"			-> EXP2 OP_EXP
  * "!"			-> EXP2 OP_EXP
  * "integer"	-> EXP2 OP_EXP
+ * ";"			-> €
+ * "else"		-> €
+ * ")"			-> €
+ * "]"			-> €
  */
 void Parser::exp() {
 	this->current_rule = RuleType::exp;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 	case TokenType::TokenParenthesisOpen:
 	case TokenType::TokenMinus:
 	case TokenType::TokenExclamationMark:
 	case TokenType::TokenInteger:
-		this->addNonTerminalNode();
 		this->exp2();
-		this->addNonTerminalNode();
 		this->op_exp();
+		break;
+	case TokenType::TokenSemiColon:
+	case TokenType::TokenElse:
+	case TokenType::TokenParenthesisClose:
+	case TokenType::TokenSquareBracketsClose:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* EXP2  ::=  "("  EXP  ")"  |
@@ -407,20 +458,32 @@ void Parser::exp() {
  * "-"				-> - EXP2
  * "!"				-> ! EXP2
  * "integer"		-> integer
+ * "+"				-> €
+ * "-"				-> €
+ * "*"				-> €
+ * ":"				-> €
+ * "<"				-> €
+ * ">"				-> €
+ * "="				-> €
+ * "&&"				-> €
+ * "=:="			-> €
+ * ";"				-> €
+ * "else"			-> €
+ * ")"				-> €
+ * "]"				-> €
  */
 void Parser::exp2() {
 	this->current_rule = RuleType::exp2;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenIdentifier:
 		this->addTerminalId();
 		this->nextToken();
 		this->index();
-		this->addNonTerminalNode();
 		break;
 	case TokenType::TokenParenthesisOpen:
 		this->addTerminalNode();
 		this->nextToken();
-		this->addNonTerminalNode();
 		this->exp();
 		if (this->current_token.type == TokenType::TokenParenthesisClose) {
 			this->addTerminalNode();
@@ -433,24 +496,42 @@ void Parser::exp2() {
 	case TokenType::TokenExclamationMark:
 		this->addTerminalNode();
 		this->nextToken();
-		this->addNonTerminalNode();
 		this->exp2();
 		break;
 	case TokenType::TokenInteger:
 		this->addTerminalInt();
 		this->nextToken();
 		break;
+	case TokenType::TokenPlus:
+	case TokenType::TokenStar:
+	case TokenType::TokenColon:
+	case TokenType::TokenLessThan:
+	case TokenType::TokenGreaterThan:
+	case TokenType::TokenEquals:
+	case TokenType::TokenAndAnd:
+	case TokenType::TokenEqualsColonEquals:
+	case TokenType::TokenSemiColon:
+	case TokenType::TokenElse:
+	case TokenType::TokenParenthesisClose:
+	case TokenType::TokenSquareBracketsClose:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
+		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* INDEX  ::=  "["  EXP  "]"  |  €
  * --------------------------------
  * "["		-> [ EXP ]
  * ")"		-> €
- * ";"		-> €
  * "+"		-> €
  * "-"		-> €
  * "*"		-> €
@@ -460,14 +541,18 @@ void Parser::exp2() {
  * "="		-> €
  * "&&"		-> €
  * ":="		-> €
+ * "=:="	-> €
+ * ";"		-> €
+ * "else"	-> €
+ * "]"		-> €
  */
 void Parser::index() {
 	this->current_rule = RuleType::index;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenSquareBracketsOpen:
 		this->addTerminalNode();
 		this->nextToken();
-		this->addNonTerminalNode();
 		this->exp();
 		if (this->current_token.type == TokenType::TokenSquareBracketsClose) {
 			this->addTerminalNode();
@@ -477,7 +562,6 @@ void Parser::index() {
 		}
 		break;
 	case TokenType::TokenParenthesisClose:
-	case TokenType::TokenSemiColon:
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
 	case TokenType::TokenStar:
@@ -487,12 +571,23 @@ void Parser::index() {
 	case TokenType::TokenEquals:
 	case TokenType::TokenAndAnd:
 	case TokenType::TokenColonEquals:
-		this->addTerminalNode();
+	case TokenType::TokenEqualsColonEquals:
+	case TokenType::TokenSemiColon:
+	case TokenType::TokenElse:
+	case TokenType::TokenSquareBracketsClose:
+	case TokenType::TokenStop:
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* OP_EXP  ::=  OP  EXP  |  €
@@ -504,6 +599,7 @@ void Parser::index() {
  * "<"		-> OP EXP
  * ">"		-> OP EXP
  * "="		-> OP EXP
+ * "=:="	-> OP EXP
  * "&&"		-> OP EXP
  * "else" 	-> €
  * "]"		-> €
@@ -512,6 +608,7 @@ void Parser::index() {
  */
 void Parser::op_exp() {
 	this->current_rule = RuleType::op_exp;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
@@ -520,29 +617,52 @@ void Parser::op_exp() {
 	case TokenType::TokenLessThan:
 	case TokenType::TokenGreaterThan:
 	case TokenType::TokenEquals:
+	case TokenType::TokenEqualsColonEquals:
 	case TokenType::TokenAndAnd:
-		this->addNonTerminalNode();
 		this->op();
-		this->addNonTerminalNode();
 		this->exp();
 		break;
 	case TokenType::TokenElse:
 	case TokenType::TokenSquareBracketsClose:
 	case TokenType::TokenParenthesisClose:
 	case TokenType::TokenSemiColon:
+	case TokenType::TokenStop:	// epsilon transition
+		this->removeFromParseTree(this->current_node);
+		this->is_epsilon_transition = true;
 		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 /* OP  ::=  "+"  |  "-"  |  "*"  |
  *          ":"  |  "<"  |  ">"  |
  *          "="  |  "=:="  |  "&&"
+ * --------------------------------
+ * "+"				-> +
+ * "-"				-> -
+ * "*"				-> *
+ * ":"				-> :
+ * "<"				-> <
+ * ">"				-> >
+ * "="				-> =
+ * "=:="			-> =:=
+ * "&&"				-> &&
+ * "("				-> €
+ * "identifier"		-> €
+ * "integer"		-> €
+ * "-"				-> €	// obsolete?
+ * "!"				-> €	// obsolete?
  */
 void Parser::op() {
 	this->current_rule = RuleType::op;
+	this->addNonTerminalNode();
 	switch (this->current_token.type) {
 	case TokenType::TokenPlus:
 	case TokenType::TokenMinus:
@@ -556,10 +676,22 @@ void Parser::op() {
 		this->addTerminalNode();
 		nextToken();
 		break;
+	case TokenType::TokenParenthesisOpen:
+	case TokenType::TokenIdentifier:
+	case TokenType::TokenInteger:
+		// necessary?
+		//this->removeFromParseTree(this->current_node);
+		//this->is_epsilon_transition = true;
+		break;
 	default:
 		this->errorParse();
 	}
-	this->current_node = this->current_node->getParent();
+
+	if (this->is_epsilon_transition) {
+		this->is_epsilon_transition = false;
+	} else {
+		this->current_node = this->current_node->getParent();
+	}
 }
 
 
@@ -590,6 +722,12 @@ void Parser::addToParseTree(Node* child) {
 	// TODO: this->parse_tree->addNode(current_node); ?
 	this->current_node->addChild(child);
 	this->current_node = child;
+}
+
+void Parser::removeFromParseTree(Node* node) {
+	printf("REMOVING NODE...\n");
+	// TODO: this is somewhat shitty...
+	this->current_node = this->current_node->removeNode(node);
 }
 
 void Parser::nextToken() {

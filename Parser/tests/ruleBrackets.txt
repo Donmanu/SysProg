@@ -5,7 +5,7 @@ write(
   i[(abc[1]) + (abc - abc * abc) : 
     abc < abc > abc = (abc =:=
     ((abc) && abc))]
-  : 2;
+  : 2 :* ; :*
 );
 {
     i[12] := (x) - (4);

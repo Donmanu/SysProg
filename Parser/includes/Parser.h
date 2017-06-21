@@ -39,6 +39,7 @@ class Parser {
 		void addTerminalNode(void);
 		void addNonTerminalNode(void);
 		void addToParseTree(Node*);
+		void removeFromParseTree(Node*);
 
 		void nextToken(void);
 		void errorParse(void);
@@ -51,6 +52,8 @@ class Parser {
 		ParseTree* parse_tree;
 		Token current_token;
 		RuleType::Type current_rule;
+		bool is_epsilon_transition;
+		bool came_from_statement;
 };
 
 #endif /* PARSER_INCLUDES_PARSER_H_ */

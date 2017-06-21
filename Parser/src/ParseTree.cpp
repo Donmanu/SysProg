@@ -72,13 +72,47 @@ Node* Node::getParent() {
 	return this->parent;
 }
 
+void Node::setParent(Node* node) {
+	this->parent = node;
+}
+
+Node* Node::removeNode(Node* node) {
+	// TODO: this is somewhat shitty...
+	printf("deleting node...\n");
+	Node* child = this->parent->getChild();
+	Node* parent = this->parent;
+	Node* prevChild = child;
+	while (child->hasSibling()) {
+		prevChild = child;
+		child = child->getSibling();
+	}
+	prevChild->setSibling(NULL);
+	delete child;
+	memcpy(prevChild, this->parent->getChild(), this->parent->getChildren());
+	this->parent->decrementChildren();
+
+	printf("entering if statement with childnum: %i\n", this->parent->getChildren());
+	if (this->parent->getChildren() == 0) {
+		printf("setting child to null\n");
+		this->parent->setChild(NULL);
+	}
+
+	this->setParent(NULL);
+	return parent;
+}
+
+void Node::decrementChildren() {
+	this->children--;
+}
+
 void Node::addChild(Node* child) {
 	Node * c = this->child;
 	if (c == NULL) {
 		this->child = child;
 	} else {
-		while (c->hasSibling()) // better for(i = children... ?
+		while (c->hasSibling()) { // better for(i = children... ?
 			c = c->getSibling();
+		}
 		c->setSibling(child);
 	}
 	this->children++;
@@ -90,6 +124,10 @@ void Node::setChild(Node* child) {
 
 Node* Node::getChild() {
 	return this->child;
+}
+
+int Node::getChildren() {
+	return this->children;
 }
 
 void Node::addSibling(Node* sibling) {
@@ -191,7 +229,6 @@ void NodeInt::setValue(int value) {
 
 ParseTree::ParseTree(Node* root) {
 	this->root = root;
-
 	this->depth = 0;
 	this->printLine = new char[MAX_PRINT];
 }

@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
 		printf("  --- Successfully parsed file %s ---\n\n", argv[i]);
 
-		parser->checkType();
+//		parser->checkType();
 
 		printf("  --- Successfully type-checked file %s ---\n\n", argv[i]);
 
