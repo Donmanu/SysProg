@@ -53,7 +53,7 @@ void Scanner::freeToken() {
 	this->current_token.line = -1337; // because some offset errors leading to -1, we set to some other magic number
 	this->current_token.column = -1337;
 	this->current_token.key = NULL;
-	this->current_token.value = -1l; // ??
+	this->current_token.value = -1l; // integer tokens are always positive, so -1 is OK to indicate void value.
 }
 
 void Scanner::mkToken(TokenType::Type type) {

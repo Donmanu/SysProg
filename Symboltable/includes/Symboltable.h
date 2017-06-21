@@ -29,7 +29,7 @@ class SymTabEntry {
 		Key*         getKey(void);
 		void         setKey(Key*);
 
-		// shorthands
+		// shorthands on methods of Key
 		bool         compareLexem(const char*);
 		const char*  getLexem(void);
 
@@ -42,11 +42,12 @@ class Symboltable {
 	public:
 		Symboltable();
 		virtual ~Symboltable();
+
 		Key*         insert(const char* lexem);
 		Information  lookup(Key key);
 		unsigned int hash(const char* lexem);
-		void         debugPrint();
 
+		void         debugPrint();
 
 	private:
 		void resize();

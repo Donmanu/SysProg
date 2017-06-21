@@ -80,9 +80,9 @@ final      %|draft,     wie Bilder eingebunden sind
                      \hbox{\scriptsize.}\hbox{\scriptsize.}}}
                      =}
 \lstset{
-  basicstyle=\small\ttfamily,
+  basicstyle=\small\ttfamily, % make monospac
   backgroundcolor=\color{lightgray},
-  columns=fixed,    % make monospace. TODO does not work?
+  columns=fixed,    % make monospace?
   keepspaces=true,
   basewidth=0.60em,
   frame=shadowbox,
@@ -137,15 +137,18 @@ Arthur \textsc{Jagiella} \hspace{1.35cm} \texttt{jaar1013@hs-karlsruhe.de}
 \begin{document}
 
 %\include{mytitle}  % als externe .tex-Datei
+\pagenumbering{gobble}
 \maketitle
+\newpage
 
+\tableofcontents
+\newpage
 
 
 % °_°_°_°_°_°_°_°_°_°_°_
 %    MAIN MATTER
 % °_°_°_°_°_°_°_°_°_°_°_
-\textbf{Schlüsselworte}: Scanner, Parser, Compiler, Token, Tokenizer, Buffer, Hashmap, List, Tree, Parse Tree.
-
+\pagenumbering{arabic}
 
 \section{Einleitung} % sub-, subsub-, paragraph, subparagraph
 Diese Arbeit ist im Rahmen der Laborübung „Systemnahes Programmieren“ im Studiengang Informatik (B.Sc.) an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
@@ -199,24 +202,26 @@ Alle weiteren Funktionen sind privat und dienen dem Management von Datei-Ein-/Au
 \subsection{Aufgabe des Automaten}
 Der Automat hat die Aufgabe in einer Zeichensequenz eine Tokensequenz zu erkennen.
 Dazu wird die Logik eines \emph{endlichen deterministischen Automaten} (FSM, \emph{finite state machine}) genutzt, wie in \ref{fig:autom} abgebildet.
-Ein FSM ist dazu geeignet, eine reguläre Grammatik (\textsc{Chomsky}-Hierarchie 3) zu erkennen, was für diesen Zweck völlig ausreichend ist. Der letztliche Parser wird letztlich in der \textsc{Chomsky}-Hierarchie 2 der kontextfreien Sprachen arbeiten.
+Ein FSM ist dazu geeignet, eine reguläre Grammatik (\textsc{Chomsky}-Hierarchie 3) zu erkennen, was für diesen Zweck völlig ausreichend ist. Dies dient als Vorstufe, damit der Parser in der \textsc{Chomsky}-Hierarchie 2 der kontextfreien Sprachen arbeiten kann.
 Die Eingabe in den Automaten ist das jeweils nächste Zeichen in der zu kompilierenden Datei.
-In den Zuständen passiert nichts, sondern bei den Übergängen -- d.h. wir haben also einen \textsc{Mealy}-Automaten.
+In den Zuständen des Automaten passiert nichts, dafür bei den Übergängen -- wir haben also einen \textsc{Mealy}-Automaten.
 Da in Kommentaren der Sprache alle Zeichen erlaubt sind, ist das Alphabet des Automaten effektiv unendlich groß.
-Praktisch lesen wir zum einen nur 8-bit-Werte ein und prüfen zum anderen nur auf ASCII-Zeichen.
+Praktisch lesen wir zum einen nur 8-bit-Werte ein (C++ \code{char}-Typ) und prüfen zum anderen nur auf ASCII-Zeichen.
 So lässt sich das Alphabet mit $\sum = [0-9A-Za-z-+:*<>=:!\&;()[]\{\}'\backslash0']$ beschreiben.
 
-Im Übrigen wird im Automaten aufgezeichnet, in welcher Zeile und Spalte der Datei wir uns gerade befinden, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird und bekannt ist, ob per \code{unget()} doppelt gelesen wurde. Dazu wird auch die Variable \code{count} verwendet, welche so einen doppelten Zweck erfüllt:
+Im Übrigen wird im Automaten aufgezeichnet, in welcher Zeile und Spalte der Datei wir uns gerade befinden, da hier (neben dem Buffer) sicher jedes Zeichen einmal behandelt wird und bekannt ist, ob per \code{unget()} doppelt gelesen wurde.
+Dazu wird auch die Variable \code{int Automat::count} verwendet, welche so einen mehrfachen Zweck erfüllt:
 \begin{enumerate}
 \item Sie zeichnet auf, wie weit zurück ein \code{unget()} gehen muss.
 \item Sie merkt sich, wo der Beginn des aktuellen Tokens ist. In Compilern ist es üblich, Warnungen mit Zeilen- und Spaltennummern auf den Beginn eines Tokens zu beziehen. Dies tun wir damit genau so.
+\item Sie gibt die länge des aktuell zwischengespeicherten Strings an, der entweder mit \code{long strtol(char*)} ausgewertet, oder in der Symboltabelle gespeichert, oder als unbekanntes Zeichen ausgegeben wird.
 \end{enumerate}
-
-Des weiteren werden Integralwerte von Ziffernreihen mit \code{long strtol(char*)} berechnet.
 
 \subsection{Implementierung}
 Für die Umsetzung eines FSM gibt es hauptsächlich zwei Ansätze:
-%\begin{itemize} broken somehow (Font OMS/ccr/m/n/10.95=xccsy10 at 10.95pt not loadable)
+%\begin{itemize} broken somehow:
+% No creation rule for font xccsy10
+% Font OMS/ccr/m/n/10.95=xccsy10 at 10.95pt not loadable
 \begin{description}
 \item{Per Adjazenz-Matrix} mit der Dimension $|\mathit{Alphabet}| \times |\mathit{States}|$, in welcher der Zielzustand eines Übergangs von einem Startzustand bei einem Eingabezeichen verzeichnet ist. Der Nachteil ist die Größe dieser Tabelle bei unserem Eingabealphabet.
 \item{Durch direkte Implementierung} der Übergänge als Funktionen, bzw. als \code{switch-case}-Weichen innerhalb der \code{read(char)} Methode eines jeden Zustands.
@@ -283,16 +288,20 @@ Daher sind diese Klassen \code{static} definiert. Der Automat übergibt sich sel
 Dieser setzt dann den neuen Zustand im Automaten und ruft u.U. über diesen den Scanner auf, um ein Token zu erzeugen.
 Vgl. dazu Quelltext \ref{lst:state}.
 
-Bei diesem Ansatz ist die ODR-Regel in C/C++ zu beachten, nach der die Definition der entsprechenden statischen Instanzen nur genau einmal erfolgen darf und muss.
+Bei diesem Ansatz ist die ODR-Regel \footnote{\emph{ODR: one definition rule}} in C/C++ zu beachten, nach der die Definition der entsprechenden statischen Instanzen nur genau einmal erfolgen darf und muss.
 Wir brachten diese Definitionen dazu in einer eigenen Header-Datei unter, welche mit den entsprechenden \emph{include guards} versehen ist.
 
-TODO erkläre Zusammenspiel mit Scanner (mkToken) und Symboltable (append)
+Die Zustände erwarten über den Automaten die Methode \code{Scanner::mkToken(TokenType)} aufrufen zu können.
+Außerdem fügen sie mittels \code{Automat::incrementAndAppend(char)} an entsprechender Stelle Zeichen zur späteren Verarbeitung hinzu.
 
-TODO erkläre besondere Rolle von State::Restart
+Wir haben mit dem Zustand \texttt{StateRestart} einen besonderen Zustand eingebaut, der dazu da ist einen kontrollierten Übergang nach einem \code{mkToken()} zurück in \texttt{Start} durchzuführen.
+Restart wird betreten, wenn die Variable \code{Automat::count} zurückgesetzt werden muss und das letzte Zeichen nochmal von Start eingelesen wird (sprich, ein \code{unget(1)} passiert).
+Dazu ist nicht unbedingt dieser spezielle Zustand nötig.
+Wir fanden das aber eine elegante Lösung als Ersatz für sich überall wiederholenden Code.
 
-TODO erwähne Shortcuts bei SingleSign, ColEqu und EquColEqu (-> keine eigenen States)
-
-TODO Leite in nächstes Kapitel über: states.cpp
+Andere Zustände, die logisch erscheinen, haben wir widerrum eingespart.
+Es gibt zum Beispiel fast keine finalen Zustände jenseits von \texttt{Start}.
+Stattdessen geschieht das Akzeptieren einer Zeichensequenz in anderen Zuständen mit einem Übergang in Start, respektive Restart, und der zugehörigen Tokenerzeugung. Somit verfügen unsere Zustände auch nicht über ein Attribut \code{bool State::isFinal} oder dergleichen.
 
 \subsection{Aufbau der Zustände}
 
@@ -384,11 +393,11 @@ Die Methode \code{Scanner::mkToken(TokenType)} löst im Scanner die Erzeugung ei
 \draw (45.8,-0.55) node [above] {$default$};		% ComBegin > ComBegin
 
 \draw [black] (42.8,-7.8) arc (80:100:50);
-\fill [black] (25.4,-7.8) -- (26.2,-8.3) -- (26.2,-7.3);
+\fill [black] (25.4,-7.8) -- (26.3,-8.2) -- (26.1,-7.2);
 \draw (34.1,-6.3) node [above] {$[*]$};			% ComBegin > ComEnd
 
 \draw [black] (42.8,-7.8) arc (-80:-100:50);
-\fill [black] (42.8,-7.8) -- (42,-7.3) -- (42,-8.3);
+\fill [black] (42.8,-7.8) -- (41.9,-7.4) -- (42.1,-8.4);
 \draw (34.1,-9.3) node [below] {$default$};		% ComEnd > ComBegin
 
 \draw [black] (21.1,-5.12) arc (234:-54:2.25);
@@ -400,12 +409,12 @@ Die Methode \code{Scanner::mkToken(TokenType)} löst im Scanner die Erzeugung ei
 \draw (21.9,-17.6) node [left] {$[:]$};			% ComEnd > Start
 
 \draw [black] (25.26,-25.3) arc (-80:-66.8:208);
-\fill [black] (71.64,-11.4) -- (70.73,-11.16) -- (71.03,-12.12);
+\fill [black] (71.64,-11.5) -- (70.73,-11.25) -- (71.03,-12.22);
 \draw [blue] (56.6,-19.4) node [below] {\small$increment()$};
 \draw (49.87,-19.8) node [below] {$[:]$};			% Start > Colon
 
 \draw [black] (71.6,-11.3) arc (100:113.2:208);
-\fill [black] (25.26,-25.3) -- (25.9,-24.55) -- (26.22,-25.5);
+\fill [black] (25.26,-25.1) -- (25.9,-24.35) -- (26.22,-25.3);
 \draw [blue] (39.5,-17.57) node [above] {\small$mkToken(ColEqu)$};
 \draw (48.5,-16.57) node [above] {$[=]$};			% Colon > Start
 
@@ -418,7 +427,7 @@ Die Methode \code{Scanner::mkToken(TokenType)} löst im Scanner die Erzeugung ei
 \fill [black] (48.8,-7.8) -- (49.6,-8.3) -- (49.6,-7.3);
 \draw (60.15,-8.3) node [above] {$[*]$};			% Colon > ComBegin
 \end{tikzpicture}
-\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen. $default$ steht hier für den Rest von $\sum$, der keinen anderen Übergang von diesem Knoten erzeugt.} \label{fig:autom}
+\caption{Die Zuständes des Automaten, welche die Token(gruppe) \texttt{SingleSign}, \texttt{Identifier} und \texttt{Number} erzeugen, sowie Kommentare übergehen. $default$ steht hier für den Rest von $\sum$, der keinen anderen Übergang aus diesem Knoten hat.} \label{fig:autom}
 \end{center}
 \end{figure}
 
@@ -461,12 +470,12 @@ Die Methode \code{Scanner::mkToken(TokenType)} löst im Scanner die Erzeugung ei
 \draw (42.4,-30.4) node [below] {$\epsilon$};			% Restart > Start
 
 \draw [black] (57.11,-26.96) arc (5:16.2:86);
-\fill [black] (53.79,-10.34) -- (53.45,-11.22) -- (54.44,-11.03);
+\fill [black] (54.15,-10.34) -- (53.7,-11.22) -- (54.7,-11.03);
 \draw [blue] (57.4,-20.54) node [right] {\small$append(\&)$};
 \draw (57.4,-18.34) node [right] {$[\&]$};				% Start > And
 
 \draw [black] (53.79,-10.34) arc (-175:-163.8:87);
-\fill [black] (57.11,-26.96) -- (57.45,-26.08) -- (56.46,-26.27);
+\fill [black] (56.8,-27.2) -- (57.15,-26.28) -- (56.15,-26.47);
 \draw [blue] (53.5,-22.16) node [left] {\small$mkToken(And)$};
 \draw (53.5,-19.96) node [left] {$[\&]$};				% And > Start
 
@@ -517,8 +526,9 @@ Der Zustand \texttt{X} steht für jeden möglichen der anderen Zustände dort, a
 Jeder der Zustände implementiert dann die entsprechenden Übergänge mittels einer switch-case-Struktur.
 Diese ist beispielhaft für den Zustand \texttt{Number} in Listing \ref{lst:state} gezeigt.
 
-% TODO listing gets split by fig:autom2
-\begin{lstlisting}[language=C++, firstnumber=116, caption={Ausscchnitt aus \texttt{states.cpp}. Die \code{read()}-Methode des Zustands \texttt{Number}.}, label=lst:state]
+% TODO check in final version if listing gets split by fig:autom2
+%\begin{minipage}{\linewidth} % avoids pagebreaks inside, but placement may be bad
+\begin{lstlisting}[float, language=C++, firstnumber=116, caption={Ausscchnitt aus \texttt{states.cpp}. Die \code{read()}-Methode des Zustands \texttt{Number}.}, label=lst:state]
 void StateNumber::read(char c, Automat* m) {
   switch (c) {
   case '0' ... '9':
@@ -541,6 +551,7 @@ void StateNumber::read(char c, Automat* m) {
   }
 }
 \end{lstlisting}
+%\end{minipage}
 
 
 
@@ -550,11 +561,110 @@ void StateNumber::read(char c, Automat* m) {
 Die Symboltabelle enthält weitergehende Informationen über Identifier-Token, insb. ob gefundene Identifier einem \emph{keyword} der Sprache entsprechen oder sonst bereits bekannt sind.
 Hierzu verfügt die Symboltabelle über einen Speicher aller einzigartigen Identifier-Strings, welche mit den Keywords initialisiert wird.
 
+In Abbildung \ref{fig:tokkeyinf} ist der Zusammenhang zwischen dem \code{struct Token} und den Klassen \code{Key}, \code{Information} und der Stringtablle gezeigt.
+Das Token, der letztlich vom Scanner zurückgegeben wird, enthält zusätzlich zu seinem Typ, Zeile und Spalte noch einen Key-Pointer, falls es sich um einen Identifier handelt, oder ein \code{long int value} im Falle eines TokenInteger.
+Der Key kommt von der Symboltabelle und enthält neben dem \code{hash} ein Informationsobjekt.
+Dieses erfüllt hier noch keinen großen Zweck, sondern wird erst später beim Parser nützlich werden.
+Soweit enthält es nur einen Pointer auf das Lexem des Identifiers in der Stringtabelle.
+
 
 \subsection{Implementierung}
-TODO
 
+\begin{figure}[Htb] % outer wrapper
+\begin{center}
+\begin{tikzpicture}[]
+\tikzstyle{abstract}=[rectangle, draw=black, rounded corners, fill=gray!15, drop shadow,
+        text centered, anchor=north, text=black, text width=4cm, scale=0.8]
+\tikzstyle{inherit}=[->, >=triangle 90, thick]
+\tikzstyle{line}=[-, thick]
 
+\node (Token) [abstract, rectangle split, rectangle split parts=2, text width=3.3cm]
+        {
+            \textbf{Token}
+            \nodepart{second}TokenType type\\int line\\int column\\long int value\\Key* key
+        };
+
+\node (Key) [abstract, rectangle split, rectangle split parts=2, right=of Token]
+        {
+            \textbf{Key}
+            \nodepart{second}unsigned int hash\\Information* info
+        };
+\node (Information) [abstract, rectangle split, rectangle split parts=2, right=of Key]
+        {
+            \textbf{Information}
+            \nodepart{second}const char* lexem\\\textit{(weitere für Parser)}
+        };
+
+\node (StringTab) [abstract, rectangle split, rectangle split parts=2, right=of Information, text width=2.8cm]
+        {
+            \textbf{StringTab}
+            \nodepart{second}'a'\\'b'\\'c'\\'$\backslash0$'\\'x'\\'y'\\'z'\\'$\backslash0$'\\'$\backslash0$'\\'$\backslash0$'
+        };
+
+% Inheritance lines
+\draw[inherit] (Token.east) -- (Key.west);
+\draw[inherit] (Key.east) -- (Information.west);
+\draw[inherit] (Information.east) -- (StringTab.west);
+\end{tikzpicture}
+\caption{Zusammenhang zwischen dem \code{struct} bzw. den Klassen \code{Token}, \code{Key}, \code{Information} und \code{Stringtable}.} \label{fig:tokkeyinf}
+\end{center}
+\end{figure}
+
+Die Symboltabelle verfügt über drei öffentliche Methoden:
+\begin{description}
+\item \code{Key* Symboltable::insert(const char* lexem)} erlaubt das Einfügen eines neuen Strings.
+Es wird ein Key-Objekt zurückgegeben, welches u.a. einen Pointer in die Stringtabelle enthält.
+Existiert der String bereits in der Symboltabelle, wird der bereits existierende Key zurückgegeben.
+\item \code{Information Symboltable::lookup(Key key)} holt exitierende Einträge aus der Tabelle.
+Nützlich für den Parser.
+\item \code{unsigned int Symboltable::hash(const char* lexem)} ermittelt den hash eines Lexems, ohne in die Tabelle einzufügen.
+Eine Hilfsfunktion für den Scanner, der damit schneller überprüfen kann, ob ein Identifier ein Keyword ist. Siehe \ref{anc:hashcompare}.
+\end{description}
+
+Die Symboltabelle setzt sich aus folgenden zwei Bestandteilen zusammen.
+
+\subsubsection{Hashmap}
+Die eigentliche Tabelle ist eine \emph{Hashmap}, die ein schnelles Einfügen und Extrahieren von Einträgen erlaubt.
+Die Hashfunktion ist in \ref{lst:hash} zu sehen.
+Es handelt sich um eine recht einfache multiplikative Hashfunktion, die bei unseren Tests sehr gute Resultate ergab was Kollisionszahl und Berechnungszeit angeht.
+
+\begin{lstlisting}[language=C++, firstnumber=172, caption={Die Hashfunktion.}, label=lst:hash]
+unsigned int Symboltable::hash(const char* lexem) {
+  // lexem = NULL won't work! Check beforehand!
+  unsigned int hash = 0; // SEED = 0;
+  int i = 0;
+
+  while (lexem[i]) {
+    // optimized: SALT = 65599 = (2^16 + 2^6 - 1)
+    hash = (hash << 16) + (hash << 6) - hash + lexem[i];
+    i++;
+  }
+  return hash;
+}
+\end{lstlisting}
+
+\code{hash(const char*)} gibt den \emph{vollen Hash} zurück, welcher ebenfalls im Key gespeichert wird.
+Um den eigentlich Tabellenplatz zu finden, muss noch \code{hash \% current_table_size} berechnet werden.
+
+Mit zunehmender Anzahl von Einträgen, vergrößert sich die Tabelle.
+Die Hashmap startet mit einer Größe, so dass die anfangs eingefügten 9 Keywords (mit alternativen Schreibweise) kein \code{resize()} erzeugen.
+Dieser passiert bei einem \emph{Füllstand} von 75 \%.
+
+Der Resize verdoppelt die Größe der Tabelle.
+Danach müssen alle Einträge neu eingefügt werden, da sich ihr Position ändern kann.
+Da wir den vollen Hash bei den Keys gespeichert haben und dieser sich bei konstantem Lexem nicht mit der Tabellengröße ändert, erleichtern wir uns an dieser Stelle die Arbeit, indem wir nur \code{Key.getHash() \% current_table_size} berechnen müssen, um die neue Position zu erhalten.
+
+\subsubsection{Stringtabelle}
+Die Stringtabelle ist ein Speicherbereich, in dem jeder angetroffene Identifier genau einmal eingetragen wird.
+Hierbei liegen bei unserer Implementierung die \emph{C-style} Strings direkt hinereinander, d.h. sie werden von Nullterminatoren getrennt.
+Beim Einfügen in die Symboltabelle wird im Falle einer Nicht-Kollision das entsprechende Lexem in die Stringtabelle kopiert und dabei ein Information-Objekt mit einem Zeiger auf den neuen Eintrag erzeugt.
+Ist der Speicherbereich zu klein für den neuen String, wird
+\begin{enumerate}
+\item Ein neuer doppelt so großer Bereich allokiert. 
+\item Der Inhalt des alten Bereichs hinüberkopiert.
+\item Der alte Bereich freigegeben.
+\item Für alle ausgegebenen Information-Objekte der Pointer angepasst.
+\end{enumerate}
 
 
 
@@ -564,18 +674,30 @@ TODO
 Die Scannerklasse fasst alle vorherigen Bestandteile zusammen und ermöglicht die Generierung einer Tokensequenz mittels wiederholtem Aufruf von \code{Token Scanner::nextToken(void)}. Die Sequenz endet mit dem speziellen Token \texttt{TokenStop}, welches durch das Einlesen des Nullterminals \code{'\\0'} bzw. \texttt{EOF} erzeugt wird.
 
 
-\subsection{Implementierung}
+\subsection{Implementierung} \label{ssec:scanimpl}
 Die Methode \code{Token Scanner::nextToken(void)} 'füttert' solange Zeichen an den Automaten, bis in einem seiner Zustände \code{void Scanner::mkToken(TokenType)} aufgerufen wird.
 Dies setzt die Schleifenvariable \code{no_token = false}, so dass das Token erzeugt und zurückgegeben wird.
 
-TODO Beschreibe Zusammenhang Token / Key / Information
+In Abhängigkeit des TokenTyps, geschehen noch weitere Aktionen:
+\begin{description}
+\item Bei TokenUnknown wird das das unbekannte Zeichen vom Automaten geholt und im Token gespeichert.
+\item \label{anc:hashcompare} Bei TokenIdentifier wird geprüft, ob es sich um ein Keyword handelt.
+Dazu wird erst verglichen, ob der \code{hash} des Lexems einem Keyword-hash entspricht.
+Wenn dies der Fall ist, werden die Lexeme der jeweiligen Keywords mit den neuen String zeichenweise verglichen.
+Falls dies Gleichheit ergibt, wird der Typ entsprechend angepasst (TokenIf, TokenWhile, etc.).
+Falls der Identiier kein Keywordist, wird das Lexem vom Automaten geholt und in die Symboltabelle eingefügt.
+Der von dieser erhaltene \code{Key} wird im Token gespeichert.
+\item Bei TokenInteger wird der geparste Zahlenwert vom Automaten geholt und im Token gespeichert.
+\end{description}
+
+In jedem Fall wird Zeile und Spalte im Token gespeichert.
 
 \subsection{Programmaufruf}
 Die ausführbare \emph{ScannerTest} liest als Parameter eine beliebig lange Liste von Dateinamen ein. Zum Beispiel wie in Listing \ref{lst:scantest} alle Dateien eines Ordners mittels Bash-Expansion.
 \begin{lstlisting}[language=PseudoCode, caption={Aufruf von ScannerTest}, label=lst:scantest]
 ~/project/$ ./Scanner/debug/ScannerTest tests/*
 \end{lstlisting}
-Im Programm wird für jede Datei jeweils ein Scanner-Objekt erzeugt. Dieses beauftragt den Buffer damit, die Datei zu öffnen. Es werden alle Zeichen eingelesen - gescannt - und die jeweiligen Ergebnisse in eine Datei $out.txt$ geschrieben. Dies sieht dann zum Beispiel aus wie in Listing \ref{lst:scanout}.
+Im Programm wird für jede Datei jeweils ein Scanner-Objekt erzeugt. Dieses beauftragt den Buffer damit, die Datei zu öffnen. Es werden alle Zeichen eingelesen - gescannt - und die jeweiligen Ergebnistoken für alle Eingabedateien zusammen in eine Datei $out.txt$ geschrieben. Dies sieht dann zum Beispiel aus wie in Listing \ref{lst:scanout}.
 \begin{lstlisting}[language=PseudoCode, firstnumber=57, caption={Dateiausgabe von ScannerTest}, label=lst:scanout]
 [...]
 TokenStop            in line 3     in column 0
@@ -617,14 +739,14 @@ Ein Auszug findet sich in Quelltext \ref{lst:testEquCol2}.
 =::==:=:**:
 =:=:=:**::=
 line10
-=:=:=:=:**:
+=:=:=:=:**: 
 [...]
 \end{lstlisting}
-Anschließend haben wir (stichprobenweise) verglichen, ob
+Anschließend haben wir verglichen, ob
 \begin{enumerate}
 \item \code{Automat::line} der Anzahl der Zeilen in der Datei entspricht,
 \item \code{Automat::column} niemals $< 1$ oder $> 11$ ist,
-\item Die Token korrekt und an der richtigen Stelle erkannt werden.
+\item Die Token korrekt und an der richtigen Stelle erkannt werden. (zumindest stichprobenweise)
 \end{enumerate}
 Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens zu testen. Dies würde aber mit $21! = 5 \cdot 10^{19}$ Möglichkeiten unsere Kapazitäten sprengen.
 
@@ -633,11 +755,11 @@ Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens 
 % \vadjust{\penalty10000} verhindert, dass die URL gepagebreaked wird ...
 \item{\texttt{theBible.txt}} Dieser Test enthält den vollständigen Text der King-James-Bibel unter \vadjust{\penalty10000}\url{http://www.gutenberg.org/cache/epub/10/pg10.txt}\vadjust{\penalty0} und dient vor allem der Performanz- und Speicherleck-Überprüfung in der Symboltabelle.
 
-\item{\texttt{longWords.txt}} Enthält Identifier mit versch. Wortlängen jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
+\item{\texttt{longWords.txt}} Enthält Identifier mit versch. Wortlängen, auch jenseits der doppelten Pufferbreite. Fokus ist Performanzüberprüfung der Symboltabelle.
 
 \item{\texttt{manyWords.txt}} Enthält viele, auch sich wiederholende Identifier. Fokus ist Performanz- und Konsistenzüberprüfung der Symboltabelle bei wiederholtem \code{resize()}.
 
-\item{\texttt{unknown.txt}} Enthält alle dem Scanner unbekannten ASCII-Zeichen, sowie entsprechend zu händelnde Situation wie unmittelbar aufeinander folgende unbekannte Zeichen und unbekannte Zeichen inmitten von Zahlen und Identifieren.
+\item{\texttt{unknown.txt}} Enthält alle dem Scanner unbekannten ASCII-Zeichen, sowie entsprechend zu händelnde Situation wie unmittelbar aufeinander folgende unbekannte Zeichen und unbekannte Zeichen inmitten von Zahlen und Identifiern.
 
 \item{\texttt{values.txt}} Enthält viele Zahlenwerte, die mit \code{strtol()} zu parsen sind.
 
@@ -645,36 +767,6 @@ Prinzipiell wäre es wünschenswert, alle möglichen Kombinationen aller Tokens 
 
 
 
-
-%\section{Schluss?? Oder nur im Parser?}
-
-
-
-
-% °_°_°_°_°_°_°_°_°_°_°_
-%    APPENDIX
-% °_°_°_°_°_°_°_°_°_°_°_
-\appendix
-
-
-\begin{description}
-\vspace{2cm}
-\item{ABOUT}
-    \begin{description}
-    \item{Diese Arbeit} ist im Rahmen des „Labor Systemnahes Programmieren“ an der Hochschule Karlsruhe im Sommersemester 2017 entstanden.
-
-    \item{Die Autoren} studieren Informatik (B.Sc.) an o.g. Hochschule.
-\end{description}
-\end{description}
-
-
-%\begin{thebibliography}{99}
-%
-%\bibitem{bestArticle}
-%  \textsc{WIKIPEDIA}:
-%  \emph{Hallo-Welt-Programm}.
-%  https://de.wikipedia.org/wiki/Hallo-Welt-Programm.
-%
-%\end{thebibliography}
+%\section{Schluss?? Was wir gelernt haben? Was wir besser machen würden? Oder (nur) im Parser?}
 
 \end{document}
