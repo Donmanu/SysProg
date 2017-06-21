@@ -23,6 +23,8 @@ int main(int argc, char **argv) {
 		printf("-----------------------------------------------------\n");
 		printf("Testing file %s\n", argv[args]);
 
+		out << "    --- BEGIN " << argv[args] << " ---" <<  std::endl <<  std::endl;
+
 		// would be cool to open a new file for each test.in, but this fucking const char* stuff sucks soo hard ...
 
 		time_t start = clock();

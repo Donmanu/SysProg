@@ -59,15 +59,6 @@ class StateIdentifier: public State {
 		static StateIdentifier instance;
 };
 
-class StateSingleSign: public State {
-	public:
-		void read(char c, Automat* m);
-		static State* makeState();
-
-	private:
-		static StateSingleSign instance;
-};
-
 class StateAnd: public State {
 	public:
 		void read(char c, Automat* m);
@@ -77,15 +68,6 @@ class StateAnd: public State {
 		static StateAnd instance;
 };
 
-class StateAndAnd: public State {
-	public:
-		void read(char c, Automat *m);
-		static State* makeState();
-
-	private:
-		static StateAndAnd instance;
-};
-
 class StateColon: public State {
 	public:
 		void read(char c, Automat* m);
@@ -93,15 +75,6 @@ class StateColon: public State {
 
 	private:
 		static StateColon instance;
-};
-
-class StateColonEquals: public State {
-	public:
-		void read(char c, Automat* m);
-		static State* makeState();
-
-	private:
-		static StateColonEquals instance;
 };
 
 class StateEquals: public State {
@@ -122,15 +95,6 @@ class StateEqualsColon: public State {
 		static StateEqualsColon instance;
 };
 
-class StateEqualsColonEquals: public State {
-	public:
-		void read(char c, Automat* m);
-		static State* makeState();
-
-	private:
-		static StateEqualsColonEquals instance;
-};
-
 class StateCommentBegin: public State {
 	public:
 		void read(char c, Automat* m);
@@ -147,15 +111,6 @@ class StateCommentEnd: public State {
 
 	private:
 		static StateCommentEnd instance;
-};
-
-class StateUnknown: public State {
-	public:
-		void read(char c, Automat* m);
-		static State* makeState();
-
-	private:
-		static StateUnknown instance;
 };
 
 #endif /* AUTOMAT_INCLUDES_STATE_H_ */

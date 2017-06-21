@@ -148,10 +148,9 @@ void Buffer::ungetChar() {
 
 /*
  * This function sets the current buffer{buffer_current}
- * as the previous buffer{buffer_previous} and sets
- * the position{position} to zero and the flag that
- * indicates if the buffer had to be swapped due to
- * ungetChar() to false.
+ * as the previous buffer{buffer_previous} and vice versa
+ * Also sets the flag that indicates if the buffer had to
+ * be swapped due to ungetChar() to false.
  */
 void Buffer::swapBuffer() {
 	//printf("[B] Swapping buffers %s ...\n", buffer_swapped_back ? "backwards" : "forwards"); // Un-Swapping or Swapping?

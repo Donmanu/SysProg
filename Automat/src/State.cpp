@@ -25,58 +25,58 @@ void StateStart::read(char c, Automat* m) {
 			//m->incrementCounter();
 			break;
 
-		/* Here come the single-sign operators, which we shortcut handle by making the according token,
-		 * but also going into StateStart and ignoring counter increment */
+		/* Here come the single-sign operators, which we shortcut handle by making the according token right away,
+		 * and staying in StateStart, ignoring counter increment */
 		case '+':
-			m->setCurrentState(StateRestart::makeState()); // By going over Error to Start, we allow mkToken() to have effect ASAP
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenPlus);
 			break;
 		case '-':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenMinus);
 			break;
 		case '*':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenStar);
 			break;
 		case '<':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenLessThan);
 			break;
 		case '>':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenGreaterThan);
 			break;
 		case '(':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenParenthesisOpen);
 			break;
 		case ')':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenParenthesisClose);
 			break;
 		case '[':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSquareBracketsOpen);
 			break;
 		case ']':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSquareBracketsClose);
 			break;
 		case '{':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenCurlyBracesOpen);
 			break;
 		case '}':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenCurlyBracesClose);
 			break;
 		case '!':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenExclamationMark);
 			break;
 		case ';':
-			m->setCurrentState(StateRestart::makeState());
+			m->setCurrentState(StateStart::makeState());
 			m->getScanner()->mkToken(TokenType::TokenSemiColon);
 			break;
 
@@ -84,7 +84,6 @@ void StateStart::read(char c, Automat* m) {
 		case '&':
 			m->incrementAndAppend(c); // if it stands alone 'and' gets "unknown character"
 			m->setCurrentState(StateAnd::makeState());
-			//m->incrementCounter();
 			break;
 		case ':':
 			m->setCurrentState(StateColon::makeState());
@@ -101,7 +100,8 @@ void StateStart::read(char c, Automat* m) {
 			break;
 		default:
 			m->incrementAndAppend(c);
-			m->setCurrentState(StateUnknown::makeState());
+			m->getScanner()->mkToken(TokenType::TokenUnknown);
+			/* and stay in Start */
 	}
 }
 
@@ -117,8 +117,6 @@ void StateNumber::read(char c, Automat* m) {
 	switch (c) {
 		case '0' ... '9':
 			m->incrementAndAppend(c);
-			m->setCurrentState(StateNumber::makeState());
-			//m->incrementCounter();
 			break;
 		case ' ':
 		case '\n':
@@ -150,24 +148,6 @@ void StateIdentifier::read(char c, Automat* m) {
 			break;
 		default:
 			m->getScanner()->mkToken(TokenType::TokenIdentifier);
-			m->setCurrentState(StateRestart::makeState());
-			m->getCurrentState()->read(c, m);
-	}
-}
-
-void StateSingleSign::read(char c, Automat* m) {
-	/* this state really should not read anything */
-	errno = ENOSYS;
-	perror("Reading in StateSingleSign!\n");
-	switch (c) {
-		case ' ':
-		case '\n':
-		case '\t':
-			m->setCurrentState(StateStart::makeState());
-			break;
-		default:
-			// if it's really a single sign (sign!, sign+, sign] and so on), StateStart handles it already
-			// so don't make a token here
 			m->setCurrentState(StateRestart::makeState());
 			m->getCurrentState()->read(c, m);
 	}
@@ -215,17 +195,6 @@ void StateColon::read(char c, Automat* m) {
 }
 
 /*
- * final state
- */
-void StateColonEquals::read(char c, Automat* m) {
-	switch(c) {
-	default:
-		m->setCurrentState(StateStart::makeState());
-		m->getCurrentState()->read(c, m);
-	}
-}
-
-/*
  * in-between state for ((=:=)) and final state for ((=))
  */
 void StateEquals::read(char c, Automat* m) {
@@ -261,14 +230,6 @@ void StateEqualsColon::read(char c, Automat* m) {
 	}
 }
 
-/* epsilon transition into start -> Should never read. TODO Remove? */
-void StateEqualsColonEquals::read(char c, Automat* m) {
-	m->setCurrentState(StateStart::makeState());
-	m->getCurrentState()->read(c, m);
-}
-
-
-
 void StateCommentBegin::read(char c, Automat* m) {
 	if (c == '*' || c == '\0') {
 		m->setCurrentState(StateCommentEnd::makeState());
@@ -302,11 +263,4 @@ void StateCommentEnd::read(char c, Automat* m) {
 			// back to beginning
 			m->setCurrentState(StateCommentBegin::makeState());
 	}
-}
-
-// TODO Remove?
-void StateUnknown::read(char c, Automat* m){
-	m->setCurrentState(StateStart::makeState());
-	m->getScanner()->mkToken(TokenType::TokenUnknown);
-	//m->incrementCounter();
 }
