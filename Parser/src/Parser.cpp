@@ -878,16 +878,112 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::statement:
-		// TODO: implement this
+		if (child->getTokenType() == TokenType::TokenIdentifier) {
+			while (child->getRuleType() != RuleType::exp) {
+				child = child->getSibling();
+			}
+			this->makeCode(child);
+			child = node->getChild();
+			// output << "LA" << "$" << getIdentifier();
+			child = child->getSibling();
+			if (child->getRuleType() == RuleType::index) {
+				this->makeCode(child);
+			}
+			// output << "STR";
+		} else if (child->getTokenType() == TokenType::TokenWrite) {
+			while (child->getRuleType() != RuleType::exp) {
+				child = child->getSibling();
+			}
+			this->makeCode();
+			// output << "PRI";
+		} else if (child->getTokenType() == TokenType::TokenRead) {
+			// output << "REA";
+			while (child->hasSibling()) {
+				if (child->getTokenType() == TokenType::TokenIdentifier) {
+					// output << "LA" << "$" << getLexem();
+				}
+				if (child->getRuleType() == RuleType::index) {
+					this->makeCode(child);
+				}
+				child = child->getSibling();
+			}
+			// output << "STR";
+		} else if (child->getTokenType() == TokenType::TokenCurlyBracesOpen) {
+			child = child->getSibling();
+			if (child->getRuleType() == RuleType::statements) {
+				this->makeCode(child);
+			}
+		} else if (child->getTokenType() == TokenType::TokenIf) {
+			while (child->getRuleType() != RuleType::exp) {
+				child = child->getSibling();
+			}
+			this->makeCode(child);
+			// output << "JIN" << "#" << label1;
+			child = child->getSibling();
+			child = child->getSibling();
+			this->makeCode(child); // statement
+			// output << "JMP" << "#" << label2;
+			// output << "#" << label1 << "NOP";
+			child = child->getSibling();
+			child = child->getSibling();
+			this->makeCode(child); // statement
+			// output << "#" << label2 << "NOP";
+		} else if (child->getTokenType() == TokenType::TokenWhile) {
+			// output << "#" << label1 << "NOP";
+			while (child->getRuleType() != RuleType::exp) {
+				child = child->getSibling();
+			}
+			this->makeCode(child);
+			// output << "JIN" << "#" << label2;
+			child = child->getSibling();
+			child = child->getSibling();
+			this->makeCode(child); // statement
+			// output << "JMP" << "#" << label1;
+			// output << "#" << label2 << "NOP";
+		}
 		break;
 	case RuleType::exp:
-		// TODO: implement this
+		if (!child->hasSibling()) {
+			this->makeCode(child);
+		} else if (child->getChild()->getChild()->getDataType() == DataType::opGreater) { // opGreater?
+			this->makeCode(child->getSibling());
+			this->makeCode(child);
+			// output << "LES";
+		} else if (child->getChild()->getChild()->getDataType() == DataType::opUnEqual) { // opUnequal?
+			this->makeCode(child);
+			this->makeCode(child->getSibling());
+			// output << "NOT";
+		} else {
+			this->makeCode(child);
+			this->makeCode(child->getSibling());
+		}
 		break;
 	case RuleType::exp2:
 		// TODO: implement this
+		if (child->getTokenType() == TokenType::TokenParenthesisOpen) {
+			child = child->getSibling();
+			this->makeCode(child);
+		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
+			// output << "LA" << "$" << getLexem;
+			if (child->hasSibling()) {
+				this->makeCode(child->getSibling());
+			}
+			// output << "LV";
+		} else if (child->getTokenType() == TokenType::TokenInteger) {
+			// output << "LC" << getInteger;
+		} else if (child->getTokenType() == TokenType::TokenMinus) {
+			// output << "LC" << 0;
+			this->makeCode(child->getSibling());
+			// output << "SUB";
+		} else if (child->getTokenType() == TokenType::TokenExclamationMark) {
+			this->makeCode(child->getSibling());
+			// output << "NOT";
+		}
 		break;
 	case RuleType::index:
-		// TODO: implement this
+		child = child->getSibling();
+		this->makeCode(child);
+		// output << "ADD";
 		break;
 	case RuleType::op_exp:
 		// TODO: validate this....
@@ -927,7 +1023,7 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::terminal:
-		// TODO:
+		// TODO: obsolete?
 		break;
 	default:
 		// TODO: obsolete?
