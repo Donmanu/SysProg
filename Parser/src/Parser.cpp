@@ -757,6 +757,280 @@ void Parser::checkType() {
 }
 
 void Parser::checkType(Node* node) {
+	if (node == NULL) {
+		return;
+	}
+
+	Node* child = node->getChild();
+	NodeInt* node_int;
+	bool has_array = false;
+	bool has_index = false;
+	bool has_op_exp = false;
+	switch (node->getRuleType()) {
+	case RuleType::prog:
+		if (child->getRuleType() == RuleType::decls) {
+			this->checkType(child);
+			child = child->getSibling();
+		}
+		if (child->getRuleType() == RuleType::statements) {
+			this->checkType(child);
+		}
+		node->setDataType(DataType::noType);
+		break;
+	case RuleType::decls:
+		if (child->getRuleType() == RuleType::decl) {
+			this->checkType(child);
+			child = child->getSibling();
+		}
+		if (child->getRuleType() == RuleType::decls) {
+			this->checkType(child);
+		}
+		node->setDataType(DataType::noType);
+		break;
+	case RuleType::decl:
+		child = child->getSibling();
+		if (child->getRuleType() == RuleType::array) {
+			this->checkType(child->getSibling());
+			has_array = true;
+		}
+		if (has_array) {
+			if (child->getSibling()->getDataType() != DataType::noType) {
+				perror("identifier already defined");
+				node->setDataType(DataType::errorType);
+			} else if (child->getDataType() == DataType::errorType) {
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(DataType::noType);
+				if (child->getDataType() == DataType::arrayType) {
+					child->getSibling()->setDataType(DataType::intArrayType);
+				} else {
+					child->getSibling()->setDataType(DataType::intType);
+				}
+			}
+		} else {
+			if (child->getDataType() != DataType::noType) {
+				perror("identifier already defined");
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(DataType::noType);
+				child->setDataType(DataType::intType);
+			}
+		}
+		break;
+	case RuleType::array:
+		node_int = (NodeInt*)child->getSibling();
+		if (node_int->getValue() > 0) {
+			node->setDataType(DataType::arrayType);
+		} else {
+			perror("no valid dimension");
+			node->setDataType(DataType::errorType);
+		}
+		break;
+	case RuleType::statements:
+		this->checkType(child);
+		child = child->getSibling();
+		child = child->getSibling();
+		if (child->getRuleType() == RuleType::statements) {
+			this->checkType(child);
+		}
+		node->setDataType(DataType::noType);
+		break;
+	case RuleType::statement:
+		if (child->getTokenType() == TokenType::TokenIdentifier) {
+			if (child->getSibling()->getRuleType() == RuleType::index) {
+				this->checkType(child->getSibling()->getSibling()->getSibling()); // exp
+				this->checkType(child->getSibling()); // index
+				has_index = true;
+			} else {
+				this->checkType(child->getSibling()->getSibling()); // exp
+			}
+			if (child->getDataType() == DataType::noType) {
+				perror("identifier not defined");
+				node->setDataType(DataType::errorType);
+			}
+			if (has_index) {
+				if (child->getSibling()->getSibling()->getSibling()->getDataType() == DataType::intType &&
+						(child->getDataType() == DataType::intArrayType && child->getSibling()->getDataType() == DataType::arrayType)) {
+					node->setDataType(DataType::noType);
+				} else {
+					perror("incompatible types");
+					node->setDataType(DataType::errorType);
+				}
+			} else {
+				if (child->getSibling()->getSibling()->getDataType() == DataType::intType &&
+						(child->getDataType() == DataType::intType)) {
+					node->setDataType(DataType::noType);
+				} else {
+					perror("incompatible types");
+					node->setDataType(DataType::errorType);
+				}
+			}
+		} else if (child->getTokenType() == TokenType::TokenWrite) {
+			this->checkType(child->getSibling()->getSibling());
+			node->setDataType(DataType::noType);
+		} else if (child->getTokenType() == TokenType::TokenRead) {
+			if (child->getSibling()->getSibling()->getSibling()->getRuleType() == RuleType::index) {
+				this->checkType(child->getSibling()->getSibling()->getSibling()); //index
+				has_index = true;
+			}
+			if (child->getDataType() == DataType::noType) {
+				perror("identifier not defined");
+				node->setDataType(DataType::errorType);
+			}
+			if (has_index) {
+				if (child->getSibling()->getSibling()->getDataType() == DataType::intArrayType
+						&& child->getSibling()->getSibling()->getSibling()->getDataType() == DataType::arrayType) {
+					node->setDataType(DataType::noType);
+				} else {
+					perror("incompatible types");
+					node->setDataType(DataType::errorType);
+				}
+			} else {
+				if (child->getSibling()->getSibling()->getDataType() == DataType::intType) {
+					node->setDataType(DataType::noType);
+				} else {
+					perror("incompatible types");
+					node->setDataType(DataType::errorType);
+				}
+			}
+		} else if (child->getTokenType() == TokenType::TokenCurlyBracesOpen) {
+			if (child->getSibling()->getRuleType() == RuleType::statements) {
+				this->checkType(child->getSibling());
+			}
+			node->setDataType(DataType::noType);
+		} else if (child->getTokenType() == TokenType::TokenIf) {
+			this->checkType(child->getSibling()->getSibling()); // exp
+			this->checkType(child->getSibling()->getSibling()->getSibling()->getSibling()); // statement 1
+			this->checkType(child->getSibling()->getSibling()->getSibling()->getSibling()->getSibling()->getSibling()); // statement 2
+			if (child->getSibling()->getSibling()->getDataType() == DataType::errorType) {
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(DataType::noType);
+			}
+		} else if (child->getTokenType() == TokenType::TokenWhile) {
+			this->checkType(child->getSibling()->getSibling()); // exp
+			this->checkType(child->getSibling()->getSibling()->getSibling()->getSibling()); // statement
+			if (child->getSibling()->getSibling()->getDataType() == DataType::errorType) {
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(DataType::noType);
+			}
+		}
+		break;
+	case RuleType::exp:
+		this->checkType(child);
+		if (child->hasSibling()) {
+			this->checkType(child->getSibling());
+			has_op_exp = true;
+		}
+		if (has_op_exp) {
+			if (child->getDataType() != child->getSibling()->getDataType()) {
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(child->getDataType());
+			}
+		} else {
+			node->setDataType(child->getDataType());
+		}
+		break;
+	case RuleType::exp2:
+		if (child->getTokenType() == TokenType::TokenParenthesisOpen) {
+			this->checkType(child->getSibling());
+			node->setDataType(child->getSibling()->getDataType());
+		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
+			if (child->hasSibling()) {
+				this->checkType(child->getSibling());
+				has_index = true;
+			}
+			if (child->getDataType() == DataType::noType) {
+				perror("identifier not defined");
+				node->setDataType(DataType::errorType);
+			}
+			if (has_index) {
+				if (child->getDataType() == DataType::intArrayType
+						&& child->getSibling()->getDataType() == DataType::arrayType) {
+					node->setDataType(DataType::intType);
+				} else {
+					perror("no primitive type");
+					node->setDataType(DataType::errorType);
+				}
+			} else {
+				if (child->getDataType() == DataType::intType) {
+					node->setDataType(child->getDataType());
+				} else {
+					perror("no primitive type");
+					node->setDataType(DataType::errorType);
+				}
+			}
+		} else if (child->getTokenType() == TokenType::TokenInteger) {
+			node->setDataType(DataType::intType);
+		} else if (child->getTokenType() == TokenType::TokenMinus) {
+			this->checkType(child->getSibling());
+			node->setDataType(child->getSibling()->getDataType());
+		} else if (child->getTokenType() == TokenType::TokenExclamationMark) {
+			this->checkType(child->getSibling());
+			if (child->getSibling()->getDataType() != DataType::intType) {
+				node->setDataType(DataType::errorType);
+			} else {
+				node->setDataType(DataType::intType);
+			}
+		}
+		break;
+	case RuleType::index:
+		this->checkType(child->getSibling());
+		if (child->getSibling()->getDataType() == DataType::errorType) {
+			node->setDataType(DataType::errorType);
+		} else {
+			node->setDataType(DataType::arrayType);
+		}
+		break;
+	case RuleType::op_exp:
+		this->checkType(child);
+		this->checkType(child->getSibling());
+		node->setDataType(child->getSibling()->getDataType());
+		break;
+	case RuleType::op:
+		switch (child->getTokenType()) {
+		case TokenType::TokenPlus:
+			child->setDataType(DataType::opPlus);
+			break;
+		case TokenType::TokenMinus:
+			child->setDataType(DataType::opMinus);
+			break;
+		case TokenType::TokenStar:
+			child->setDataType(DataType::opMult);
+			break;
+		case TokenType::TokenColon:
+			child->setDataType(DataType::opDiv);
+			break;
+		case TokenType::TokenLessThan:
+			child->setDataType(DataType::opLess);
+			break;
+		case TokenType::TokenGreaterThan:
+			child->setDataType(DataType::opGreater);
+			break;
+		case TokenType::TokenEquals:
+			child->setDataType(DataType::opEqual);
+			break;
+		case TokenType::TokenEqualsColonEquals:
+			child->setDataType(DataType::opUnEqual);
+			break;
+		case TokenType::TokenAndAnd:
+			child->setDataType(DataType::opAnd);
+			break;
+		default:
+			return;
+		}
+		break;
+	case RuleType::terminal:
+		// obsolete?
+		break;
+	default:
+		//obsolete?
+		break;
+	};
+
+	/*
 	// 1) Check this type
 	switch (node->getRuleType()) {
 	case RuleType::terminal:
@@ -809,6 +1083,7 @@ void Parser::checkType(Node* node) {
 		this->checkType(ch);
 		ch = ch->getSibling();
 	}
+	*/
 }
 
 void Parser::makeCode() {
@@ -821,7 +1096,8 @@ void Parser::makeCode(Node* node) {
 	}
 	// 1) Check RuleType
 	Node* child = node->getChild();
-
+	bool has_array = false;
+	bool has_statements = false;
 	switch (node->getRuleType()) {
 	case RuleType::prog:
 		if (child->getRuleType() == RuleType::decls) {
@@ -831,8 +1107,10 @@ void Parser::makeCode(Node* node) {
 		if (child->getRuleType() == RuleType::statements) {
 			this->makeCode(child);
 		} else {
+			printf("NOP\n");
 			// output << "NOP";
 		}
+		printf("STP\n");
 		// output << "STP";
 		break;
 	case RuleType::decls:
@@ -846,8 +1124,8 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::decl:
+		printf("DS $ lexem\n");
 		// output << "DS" << "$" << getLexem;
-		bool has_array = false;
 		while (child != NULL) {
 			if (child->getRuleType() == RuleType::array) {
 				has_array = true;
@@ -856,14 +1134,15 @@ void Parser::makeCode(Node* node) {
 			child = child->getSibling();
 		}
 		if (!has_array) {
+			printf("1\n");
 			//output << 1;
 		}
 		break;
 	case RuleType::array:
+		printf("integer\n");
 		//output << getInteger();
 		break;
 	case RuleType::statements:
-		bool has_statements = false;
 		if (child->getRuleType() == RuleType::statement) {
 			this->makeCode(child);
 			child = child->getSibling(); // ";" at this point
@@ -874,6 +1153,7 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child);
 		}
 		if (!has_statements) {
+			printf("NOP\n");
 			//output << "NOP";
 		}
 		break;
@@ -884,22 +1164,27 @@ void Parser::makeCode(Node* node) {
 			}
 			this->makeCode(child);
 			child = node->getChild();
+			printf("LA $ lexem\n");
 			// output << "LA" << "$" << getIdentifier();
 			child = child->getSibling();
 			if (child->getRuleType() == RuleType::index) {
 				this->makeCode(child);
 			}
+			printf("STR\n");
 			// output << "STR";
 		} else if (child->getTokenType() == TokenType::TokenWrite) {
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
 			this->makeCode();
+			printf("PRI\n");
 			// output << "PRI";
 		} else if (child->getTokenType() == TokenType::TokenRead) {
+			printf("REA\n");
 			// output << "REA";
 			while (child->hasSibling()) {
 				if (child->getTokenType() == TokenType::TokenIdentifier) {
+					printf("LA $ lexem\n");
 					// output << "LA" << "$" << getLexem();
 				}
 				if (child->getRuleType() == RuleType::index) {
@@ -907,6 +1192,7 @@ void Parser::makeCode(Node* node) {
 				}
 				child = child->getSibling();
 			}
+			printf("STR\n");
 			// output << "STR";
 		} else if (child->getTokenType() == TokenType::TokenCurlyBracesOpen) {
 			child = child->getSibling();
@@ -918,27 +1204,35 @@ void Parser::makeCode(Node* node) {
 				child = child->getSibling();
 			}
 			this->makeCode(child);
+			printf("JIN # label1\n");
 			// output << "JIN" << "#" << label1;
 			child = child->getSibling();
 			child = child->getSibling();
 			this->makeCode(child); // statement
+			printf("JMP # label2");
 			// output << "JMP" << "#" << label2;
+			printf("# label1 NOP\n");
 			// output << "#" << label1 << "NOP";
 			child = child->getSibling();
 			child = child->getSibling();
 			this->makeCode(child); // statement
+			printf("# label2 NOP\n");
 			// output << "#" << label2 << "NOP";
 		} else if (child->getTokenType() == TokenType::TokenWhile) {
+			printf("# label1 NOP\n");
 			// output << "#" << label1 << "NOP";
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
 			this->makeCode(child);
+			printf("JIN # label2\n");
 			// output << "JIN" << "#" << label2;
 			child = child->getSibling();
 			child = child->getSibling();
 			this->makeCode(child); // statement
+			printf("JMP # label1\n");
 			// output << "JMP" << "#" << label1;
+			printf("# label2 NOP\n");
 			// output << "#" << label2 << "NOP";
 		}
 		break;
@@ -948,10 +1242,12 @@ void Parser::makeCode(Node* node) {
 		} else if (child->getChild()->getChild()->getDataType() == DataType::opGreater) { // opGreater?
 			this->makeCode(child->getSibling());
 			this->makeCode(child);
+			printf("LES\n");
 			// output << "LES";
 		} else if (child->getChild()->getChild()->getDataType() == DataType::opUnEqual) { // opUnequal?
 			this->makeCode(child);
 			this->makeCode(child->getSibling());
+			printf("NOT\n");
 			// output << "NOT";
 		} else {
 			this->makeCode(child);
@@ -959,34 +1255,39 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::exp2:
-		// TODO: implement this
 		if (child->getTokenType() == TokenType::TokenParenthesisOpen) {
 			child = child->getSibling();
 			this->makeCode(child);
 		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
+			printf("LA $ lexem\n");
 			// output << "LA" << "$" << getLexem;
 			if (child->hasSibling()) {
 				this->makeCode(child->getSibling());
 			}
+			printf("LV\n");
 			// output << "LV";
 		} else if (child->getTokenType() == TokenType::TokenInteger) {
+			printf("LC integer\n");
 			// output << "LC" << getInteger;
 		} else if (child->getTokenType() == TokenType::TokenMinus) {
+			printf("LC 0\n");
 			// output << "LC" << 0;
 			this->makeCode(child->getSibling());
+			printf("SUB\n");
 			// output << "SUB";
 		} else if (child->getTokenType() == TokenType::TokenExclamationMark) {
 			this->makeCode(child->getSibling());
+			printf("NOT\n");
 			// output << "NOT";
 		}
 		break;
 	case RuleType::index:
 		child = child->getSibling();
 		this->makeCode(child);
+		printf("ADD\n");
 		// output << "ADD";
 		break;
 	case RuleType::op_exp:
-		// TODO: validate this....
 		if (child->getRuleType() == RuleType::exp) {
 			this->makeCode(child);
 			child = child->getSibling(); // "op" at this point
@@ -996,38 +1297,50 @@ void Parser::makeCode(Node* node) {
 	case RuleType::op:
 		switch (child->getDataType()) {
 		case DataType::opPlus:
+			printf("ADD\n");
 			// output << "ADD";
 			break;
 		case DataType::opMinus:
+			printf("SUB\n");
 			// output << "SUB";
 			break;
 		case DataType::opMult:
+			printf("MUL\n");
 			// output << "MUL";
 			break;
 		case DataType::opDiv:
+			printf("DIV\n");
 			// output << "DIV";
 			break;
 		case DataType::opLess:
+			printf("LES\n");
 			// output << "LES";
 			break;
-		case DataType::opGreater:
+//		case DataType::opGreater:
 			// noting?
-			break;
+//			break;
 		case DataType::opEqual:
 		case DataType::opUnEqual:
+			printf("EQU\n");
 			// output << "EQU"
 			break;
 		case DataType::opAnd:
+			printf("AND\n");
 			// output << "AND"
 			break;
-		}
+		default:
+			printf("\n");
+			break;
+		};
 		break;
-	case RuleType::terminal:
+//	case RuleType::terminal:
 		// TODO: obsolete?
-		break;
+//		break;
 	default:
 		// TODO: obsolete?
-	}
+		printf("\n");
+		break;
+	};
 }
 
 void Parser::errorType(Node* node) {

@@ -26,11 +26,17 @@ int main(int argc, char **argv) {
 
 		printf("  --- Successfully parsed file %s ---\n\n", argv[i]);
 
-//		parser->checkType();
+		parser->debugPrint();
+
+		parser->checkType();
 
 		printf("  --- Successfully type-checked file %s ---\n\n", argv[i]);
 
 		parser->debugPrint();
+
+		parser->makeCode();
+
+//		printf("  --- Successfully made code for file %s ---\n\n", argv[i]);
 
 		delete parser;
 	}
