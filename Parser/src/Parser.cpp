@@ -764,35 +764,36 @@ void Parser::checkType(Node* node) {
 			has_array = true;
 		}
 		if (has_array) {
-			if (child->getSibling()->getDataType() != DataType::noType) {
-				perror("identifier already defined");
+			if (((NodeId*)(child->getSibling()))->getInformation()->getType() != DataType::noType) {
 				node->setDataType(DataType::errorType);
+				perror("identifier already defined");
 			} else if (child->getDataType() == DataType::errorType) {
 				node->setDataType(DataType::errorType);
 			} else {
 				node->setDataType(DataType::noType);
 				if (child->getDataType() == DataType::arrayType) {
-					child->getSibling()->setDataType(DataType::intArrayType);
+					((NodeId*)(child->getSibling()))->getInformation()->setType(DataType::intArrayType);
 				} else {
-					child->getSibling()->setDataType(DataType::intType);
+					((NodeId*)(child->getSibling()))->getInformation()->setType(DataType::intType);
 				}
 			}
 		} else {
-			if (child->getDataType() != DataType::noType) {
-				perror("identifier already defined");
+			if (((NodeId*)child)->getInformation()->getType() != DataType::noType) {
 				node->setDataType(DataType::errorType);
+				perror("identifier already defined");
 			} else {
 				node->setDataType(DataType::noType);
-				child->setDataType(DataType::intType);
+				((NodeId*)child)->getInformation()->setType(DataType::intType);
 			}
 		}
 		break;
 	case RuleType::array:
+		child = child->getSibling(); // integer
 		if (((NodeInt*)child)->getValue() > 0) {
 			node->setDataType(DataType::arrayType);
 		} else {
-			perror("no valid dimension");
 			node->setDataType(DataType::errorType);
+			perror("no valid dimension");
 		}
 		break;
 	case RuleType::statements:
@@ -817,25 +818,25 @@ void Parser::checkType(Node* node) {
 			} else {
 				this->checkType(child->getSibling()->getSibling()); // exp
 			}
-			if (child->getDataType() == DataType::noType) {
-				perror("identifier not defined");
+			if (((NodeId*)child)->getInformation()->getType() == DataType::noType) {
 				node->setDataType(DataType::errorType);
+				perror("identifier not defined");
 			}
 			if (has_index) {
 				if (child->getSibling()->getSibling()->getSibling()->getDataType() == DataType::intType &&
-						(child->getDataType() == DataType::intArrayType && child->getSibling()->getDataType() == DataType::arrayType)) {
+						(((NodeId*)child)->getInformation()->getType() == DataType::intArrayType && child->getSibling()->getDataType() == DataType::arrayType)) {
 					node->setDataType(DataType::noType);
 				} else {
-					perror("incompatible types");
 					node->setDataType(DataType::errorType);
+					perror("incompatible types");
 				}
 			} else {
 				if (child->getSibling()->getSibling()->getDataType() == DataType::intType &&
-						(child->getDataType() == DataType::intType)) {
+						(((NodeId*)child)->getInformation()->getType() == DataType::intType)) {
 					node->setDataType(DataType::noType);
 				} else {
-					perror("incompatible types");
 					node->setDataType(DataType::errorType);
+					perror("incompatible types");
 				}
 			}
 		} else if (child->getTokenType() == TokenType::TokenWrite) {
@@ -846,24 +847,24 @@ void Parser::checkType(Node* node) {
 				this->checkType(child->getSibling()->getSibling()->getSibling()); //index
 				has_index = true;
 			}
-			if (child->getDataType() == DataType::noType) {
-				perror("identifier not defined");
+			if (((NodeId*)child->getSibling()->getSibling())->getInformation()->getType() == DataType::noType) {
 				node->setDataType(DataType::errorType);
+				perror("identifier not defined");
 			}
 			if (has_index) {
-				if (child->getSibling()->getSibling()->getDataType() == DataType::intArrayType
+				if (((NodeId*)child->getSibling()->getSibling())->getInformation()->getType() == DataType::intArrayType
 						&& child->getSibling()->getSibling()->getSibling()->getDataType() == DataType::arrayType) {
 					node->setDataType(DataType::noType);
 				} else {
-					perror("incompatible types");
 					node->setDataType(DataType::errorType);
+					perror("incompatible types");
 				}
 			} else {
-				if (child->getSibling()->getSibling()->getDataType() == DataType::intType) {
+				if (((NodeId*)child->getSibling()->getSibling())->getInformation()->getType() == DataType::intType) {
 					node->setDataType(DataType::noType);
 				} else {
-					perror("incompatible types");
 					node->setDataType(DataType::errorType);
+					perror("incompatible types");
 				}
 			}
 		} else if (child->getTokenType() == TokenType::TokenCurlyBracesOpen) {
@@ -915,24 +916,24 @@ void Parser::checkType(Node* node) {
 				this->checkType(child->getSibling());
 				has_index = true;
 			}
-			if (child->getDataType() == DataType::noType) {
-				perror("identifier not defined");
+			if (((NodeId*)child)->getInformation()->getType() == DataType::noType) {
 				node->setDataType(DataType::errorType);
+				perror("identifier not defined");
 			}
 			if (has_index) {
-				if (child->getDataType() == DataType::intArrayType
+				if (((NodeId*)child)->getInformation()->getType() == DataType::intArrayType
 						&& child->getSibling()->getDataType() == DataType::arrayType) {
 					node->setDataType(DataType::intType);
 				} else {
-					perror("no primitive type");
 					node->setDataType(DataType::errorType);
+					perror("no primitive type");
 				}
 			} else {
-				if (child->getDataType() == DataType::intType) {
+				if (((NodeId*)child)->getInformation()->getType() == DataType::intType) {
 					node->setDataType(child->getDataType());
 				} else {
-					perror("no primitive type");
 					node->setDataType(DataType::errorType);
+					perror("no primitive type");
 				}
 			}
 		} else if (child->getTokenType() == TokenType::TokenInteger) {
