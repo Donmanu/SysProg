@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 
 		parser->makeCode();
 
-//		printf("  --- Successfully made code for file %s ---\n\n", argv[i]);
+		printf("  --- Successfully made code for file %s ---\n\n", argv[i]);
 
 		delete parser;
 	}
