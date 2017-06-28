@@ -1208,16 +1208,16 @@ void Parser::makeCode(Node* node) {
 	case RuleType::exp:
 		if (!child->hasSibling()) {
 			this->makeCode(child); // exp2
-		} else if (child->getSibling()->getChild()->getChild()->getDataType() == DataType::opGreater) { // opGreater?
+		} else if (child->getSibling()->getChild()->getDataType() == DataType::opGreater) { // opGreater?
 			this->makeCode(child->getSibling()); // op_exp
 			this->makeCode(child); // exp2
 			//printf("LES\n");
 			this->code_file << "LES" << std::endl;
-		} else if (child->getSibling()->getChild()->getChild()->getDataType() == DataType::opUnEqual) { // opUnequal?
+		} else if (child->getSibling()->getChild()->getDataType() == DataType::opUnEqual) { // opUnequal?
 			this->makeCode(child); // exp2
 			this->makeCode(child->getSibling()); // op_exp
 			//printf("NOT\n");
-			this->code_file << "NOT"; // TODO newline??
+			this->code_file << "NOT" << std::endl;
 		} else {
 			this->makeCode(child); // exp2
 			this->makeCode(child->getSibling()); // op_exp
@@ -1246,7 +1246,7 @@ void Parser::makeCode(Node* node) {
 		} else if (child->getTokenType() == TokenType::TokenExclamationMark) {
 			this->makeCode(child->getSibling()); // exp2
 			//printf("NOT\n");
-			this->code_file << "NOT "; // TODO ?? << std::endl;
+			this->code_file << "NOT" << std::endl;
 		}
 		break;
 	case RuleType::index:
