@@ -930,7 +930,7 @@ void Parser::checkType(Node* node) {
 				}
 			} else {
 				if (((NodeId*)child)->getInformation()->getType() == DataType::intType) {
-					node->setDataType(child->getDataType());
+					node->setDataType(((NodeId*)child)->getInformation()->getType());
 				} else {
 					node->setDataType(DataType::errorType);
 					perror("no primitive type");
@@ -966,31 +966,31 @@ void Parser::checkType(Node* node) {
 	case RuleType::op:
 		switch (child->getTokenType()) {
 		case TokenType::TokenPlus:
-			child->setDataType(DataType::opPlus);
+			node->setDataType(DataType::opPlus);
 			break;
 		case TokenType::TokenMinus:
-			child->setDataType(DataType::opMinus);
+			node->setDataType(DataType::opMinus);
 			break;
 		case TokenType::TokenStar:
-			child->setDataType(DataType::opMult);
+			node->setDataType(DataType::opMult);
 			break;
 		case TokenType::TokenColon:
-			child->setDataType(DataType::opDiv);
+			node->setDataType(DataType::opDiv);
 			break;
 		case TokenType::TokenLessThan:
-			child->setDataType(DataType::opLess);
+			node->setDataType(DataType::opLess);
 			break;
 		case TokenType::TokenGreaterThan:
-			child->setDataType(DataType::opGreater);
+			node->setDataType(DataType::opGreater);
 			break;
 		case TokenType::TokenEquals:
-			child->setDataType(DataType::opEqual);
+			node->setDataType(DataType::opEqual);
 			break;
 		case TokenType::TokenEqualsColonEquals:
-			child->setDataType(DataType::opUnEqual);
+			node->setDataType(DataType::opUnEqual);
 			break;
 		case TokenType::TokenAndAnd:
-			child->setDataType(DataType::opAnd);
+			node->setDataType(DataType::opAnd);
 			break;
 		default:
 			return;
