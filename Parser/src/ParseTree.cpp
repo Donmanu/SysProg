@@ -185,6 +185,7 @@ NodeId::NodeId(Node* parent, Information* info) {
 	this->rule_type = RuleType::terminal;
 	this->data_type = DataType::noType;
 	this->information = info;
+	this->information->setType(this->data_type);
 }
 
 NodeId::~NodeId() {
@@ -251,7 +252,9 @@ void ParseTree::debugPrint() {
 void ParseTree::recursivePrint(Node* thisRoot) {
 	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
 
-	if (thisRoot->getRuleType() == RuleType::terminal)
+	if (thisRoot->getTokenType() == TokenType::TokenIdentifier)
+		printf("[%s/%s]", TokenType::tokenNameMini[thisRoot->getTokenType()], DataType::dataName[((NodeId*)thisRoot)->getInformation()->getType()]);
+	else if (thisRoot->getRuleType() == RuleType::terminal)
 		printf("[%s/%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()], DataType::dataName[thisRoot->getDataType()]);
 	else
 		printf("(%s/%s)\n", RuleType::ruleName[thisRoot->getRuleType()], DataType::dataName[thisRoot->getDataType()]); // should have data_type, but always == noType;

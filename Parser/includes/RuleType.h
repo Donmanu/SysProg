@@ -41,8 +41,8 @@ namespace RuleType {
 		"exp2",			// 7
 		"index",		// 8
 		"op_exp",		// 9
-		"op"			// 10
-		"TERM"
+		"op",			// 10
+		"TERM"			// 11
 	};
 }
 
