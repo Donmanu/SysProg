@@ -1077,7 +1077,11 @@ void Parser::makeCode(Node* node) {
 		break;
 	case RuleType::decl:
 		//printf("DS $ lexem\n");
-		this->code_file << "DS" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+		if (child->getSibling()->getRuleType() == RuleType::array) {
+			this->code_file << "DS" << "$" << ((NodeId*)child->getSibling()->getSibling())->getInformation()->getLexem();
+		} else {
+			this->code_file << "DS" << "$" << ((NodeId*)child->getSibling())->getInformation()->getLexem();
+		}
 		while (child != NULL) {
 			if (child->getRuleType() == RuleType::array) {
 				has_array = true;
@@ -1092,7 +1096,7 @@ void Parser::makeCode(Node* node) {
 		break;
 	case RuleType::array:
 		//printf("integer\n");
-		this->code_file << ((NodeInt*)node)->getValue();
+		this->code_file << ((NodeInt*)child->getSibling())->getValue();
 		break;
 	case RuleType::statements:
 		if (child != NULL) {
@@ -1121,7 +1125,7 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child); // exp
 			child = node->getChild(); // identifier
 			//printf("LA $ lexem\n");
-			this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+			this->code_file << "LA" << "$" << ((NodeId*)child)->getInformation()->getLexem();
 			child = child->getSibling(); // index or :=
 			if (child->getRuleType() == RuleType::index) {
 				this->makeCode(child); // index
@@ -1142,7 +1146,7 @@ void Parser::makeCode(Node* node) {
 			child = child->getSibling(); // identifier
 			if (child->getTokenType() == TokenType::TokenIdentifier) {
 				//printf("LA $ lexem\n");
-				this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+				this->code_file << "LA" << "$" << ((NodeId*)child)->getInformation()->getLexem();
 			}
 			child->getSibling();
 			if (child->getRuleType() == RuleType::index) {
@@ -1215,7 +1219,7 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child->getSibling()); // exp
 		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
 			//printf("LA $ lexem\n");
-			this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+			this->code_file << "LA" << "$" << ((NodeId*)child)->getInformation()->getLexem();
 			if (child->hasSibling()) {
 				this->makeCode(child->getSibling()); // index
 			}
@@ -1223,7 +1227,7 @@ void Parser::makeCode(Node* node) {
 			this->code_file << "LV";
 		} else if (child->getTokenType() == TokenType::TokenInteger) {
 			//printf("LC integer\n");
-			this->code_file << "LC" << ((NodeInt*)node)->getValue();
+			this->code_file << "LC" << ((NodeInt*)child)->getValue();
 		} else if (child->getTokenType() == TokenType::TokenMinus) {
 			//printf("LC 0\n");
 			this->code_file << "LC" << 0;
