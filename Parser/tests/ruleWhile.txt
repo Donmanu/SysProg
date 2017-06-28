@@ -1,8 +1,12 @@
 :* Declarations *:
-
+int[1] true;
+int[2] iNt;
+int var;
+int const;
 
 :* Statements *:
 
+true[0] := 0; 
 WHILE(true[0])
 
 

@@ -794,6 +794,7 @@ void Parser::checkType(Node* node) {
 			node->setDataType(DataType::arrayType);
 		} else {
 			node->setDataType(DataType::errorType);
+			errno = EINVAL;
 			perror("no valid dimension");
 		}
 		break;
@@ -1129,7 +1130,7 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child); // exp
 			child = node->getChild(); // identifier
 			//printf("LA $ lexem\n");
-			this->code_file << "LA " << "$" << ((NodeId*)child)->getInformation()->getLexem();
+			this->code_file << "LA " << "$" << ((NodeId*)child)->getInformation()->getLexem() << std::endl;
 			child = child->getSibling(); // index or :=
 			if (child->getRuleType() == RuleType::index) {
 				this->makeCode(child); // index
