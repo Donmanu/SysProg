@@ -762,7 +762,6 @@ void Parser::checkType(Node* node) {
 	}
 
 	Node* child = node->getChild();
-	NodeInt* node_int;
 	bool has_array = false;
 	bool has_index = false;
 	bool has_op_exp = false;
@@ -824,8 +823,7 @@ void Parser::checkType(Node* node) {
 		}
 		break;
 	case RuleType::array:
-		node_int = (NodeInt*)child->getSibling();
-		if (node_int->getValue() > 0) {
+		if (((NodeInt*)child)->getValue() > 0) {
 			node->setDataType(DataType::arrayType);
 		} else {
 			perror("no valid dimension");
@@ -1202,15 +1200,15 @@ void Parser::makeCode(Node* node) {
 		} else if (child->getTokenType() == TokenType::TokenRead) {
 			printf("REA\n");
 			// output << "REA";
-			while (child->hasSibling()) {
-				if (child->getTokenType() == TokenType::TokenIdentifier) {
-					printf("LA $ lexem\n");
-					// output << "LA" << "$" << getLexem();
-				}
-				if (child->getRuleType() == RuleType::index) {
-					this->makeCode(child); // index
-				}
-				child = child->getSibling();
+			child = child->getSibling(); // (
+			child = child->getSibling(); // identifier
+			if (child->getTokenType() == TokenType::TokenIdentifier) {
+				printf("LA $ lexem\n");
+				// output << "LA" << "$" << getLexem();
+			}
+			child->getSibling();
+			if (child->getRuleType() == RuleType::index) {
+				this->makeCode(child); // index
 			}
 			printf("STR\n");
 			// output << "STR";
@@ -1276,8 +1274,7 @@ void Parser::makeCode(Node* node) {
 		break;
 	case RuleType::exp2:
 		if (child->getTokenType() == TokenType::TokenParenthesisOpen) {
-			child = child->getSibling(); // exp
-			this->makeCode(child); // exp
+			this->makeCode(child->getSibling()); // exp
 		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
 			printf("LA $ lexem\n");
 			// output << "LA" << "$" << getLexem;
