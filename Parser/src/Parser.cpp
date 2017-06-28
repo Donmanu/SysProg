@@ -1251,44 +1251,42 @@ void Parser::makeCode(Node* node) {
 		break;
 	case RuleType::op_exp:
 		if (child != NULL) {
-			if (child->getRuleType() == RuleType::exp) {
-				this->makeCode(child); // exp
-				child = child->getSibling(); // op
-				this->makeCode(child); // op
-			}
+			this->makeCode(child->getSibling()); // exp
+//			child = child->getSibling(); // op
+			this->makeCode(child); // op
 		}
 		break;
 	case RuleType::op:
-		switch (child->getDataType()) {
-		case DataType::opPlus:
+		switch (child->getTokenType()) {
+		case TokenType::TokenPlus:
 			//printf("ADD\n");
 			this->code_file << "ADD" << std::endl;
 			break;
-		case DataType::opMinus:
+		case TokenType::TokenMinus:
 			//printf("SUB\n");
 			this->code_file << "SUB" << std::endl;
 			break;
-		case DataType::opMult:
+		case TokenType::TokenStar:
 			//printf("MUL\n");
 			this->code_file << "MUL" << std::endl;
 			break;
-		case DataType::opDiv:
+		case TokenType::TokenColon:
 			//printf("DIV\n");
 			this->code_file << "DIV" << std::endl;
 			break;
-		case DataType::opLess:
+		case TokenType::TokenLessThan:
 			//printf("LES\n");
 			this->code_file << "LES" << std::endl;
 			break;
 //		case DataType::opGreater:
 			// noting?
 //			break;
-		case DataType::opEqual:
-		case DataType::opUnEqual:
+		case TokenType::TokenEquals:
+		case TokenType::TokenEqualsColonEquals:
 			//printf("EQU\n");
 			this->code_file << "EQU" << std::endl;
 			break;
-		case DataType::opAnd:
+		case TokenType::TokenAndAnd:
 			//printf("AND\n");
 			this->code_file << "AND" << std::endl;
 			break;
