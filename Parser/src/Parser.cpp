@@ -1033,8 +1033,8 @@ void Parser::makeCode(char* inputFileName) {
 	*(dotMark) = '\0';
 
 	this->code_file.open(outName/*, ios::out*/);
-
 	this->makeCode(this->parse_tree->getRoot());
+	this->code_file.close();
 }
 
 void Parser::makeCode(Node* node) {
@@ -1247,6 +1247,8 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child); // exp
 			//printf("ADD\n");
 			this->code_file << "ADD" << std::endl;
+		} else {
+			this->code_file << std::endl;
 		}
 		break;
 	case RuleType::op_exp:
