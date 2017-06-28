@@ -1,6 +1,9 @@
 :* Von Folie #16 *:
+:* DECLS *:
 int n;
 int[3] m;
+
+:* STATEMENTS *:
 n := 3 + 4;
 n := 3*n--5;  :* 3 * 7 - (-5)  ? *:
 write(n);     :* = 26 ? *:

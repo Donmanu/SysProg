@@ -731,7 +731,6 @@ void Parser::checkType(Node* node) {
 	}
 
 	Node* child = node->getChild();
-	NodeInt* node_int;
 	bool has_array = false;
 	bool has_index = false;
 	bool has_op_exp = false;
@@ -793,8 +792,7 @@ void Parser::checkType(Node* node) {
 		}
 		break;
 	case RuleType::array:
-		node_int = (NodeInt*)child->getSibling();
-		if (node_int->getValue() > 0) {
+		if (((NodeInt*)child)->getValue() > 0) {
 			node->setDataType(DataType::arrayType);
 		} else {
 			perror("no valid dimension");
@@ -1037,6 +1035,7 @@ void Parser::makeCode(char* inputFileName) {
 	*(dotMark) = '\0';
 
 	this->code_file.open(outName/*, ios::out*/);
+
 	this->makeCode(this->parse_tree->getRoot());
 }
 
@@ -1060,12 +1059,12 @@ void Parser::makeCode(Node* node) {
 			if (child->getRuleType() == RuleType::statements) {
 				this->makeCode(child);
 			} else {
-				//printf("NOP\n");
-				this->code_file << "NOP";
+				printf("NOP\n");
+				// output << "NOP";
 			}
 		}
-		//printf("STP\n");
-		this->code_file << "STP";
+		printf("STP\n");
+		// output << "STP";
 		break;
 	case RuleType::decls:
 		if (child->getRuleType() == RuleType::decl) {
@@ -1080,8 +1079,8 @@ void Parser::makeCode(Node* node) {
 		}
 		break;
 	case RuleType::decl:
-		//printf("DS $ lexem\n");
-		this->code_file << "DS" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+		printf("DS $ lexem\n");
+		// output << "DS" << "$" << getLexem;
 		while (child != NULL) {
 			if (child->getRuleType() == RuleType::array) {
 				has_array = true;
@@ -1090,13 +1089,13 @@ void Parser::makeCode(Node* node) {
 			child = child->getSibling();
 		}
 		if (!has_array) {
-			//printf("1\n");
-			this->code_file << 1;
+			printf("1\n");
+			//output << 1;
 		}
 		break;
 	case RuleType::array:
-		//printf("integer\n");
-		this->code_file << ((NodeInt*)node)->getValue();
+		printf("integer\n");
+		//output << getInteger();
 		break;
 	case RuleType::statements:
 		if (child != NULL) {
@@ -1113,8 +1112,8 @@ void Parser::makeCode(Node* node) {
 			}
 		}
 		if (!has_statements) {
-			//printf("NOP\n");
-			this->code_file << "NOP";
+			printf("NOP\n");
+			//output << "NOP";
 		}
 		break;
 	case RuleType::statement:
@@ -1124,36 +1123,41 @@ void Parser::makeCode(Node* node) {
 			}
 			this->makeCode(child); // exp
 			child = node->getChild(); // identifier
-			//printf("LA $ lexem\n");
-			this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+			printf("LA $ lexem\n");
+			// output << "LA" << "$" << getIdentifier();
 			child = child->getSibling(); // index or :=
 			if (child->getRuleType() == RuleType::index) {
 				this->makeCode(child); // index
 			}
-			//printf("STR\n");
-			this->code_file << "STR";
+			printf("STR\n");
+			// output << "STR";
 		} else if (child->getTokenType() == TokenType::TokenWrite) {
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
 			this->makeCode(child); // exp
+<<<<<<< HEAD
 			//printf("PRI\n");
 			this->code_file << "PRI";
+=======
+			printf("PRI\n");
+			// output << "PRI";
+>>>>>>> d9f26d62791093757b66e6fd21b7d3d35b37a251
 		} else if (child->getTokenType() == TokenType::TokenRead) {
-			//printf("REA\n");
-			this->code_file << "REA";
-			while (child->hasSibling()) {
-				if (child->getTokenType() == TokenType::TokenIdentifier) {
-					//printf("LA $ lexem\n");
-					this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
-				}
-				if (child->getRuleType() == RuleType::index) {
-					this->makeCode(child); // index
-				}
-				child = child->getSibling();
+			printf("REA\n");
+			// output << "REA";
+			child = child->getSibling(); // (
+			child = child->getSibling(); // identifier
+			if (child->getTokenType() == TokenType::TokenIdentifier) {
+				printf("LA $ lexem\n");
+				// output << "LA" << "$" << getLexem();
 			}
-			//printf("STR\n");
-			this->code_file << "STR";
+			child->getSibling();
+			if (child->getRuleType() == RuleType::index) {
+				this->makeCode(child); // index
+			}
+			printf("STR\n");
+			// output << "STR";
 		} else if (child->getTokenType() == TokenType::TokenCurlyBracesOpen) {
 			child = child->getSibling(); // statements or }
 			if (child->getRuleType() == RuleType::statements) {
@@ -1164,36 +1168,36 @@ void Parser::makeCode(Node* node) {
 				child = child->getSibling();
 			}
 			this->makeCode(child); // exp
-			//printf("JIN # label1\n");
-			this->code_file << "JIN" << "#" << "label1"; // TODO
+			printf("JIN # label1\n");
+			// output << "JIN" << "#" << label1;
 			child = child->getSibling(); // )
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
-			//printf("JMP # label2");
-			this->code_file << "JMP" << "#" << "label2"; // TODO
-			//printf("# label1 NOP\n");
-			this->code_file << "#" << "label1" << "NOP"; // TODO
+			printf("JMP # label2");
+			// output << "JMP" << "#" << label2;
+			printf("# label1 NOP\n");
+			// output << "#" << label1 << "NOP";
 			child = child->getSibling(); // else
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
-			//printf("# label2 NOP\n");
-			this->code_file << "#" << "label2" << "NOP"; // TODO
+			printf("# label2 NOP\n");
+			// output << "#" << label2 << "NOP";
 		} else if (child->getTokenType() == TokenType::TokenWhile) {
-			//printf("# label1 NOP\n");
-			this->code_file << "#" << "label1" << "NOP"; // TODO
+			printf("# label1 NOP\n");
+			// output << "#" << label1 << "NOP";
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
 			this->makeCode(child); // exp
-			//printf("JIN # label2\n");
-			this->code_file << "JIN" << "#" << "label2"; // TODO
+			printf("JIN # label2\n");
+			// output << "JIN" << "#" << label2;
 			child = child->getSibling(); // )
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
-			//printf("JMP # label1\n");
-			this->code_file << "JMP" << "#" << "label1"; // TODO
-			//printf("# label2 NOP\n");
-			this->code_file << "#" << "label2" << "NOP"; // TODO
+			printf("JMP # label1\n");
+			// output << "JMP" << "#" << label1;
+			printf("# label2 NOP\n");
+			// output << "#" << label2 << "NOP";
 		}
 		break;
 	case RuleType::exp:
@@ -1202,13 +1206,13 @@ void Parser::makeCode(Node* node) {
 		} else if (child->getSibling()->getChild()->getChild()->getDataType() == DataType::opGreater) { // opGreater?
 			this->makeCode(child->getSibling()); // op_exp
 			this->makeCode(child); // exp2
-			//printf("LES\n");
-			this->code_file << "LES";
+			printf("LES\n");
+			// output << "LES";
 		} else if (child->getSibling()->getChild()->getChild()->getDataType() == DataType::opUnEqual) { // opUnequal?
 			this->makeCode(child); // exp2
 			this->makeCode(child->getSibling()); // op_exp
-			//printf("NOT\n");
-			this->code_file << "NOT";
+			printf("NOT\n");
+			// output << "NOT";
 		} else {
 			this->makeCode(child); // exp2
 			this->makeCode(child->getSibling()); // op_exp
@@ -1216,37 +1220,36 @@ void Parser::makeCode(Node* node) {
 		break;
 	case RuleType::exp2:
 		if (child->getTokenType() == TokenType::TokenParenthesisOpen) {
-			child = child->getSibling(); // exp
-			this->makeCode(child); // exp
+			this->makeCode(child->getSibling()); // exp
 		} else if (child->getTokenType() == TokenType::TokenIdentifier) {
-			//printf("LA $ lexem\n");
-			this->code_file << "LA" << "$" << ((NodeId*)node)->getInformation()->getLexem();
+			printf("LA $ lexem\n");
+			// output << "LA" << "$" << getLexem;
 			if (child->hasSibling()) {
 				this->makeCode(child->getSibling()); // index
 			}
-			//printf("LV\n");
-			this->code_file << "LV";
+			printf("LV\n");
+			// output << "LV";
 		} else if (child->getTokenType() == TokenType::TokenInteger) {
-			//printf("LC integer\n");
-			this->code_file << "LC" << ((NodeInt*)node)->getValue();
+			printf("LC integer\n");
+			// output << "LC" << getInteger;
 		} else if (child->getTokenType() == TokenType::TokenMinus) {
-			//printf("LC 0\n");
-			this->code_file << "LC" << 0;
+			printf("LC 0\n");
+			// output << "LC" << 0;
 			this->makeCode(child->getSibling()); //exp2
-			//printf("SUB\n");
-			this->code_file << "SUB";
+			printf("SUB\n");
+			// output << "SUB";
 		} else if (child->getTokenType() == TokenType::TokenExclamationMark) {
 			this->makeCode(child->getSibling()); // exp2
-			//printf("NOT\n");
-			this->code_file << "NOT";
+			printf("NOT\n");
+			// output << "NOT";
 		}
 		break;
 	case RuleType::index:
 		if (child != NULL) {
 			child = child->getSibling(); // exp
 			this->makeCode(child); // exp
-			//printf("ADD\n");
-			this->code_file << "ADD";
+			printf("ADD\n");
+			// output << "ADD";
 		}
 		break;
 	case RuleType::op_exp:
@@ -1261,36 +1264,36 @@ void Parser::makeCode(Node* node) {
 	case RuleType::op:
 		switch (child->getDataType()) {
 		case DataType::opPlus:
-			//printf("ADD\n");
-			this->code_file << "ADD";
+			printf("ADD\n");
+			// output << "ADD";
 			break;
 		case DataType::opMinus:
-			//printf("SUB\n");
-			this->code_file << "SUB";
+			printf("SUB\n");
+			// output << "SUB";
 			break;
 		case DataType::opMult:
-			//printf("MUL\n");
-			this->code_file << "MUL";
+			printf("MUL\n");
+			// output << "MUL";
 			break;
 		case DataType::opDiv:
-			//printf("DIV\n");
-			this->code_file << "DIV";
+			printf("DIV\n");
+			// output << "DIV";
 			break;
 		case DataType::opLess:
-			//printf("LES\n");
-			this->code_file << "LES";
+			printf("LES\n");
+			// output << "LES";
 			break;
 //		case DataType::opGreater:
 			// noting?
 //			break;
 		case DataType::opEqual:
 		case DataType::opUnEqual:
-			//printf("EQU\n");
-			this->code_file << "EQU";
+			printf("EQU\n");
+			// output << "EQU"
 			break;
 		case DataType::opAnd:
-			//printf("AND\n");
-			this->code_file << "AND";
+			printf("AND\n");
+			// output << "AND"
 			break;
 		default:
 			printf("\n");
