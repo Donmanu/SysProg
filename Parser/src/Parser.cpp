@@ -1033,8 +1033,8 @@ void Parser::makeCode(char* inputFileName) {
 	*(dotMark) = '\0';
 
 	this->code_file.open(outName/*, ios::out*/);
-
 	this->makeCode(this->parse_tree->getRoot());
+	this->code_file.close();
 }
 
 void Parser::makeCode(Node* node) {
