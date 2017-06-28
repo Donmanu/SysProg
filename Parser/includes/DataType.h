@@ -45,9 +45,9 @@ namespace DataType {
 		"opDiv",	// 7
 		"opLess",	// 8
 		"opGreater",// 9
-		"opEqual"	// 10
-		"opUnEqu"	// 11
-		"opAnd"		// 12
+		"opEqual",	// 10
+		"opUnEqu",	// 11
+		"opAnd",	// 12
 		"ERROR"		// 13
 	};
 }
