@@ -10,6 +10,8 @@
 
 #include "../../Scanner/includes/Scanner.h"
 #include "ParseTree.h"  // incl "RuleType.h"
+#include <iostream>		// code file output
+#include <fstream> 		// after iostream
 
 class Parser {
 	public:
@@ -18,8 +20,6 @@ class Parser {
 		void parse(void);
 		void checkType(void);
 		void makeCode(void);
-
-		// TODO void makeCode(char*);
 
 		void debugPrint(void);
 
@@ -51,6 +51,7 @@ class Parser {
 
 		void makeCode(Node*);
 
+		std::ofstream code_file;
 		Scanner* scanner;
 		Node* current_node;
 		ParseTree* parse_tree;

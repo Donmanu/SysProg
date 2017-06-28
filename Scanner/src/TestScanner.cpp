@@ -2,7 +2,7 @@
 //#include "/usr/include/c++/4.7/ostream"
 #include <iostream>
 #include <fstream> // after iostream
-#include <ctime>
+#include <ctime>   // for performance tests
 
 int main(int argc, char **argv) {
 	int args = 1;
