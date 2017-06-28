@@ -252,9 +252,9 @@ void ParseTree::recursivePrint(Node* thisRoot) {
 	// pretty quick C&P solution from http://www.randygaul.net/2015/06/15/printing-pretty-ascii-trees/
 
 	if (thisRoot->getRuleType() == RuleType::terminal)
-		printf("[%s:%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()], DataType::dataName[thisRoot->getDataType()]);
+		printf("[%s/%s]\n", TokenType::tokenNameMini[thisRoot->getTokenType()], DataType::dataName[thisRoot->getDataType()]);
 	else
-		printf("(%s)\n", RuleType::ruleName[thisRoot->getRuleType()]); // should have data_type, but always == noType;
+		printf("(%s/%s)\n", RuleType::ruleName[thisRoot->getRuleType()], DataType::dataName[thisRoot->getDataType()]); // should have data_type, but always == noType;
 
 	Node* child = thisRoot->getChild();
 

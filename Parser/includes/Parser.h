@@ -19,7 +19,7 @@ class Parser {
 		~Parser(void);
 		void parse(void);
 		void checkType(void);
-		void makeCode(void);
+		void makeCode(char*);
 
 		void debugPrint(void);
 

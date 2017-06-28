@@ -42,6 +42,7 @@ namespace RuleType {
 		"index",		// 8
 		"op_exp",		// 9
 		"op"			// 10
+		"TERM"
 	};
 }
 

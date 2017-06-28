@@ -1008,65 +1008,35 @@ void Parser::checkType(Node* node) {
 		//obsolete?
 		break;
 	};
-
-	/*
-	// 1) Check this type
-	switch (node->getRuleType()) {
-	case RuleType::terminal:
-		// TODO do identifier type check
-		break;
-	case RuleType::op: // TODO do we have a problem with negative numbers here?
-		// As long as DataType and TokenType would stay in according sync,
-		// we could just calculate it like "DataType = TokenType - 5;" or so ...
-		switch (node->getTokenType()) {
-		case TokenType::TokenPlus:
-			node->setDataType(DataType::opPlus);
-			break;
-		case TokenType::TokenMinus:
-			node->setDataType(DataType::opMinus);
-			break;
-		case TokenType::TokenStar:
-			node->setDataType(DataType::opMult);
-			break;
-		case TokenType::TokenColon:
-			node->setDataType(DataType::opDiv);
-			break;
-		case TokenType::TokenLessThan:
-			node->setDataType(DataType::opLess);
-			break;
-		case TokenType::TokenGreaterThan:
-			node->setDataType(DataType::opGreater);
-			break;
-		case TokenType::TokenEquals:
-			node->setDataType(DataType::opEqual);
-			break;
-		case TokenType::TokenEqualsColonEquals:
-			node->setDataType(DataType::opUnEqual);
-			break;
-		case TokenType::TokenAndAnd:
-			node->setDataType(DataType::opAnd);
-			break;
-		default:
-			this->errorType(node);
-		}
-		break;
-	default:
-		// noType is already set as default
-		// do nothing
-		break;
-	}
-
-	// 2) Check children
-	Node* ch = node->getChild();
-	while (ch != NULL) {
-		this->checkType(ch);
-		ch = ch->getSibling();
-	}
-	*/
 }
 
-void Parser::makeCode() {
-	this->code_file.open("out.code"/*, ios::out*/); // TODO make same name as input
+void Parser::makeCode(char* inputFileName) {
+	// Build output file name
+	int outLen;
+	char* outName;
+	char* dotMark = strchr(inputFileName, '.');     // finds the FIRST occurrence of '.'. Good enough for now. Should also work on ".input"
+	if (dotMark != NULL) {
+		outLen = dotMark - inputFileName;
+	} else {
+		// no '.' in inputFileName -> take full name
+		outLen = strlen(inputFileName);
+	}
+	outName = new char[outLen + 6];  // +1 '.', +4 "code", +1 '\0'
+
+	//strcpy(outName, inputFileName); // WARNING! fails if len(input) > len(output)
+	for (int i = 0; i < outLen; i++) {
+		outName[i] = inputFileName[i];
+	}
+	// Reuse dotMark
+	dotMark = outName + outLen;
+	*(dotMark++) = '.';
+	*(dotMark++) = 'c';
+	*(dotMark++) = 'o';
+	*(dotMark++) = 'd';
+	*(dotMark++) = 'e';
+	*(dotMark) = '\0';
+
+	this->code_file.open(outName/*, ios::out*/);
 	this->makeCode(this->parse_tree->getRoot());
 }
 
@@ -1166,7 +1136,7 @@ void Parser::makeCode(Node* node) {
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
-			this->makeCode(); // exp
+			this->makeCode(child); // exp
 			//printf("PRI\n");
 			this->code_file << "PRI";
 		} else if (child->getTokenType() == TokenType::TokenRead) {

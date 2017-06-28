@@ -19,23 +19,20 @@ int main(int argc, char **argv) {
 	//printVersion();
 
 	for (int i = 1; i < argc; i++) {
-		printf("  --- Parsing file %s ---\n", argv[i]);
 		Parser* parser = new Parser(argv[i]);
 
+		printf("  --- Parsing file %s ---\n", argv[i]);
 		parser->parse();
-
+		parser->debugPrint();
 		printf("  --- Successfully parsed file %s ---\n\n", argv[i]);
 
-		parser->debugPrint();
-
+		printf("  --- TypeChecking file %s ---\n", argv[i]);
 		parser->checkType();
-
+		parser->debugPrint();
 		printf("  --- Successfully type-checked file %s ---\n\n", argv[i]);
 
-		parser->debugPrint();
-
-		parser->makeCode();
-
+		printf("  --- Making code for file %s ---\n", argv[i]);
+		parser->makeCode(argv[i]);
 		printf("  --- Successfully made code for file %s ---\n\n", argv[i]);
 
 		delete parser;
