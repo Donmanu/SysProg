@@ -1247,6 +1247,8 @@ void Parser::makeCode(Node* node) {
 			this->makeCode(child); // exp
 			//printf("ADD\n");
 			this->code_file << "ADD" << std::endl;
+		} else {
+			this->code_file << std::endl;
 		}
 		break;
 	case RuleType::op_exp:
