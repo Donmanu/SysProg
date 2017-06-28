@@ -1163,7 +1163,7 @@ void Parser::makeCode(Node* node) {
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
-			this->makeCode(); // exp
+			this->makeCode(child); // exp
 			printf("PRI\n");
 			// output << "PRI";
 		} else if (child->getTokenType() == TokenType::TokenRead) {
