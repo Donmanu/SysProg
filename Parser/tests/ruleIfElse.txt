@@ -1,5 +1,7 @@
 :* Declarations *:
 int[4] arr;
+int[1] abc;
+int x;
 
 :* Statements *:
 arr[0] := 0;
