@@ -16,6 +16,7 @@ Parser::Parser(char* input) {
 	this->parse_tree = NULL;
 	this->is_epsilon_transition = false;
 	this->came_from_statement = false;
+	this->label_counter = 65; // A
 }
 
 Parser::~Parser() {
@@ -1043,6 +1044,8 @@ void Parser::makeCode(Node* node) {
 	}
 	// 1) Check RuleType
 	Node* child = node->getChild();
+	char* label1;
+	char* label2;
 	bool has_array = false;
 	bool has_statements = false;
 	switch (node->getRuleType()) {
@@ -1166,35 +1169,39 @@ void Parser::makeCode(Node* node) {
 			}
 			this->makeCode(child); // exp
 			//printf("JIN # label1\n");
-			this->code_file << "JIN " << "#" << "label1" << std::endl; // TODO label
+			label1 = this->makeLabel();
+			this->code_file << "JIN " << "#" << label1 << std::endl; // TODO label
 			child = child->getSibling(); // )
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
 			//printf("JMP # label2");
-			this->code_file << "JMP " << "#" << "label2" << std::endl; // TODO label
+			label2 = this->makeLabel();
+			this->code_file << "JMP " << "#" << label2 << std::endl; // TODO label
 			//printf("# label1 NOP\n");
-			this->code_file << "#" << "label1" << " NOP" << std::endl; // TODO label
+			this->code_file << "#" << label1 << " NOP" << std::endl; // TODO label
 			child = child->getSibling(); // else
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
 			//printf("# label2 NOP\n");
-			this->code_file << "#" << "label2" << " NOP" << std::endl; // TODO label
+			this->code_file << "#" << label2 << " NOP" << std::endl; // TODO label
 		} else if (child->getTokenType() == TokenType::TokenWhile) {
 			//printf("# label1 NOP\n");
-			this->code_file << "#" << "label1" << " NOP" << std::endl; // TODO label
+			label1 = this->makeLabel();
+			this->code_file << "#" << label1 << " NOP" << std::endl; // TODO label
 			while (child->getRuleType() != RuleType::exp) {
 				child = child->getSibling();
 			}
 			this->makeCode(child); // exp
 			//printf("JIN # label2\n");
-			this->code_file << "JIN " << "#" << "label2" << std::endl; // TODO label
+			label2 = this->makeLabel();
+			this->code_file << "JIN " << "#" << label2 << std::endl; // TODO label
 			child = child->getSibling(); // )
 			child = child->getSibling(); // statement
 			this->makeCode(child); // statement
 			//printf("JMP # label1\n");
-			this->code_file << "JMP " << "#" << "label1" << std::endl; // TODO label
+			this->code_file << "JMP " << "#" << label1 << std::endl; // TODO label
 			//printf("# label2 NOP\n");
-			this->code_file << "#" << "label2" << " NOP" << std::endl; // TODO label
+			this->code_file << "#" << label2 << " NOP" << std::endl; // TODO label
 		}
 		break;
 	case RuleType::exp:
@@ -1319,4 +1326,20 @@ void Parser::errorType(Node* node) {
 void Parser::debugPrint() {
 	//this->scanner->debugPrint();
 	this->parse_tree->debugPrint();
+}
+
+char* Parser::makeLabel() {
+	char* label = "label";
+	int length = strlen(label);
+	char* ret = new char[length + 2];
+
+	strcpy(ret, label);
+	ret[length] = (char)this->label_counter;
+	ret[length + 1] = '\0';
+
+	this->label_counter++;
+	if (this->label_counter > 90) {
+		this->label_counter = 97;
+	}
+	return ret;
 }

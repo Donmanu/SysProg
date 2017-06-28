@@ -51,6 +51,8 @@ class Parser {
 
 		void makeCode(Node*);
 
+		char* makeLabel(void);
+
 		std::ofstream code_file;
 		Scanner* scanner;
 		Node* current_node;
@@ -59,6 +61,7 @@ class Parser {
 		RuleType::Type current_rule;
 		bool is_epsilon_transition;
 		bool came_from_statement;
+		int label_counter;
 };
 
 #endif /* PARSER_INCLUDES_PARSER_H_ */
