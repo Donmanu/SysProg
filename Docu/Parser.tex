@@ -21,6 +21,8 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{graphicx}    % Besserer Bilderimport
 \usepackage{wrapfig}     % Erlaube Text um Bilder
 \usepackage[font={small,it},labelfont={normal}]{caption}  % Bessere Bild-/Code-/Tabellenuntertitel
+%\usepackage{tikz}        % Erlaubt das Malen von z.B. State Machines
+%\usetikzlibrary{positioning,shapes,shadows,arrows}
 
 % Schrift und Optik:
 \usepackage{geometry}
@@ -32,10 +34,13 @@ final      %|draft,     wie Bilder eingebunden sind
 \clubpenalty = 10000
 
 % Code:
+\usepackage{courier}     % Mache \ttfamily zum Courier-Font
 \usepackage{color}       % Vor allem für farbigen Code
-\definecolor{lightgray}{rgb}{ .95, .95, .95 }
+\definecolor{lightgray}{rgb}{ .97, .97, .97 }
+\definecolor{lightgrey}{rgb}{ .97, .97, .97 }
 \definecolor{shadow}{rgb}   { .75, .75, .75 }
 \definecolor{darkgray}{rgb} { .4 , .4 , .4  }
+\definecolor{darkgrey}{rgb} { .4 , .4 , .4  }
 \definecolor{blue}{rgb}     { .0 , .15, .45 }    % redefine
 \definecolor{purple}{rgb}   { .6 , .1 , .75 }
 \definecolor{deepblue}{rgb} { .15, .0 , .5  }
@@ -44,26 +49,40 @@ final      %|draft,     wie Bilder eingebunden sind
 \usepackage{listings}    % Code-Listings
 
 \lstdefinelanguage{PseudoCode}{
-  basicstyle=\small,
+  basicstyle=\small\ttfamily,
   identifierstyle=\color{black},
   sensitive=false,
   comment=[l]{\#}{//}{;},
   morecomment=[s]{/*}{*/},
-  commentstyle=\color{darkgrey}\ttfamily,
+  commentstyle=\color{darkgray}\ttfamily,
   stringstyle=\color{red}\ttfamily,
   morestring=[b]',
   morestring=[b]", % shorter delimiter first!
   morestring=[b]"""
 }
-%\usepackage{mathtools} % mainly for := sign, mathtools is not available :(
+
+\lstdefinelanguage{SysProgLang}{
+  basicstyle=\small\ttfamily,
+  identifierstyle=\color{black},
+  sensitive=true,
+  comment=[l]{:*},
+  morecomment=[s]{:*}{*:},
+  commentstyle=\color{darkgray}\ttfamily,
+  %stringstyle=\color{red}\ttfamily,
+  %morestring=[b]',
+  %morestring=[b]",
+  %morestring=[b]"""
+}
+%\usepackage{mathtools} % mainly for := sign, but mathtools is not available :(
+% So we define our own ":=" ...
 % http://tex.stackexchange.com/questions/4216/how-to-typeset-correctly
 \newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt
                      \hbox{\scriptsize.}\hbox{\scriptsize.}}}
                      =}
 \lstset{
-  % keep default basicstyle for \lstinline 
+  basicstyle=\small\ttfamily, % make monospac
   backgroundcolor=\color{lightgray},
-  columns=fixed,    % make monospace. TODO does not work?
+  columns=fixed,    % make monospace?
   keepspaces=true,
   basewidth=0.60em,
   frame=shadowbox,
@@ -101,8 +120,12 @@ final      %|draft,     wie Bilder eingebunden sind
 
 
 % META INFO:
-\title{XXX TITEL}
-\author{Arthur Jagiella \and \texttt{jaar1013@hs-karlsruhe.de}}
+\title{Systemnahe Programmierung eines Compilers\\II. Der Parser}
+\author{
+Manuel \textsc{Giesinger} \hspace{1cm} \texttt{gima1019@hs-karlsruhe.de}
+\and
+Arthur \textsc{Jagiella} \hspace{1.35cm} \texttt{jaar1013@hs-karlsruhe.de}
+}
 \date{\today}
 
 
@@ -113,77 +136,334 @@ final      %|draft,     wie Bilder eingebunden sind
 \begin{document}
 
 %\include{mytitle}
-\title{XXX TITEL}
+\pagenumbering{gobble}
 \maketitle
+\newpage
 
-
+\tableofcontents
+\newpage
 
 % °_°_°_°_°_°_°_°_°_°_°_
 %    MAIN MATTER
 % °_°_°_°_°_°_°_°_°_°_°_
-\begin{abstract}
-Bla bla.
-
-Nächster Absatz. XXX
-\end{abstract}
-\textbf{Schlüsselworte}: Foo, Bar, 42.
+\pagenumbering{arabic}
 
 \section{Einleitung} % sub-, subsub-, paragraph, subparagraph
-Hallo Welt. Vgl.\cite{bestArticle}.
+Diese Arbeit ist im Rahmen der Laborübung „Systemnahes Programmieren“ im Studiengang Informatik (B.Sc.) an der Hochschule Karlsruhe im Sommersemester 2017 entstanden. 
 
-\subsection{Foo, quo vadis?}
-Lösung:
-% Code. Als externer Text-Import: \lstinputlisting[language=Python, caption={Beschreibung}, label={lst:ref}]{./pfad/zu/codeFile.py}
-\begin{lstlisting}[language=PseudoCode,caption={XXX},label=lst:code1]
-function code() {
-  return EXIT_FAILURE;
+\subsection{Aufgabenstellung gesamt}
+Im Kurs „Systemnahes Programmieren“ geht es inhaltlich um die Programmierung in C++ unter weitgehendem Verzicht auf die Nutzung von Standardbibliotheken. Die Implementierung von Puffern, verketteten Listen, Hashtabellen und Baumstrukturen soll per Hand erfolgen. Hierzu wird als Anwendung ein Compiler für eine fiktive Sprache implementiert.
+
+\subsection{Aufgabenstellung Parser -- diese Arbeit} 
+Die Aufgabe des Parsers besteht darin, die vom Scanner gelieferten Token für die Erstellung eines Parse-Tree zu verwenden. Ein Parse-Tree besteht hierbei aus einem Root Knoten, der weitere Knoten als Kindknoten besitzt. Mithilfe einer Parse-Tabelle und des nächsten Tokens wird beim Aufbau des Parse-Tree entschieden, welche weiteren Knoten angelegt werden sollen. Nachdem der Parse-Tree fertiggestellt ist, wird ein Typ-check durchgeführt, der überprüfen soll, ob die Variablentypen des Input Programms korrekt sind. Hierbei wird in diesem Compiler nur zwischen integer Variablen und integer array Variablen unterschieden. Nach einem erfolgreichen Typ-check wird zum Schluss Assembler Code für das Input Programm erzeugt und in eine Datei geschrieben. Die Output Datei kann, sofern die Input Datei korrekt war, vom bereitgestellten Interpreter gelesen und ausgeführt werden.
+\newline
+Im Folgenden werden die Klassen \code{Node}, \code{ParseTree} und \code{Parser} beschrieben. Diese werden in den weiteren Kapiteln \ref{sec:node}, \ref{sec:parsetree} und \ref{sec:parser} genauer erläutert. Weiterhin wird kurz auf die beiden Aufzähltypen \code{RuleType} und \code{DataType} eingegangen. Die Entscheidung, welcher Code ausgeführt werden soll wird anhand des \code{TokenType} des nächsten Tokens und der \code{Parse-Tabelle} getroffen. Die Parse-Tabelle wird im Kapitel \ref{sec:parsetable} genauer beschrieben.
+\newpage
+
+\section{Die Aufzähltypen RuleType und DataType}
+Für den Aufbau des Parse-Tree sowie den anschließenden Typ-check werden die beiden Aufzähltypen \code{RuleType} und \code{DataType} verwendet und in den einzelnen Knoten des Parse-Tree abgespeichert.
+\subsection{RuleType}
+Der Aufzähltyp \code{RuleType} besitzt die Werte \code{prog}, \code{decls}, \code{decl}, \code{array}, \code{statements}, \code{statement}, \code{exp}, \code{exp2}, \code{index}, \code{op_exp}, \code{op} und \code{terminal}. Dadurch kann mittels einer switch-case Anweisung entschieden werden, welcher Code in den Funktionen checkType(Node* node) und makeCode(Node* node) ausgeführt werden soll.
+\subsection{DataType}
+Der Aufzähltyp \code{DataType} besitzt die Werte \code{noType}, \code{intType}, \code{intArrayType}, \code{arrayType}, \code{opPlus}, \code{opMinus}, \code{opMult}, \code{opDiv}, \code{opLess}, \code{opGreater}, \code{opEqual}, \code{opUnEqual}, \code{opAnd} und \code{errorType}. Diese werden ebenfalls dafür verwendet, um in den Funktionen checkType(Node* node) und makeCode(Node* node) zu entscheiden, welcher Code ausgeführt werden soll.
+
+\section{Die Klasse Node} \label{sec:node}
+\subsection{Aufgabe der Node}
+Eine Node repräsentiert einen Knoten des Parse-Tree, weshalb für jedes terminal als auch jedes nicht-terminal ein Knoten angelegt wird. Ein Knoten enthält neben den oben genannten Aufzähltypen \code{RuleType} und \code{DataType} auch den Aufzähltypen \code{TokenType} aus dem Scanner Teil, sowie einen Zeiger zum Elternknoten, einen Zeiger auf seine Kindknoten als auch einen Zeiger auf seine Geschwisterknoten.
+\newline
+Die terminale \code{identifier} und \code{integer} haben ihre eigene spezielle \code{Node} Klasse, die beide jewils von der Klasse \code{Node} erben. Die Klasse für \code{identifier} heißt \code{NodeId} und besitzt zusätzlich einen Zeiger auf den Informationscontainer des identifiers. Die Klasse für \code{integer} Werte heißt \code{NodeInt} und besitz an Stelle des Informationscontainers einen integer Wert.
+
+\subsection{Funktionen der Node}
+Sowohl die Klasse \code{Node}, als auch die abgeleiteten Klassen \code{NodeId} und \code{NodeInt} verfügen über alle relevanten \code{getter} und \code{setter} Methoden. Weiterhin können neue Kindknoten und Geschwisterknoten über die Funktionen addChild(Node* child) und addSibling(Node* sibling) hinzugefügt werden. Zusätzlich gibt es die Funktion removeNode(Node* node), mit der es möglich ist einen Knoten aus dem Parse-Tree zu entfernen. Diese Funktion wird in unserem Compiler Projekt dazu verwendet diejenigen nicht-terminalen Knoten zu entfernen, die einen $\epsilon$-Übergang gemäß der gegebenen Grammatik zulassen (z.B. DECLS) und einen solchen auch haben.
+
+\section{Der Parse-Tree} \label{sec:parsetree}
+\subsection{Aufgabe des Parse-Tree}
+Beim Parse-Tree handelt es sich um eine selbst erstellte Baumstruktur, die aus Knoten besteht. Der Parse-Tree verfügt über einen Root Knoten, bei dem es sich immer um einen Knoten mit dem \code{RuleType} prog handelt. Dieser Parse-Tree wächst durch das hinzufügen von Kindknoten und Geschwisterknoten. Nachdem der Parse-Tree für das Input Programm fertiggestellt ist, wird dieser in den Methoden \code{checkType(Node* node)} und \code{makeCode(Node* node)} rekursiv durchlaufen.
+
+\subsection{Funktionen des Parse-Tree}
+Der Parse-Tree verfügt in unserer Version nur über einen \code{getter} für den Root Knoten, sowie einige Funktionen, die lediglich zu debugging Zwecken dienen. Die Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)} wurden in unserem Compiler Projekt in der Klasse \code{Parser} implementiert.
+
+\section{Die Parse-Tabelle} \label{sec:parsetable}
+Die Parse-Tabelle gibt Aufschluss über die weitere Vorgehensweise bei der Erzeugung des Parse-Tree in Abhängigkeit des \code{TokenType} des nächsten Tokens und des aktuellen Knotens. Die Parse-Tabelle wurde durch die Anwendung der First$_1$ und Follow$_1$ Regeln, die im begleitenden Foliensatz erklärt wurden erstellt.
+\subsection{First$_1$}
+Diese Tabelle ist durch die Anwendung der Regeln zur Konstruktion von First$_1$ entstanden.
+\newline
+\begin{tabular}{| l | l |}
+	\hline
+		First$_1$() & Tokens \\
+		\hline
+		First$_1$(PROG) & int, identifier, write, read, if, while, $\{$ \\
+		First$_1$(DECLS) & int, $\epsilon$ \\
+		First$_1$(DECL) & int \\
+		First$_1$(ARRAY) & [, $\epsilon$ \\
+		First$_1$(STATEMENTS) & identifier, write, read, if, while, $\{$, $\epsilon$ \\
+		First$_1$(STATEMENT) & identifier, write, read, if, while, $\{$ \\
+		First$_1$(EXP) & identifier, integer, (, -, ! \\
+		First$_1$(EXP2) & identifier, integer, (, -, ! \\
+		First$_1$(INDEX) & [, $\epsilon$ \\
+		First$_1$(OP\_EXP) & +, -, *, :, <, >, =, =:=, \&\&, $\epsilon$ \\
+		First$_1$(OP) & +, -, *, :, <, >, =, =:=, \&\& \\
+	\hline
+\end{tabular}
+\newline
+
+\subsection{Follow$_1$}
+Diese Tabelle ist durch die Anwendung der Regeln zur Konstruktion von Follow$_1$ entstanden.
+\newline
+\begin{tabular}{| l | l |}
+	\hline
+		Follow$_1$() & Tokens \\
+		\hline
+		Follow$_1$(PROG) & $\epsilon$ \\
+		Follow$_1$(DECLS) & identifier, write, read, if, while, $\{$, $\epsilon$ \\
+		Follow$_1$(DECL) & ; \\
+		Follow$_1$(ARRAY) & identifier \\
+		Follow$_1$(STATEMENTS) & $\}$, $\epsilon$ \\
+		Follow$_1$(STATEMENT) & else, ; \\
+		Follow$_1$(EXP) & else, ;, ), ] \\
+		Follow$_1$(EXP2) & else, ;, ), ], +, -, *, :, <, >,=, =:=, \&\& \\
+		Follow$_1$(INDEX) & else, ;, ), ], +, -, *, :, <, >, =, :=, =:=, \&\& \\
+		Follow$_1$(OP\_EXP) & else, ;, ), ] \\
+		Follow$_1$(OP) & identifier, integer, -, !, ( \\
+	\hline
+\end{tabular}
+\newpage
+
+\subsection{\"Ubergangstabellen}
+In diesem Abschnitt sind die Übergangstabellen für die einzenlen Regeln der Grammatik. Hierbei sind die daraus resultierenden abgeleiteten Regeln sowie die dafür zulässigen Tokens gegenübergestellt.
+Da eine große gemeinsame Tabelle zu viel Platz benötigt um anständig dargestellt zu werden, wurde für jede Regel eine eigene Tabelle angelegt.
+\newline
+
+\subsubsection{PROG}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		DECLS STATEMENTS & identifier, int, write, read, while, if, \{ \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{DECLS}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		DECL; DECLS & int \\
+		$\epsilon$ & identifier, write, read, while, if, $\{$ \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{DECL}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		int ARRAY identifier & int \\
+		$\epsilon$ & ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{ARRAY}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		[integer] & [ \\
+		$\epsilon$ & identifier \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{STATEMENTS}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		STATEMENT; STATEMENTS & identifier, write, read, while, if, $\{$ \\
+		$\epsilon$ & $\}$ \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{STATEMENT}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		identifier INDEX := EXP & identifier \\
+		write(EXP) & write \\
+		read(identifier INDEX) & read \\
+		while(EXP) STATEMENT & while \\
+		if(EXP) STATEMENT else STATEMENT & if \\
+		$\{$STATEMENTS$\}$ & $\{$ \\
+		$\epsilon$ & else, ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{EXP}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		EXP2 OP\_EXP & identifier, integer, (, -, ! \\
+		$\epsilon$ & else, ], ), ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{EXP2}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		identifier INDEX & identifier \\
+		integer & integer \\
+		(EXP) & ( \\
+		-EXP2 & - \\
+		!EXP2 & ! \\
+		$\epsilon$ & else, ], ), +, *, :, <, >, =, :=, =:=, \&\&, ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{INDEX}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		[EXP] & [ \\
+		$\epsilon$ & else, ], ), +, -, *, :, <, >, =, :=, =:=, \&\&, ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{OP\_EXP}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		OP EXP & +, -, *, :, <, >, =, =:=, \&\& \\
+		$\epsilon$ & else, ], ), ; \\
+	\hline
+\end{tabular}
+\newline
+
+\subsubsection{OP}
+\begin{tabular}{| l | l |}
+	\hline
+		\"Ubergang & Tokens \\
+		\hline
+		+ & + \\
+		- & - \\
+		** & * \\
+		: & : \\
+		< & < \\
+		> & > \\
+		= & = \\
+		=:= & =:= \\
+		\&\& & \&\& \\
+		$\epsilon$ & identifier, integer, (, ! \\
+	\hline
+\end{tabular}
+\newline
+
+\section{Der Parser} \label{sec:parser}
+\subsection{Aufgabe des Parsers}
+Der \code{Parser} ist die zentrale Einheit und führt die oben genannten Klassen zu einem Modul zusammen. Die Aufgabe des Parsers besteht darin, den \code{Parse-Tree} durch die Erzeugung neuer Knoten aufzubauen und anhand der Übergänge der \code{Parse-Tabelle} den gewünschten Code auszuführen. Weiterhin wird im Parser der Typ-check und die Erzeugung des Assembler Codes durchgeführt. Der Parser besitzt einen Zeiger auf den \code{Scanner} und initialisiert diesen mit dem übergebenen Input Programm. Er besitzt außerdem Variablen für den aktuellen \code{RuleType}, einen Zeiger auf die aktuelle \code{Node} sowie einen Zeiger auf den \code{Parse-Tree}.
+
+\subsection{Funktionen des Parsers}
+Der Parser verfügt über eine Funktion für jede Regel der gegebenen Grammatik (prog, decls, decl, usw.). Diese werden gemäß der Übergangstabellen aufgerufen und enthalten den Code zur Erzeugung der entsprechenden Knoten, welche dann zum \code{Parse-Tree} hinzugefügt werden. Hierfür gibt es Funktionen zum hinzufügen eines bestimmten Knotentyps (id, integer, terminal und nicht-terminal) zum \code{Parse-Tree} als auch zum Entfernen eines Knotens vom \code{Parse-Tree}. Der Parser verfügt außerdem über die beiden Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}, in denen der Typ-check und die Codeerzeugung gemäß der begleitenden Folien dieses Labors durchgeführt werden. Der Parser enthält auch die Funktionen \code{errorParse()} und \code{errorType(Node* node)}, welche bei einem Fehlerhaften Input Programm aufgerufen werden und eine Fehlernachricht ausgeben. Durch die Funktion \code{nextToken()} wird der Zeiger auf das aktuelle Token auf das nächste Token, durch den Aufruf der gleichnamigen Funktion des Scanners, gesetzt und die \code{freeToken()} Funktion des Scanners aufgerufen um den Speicher freizugeben. Dadurch wird stets nur ein einziges Token im Speicher gehalten.
+
+\subsection{Implementierung}
+\subsubsection{Erstellung des Parse-Tree}
+Bei der Erstellung des \code{Parse-Tree} wird hauptsächlich durch den Einsatz von \code{switch-case}
+Anweisungen über den aktuellen \code{TokenType} entschieden, welcher Code ausgeführt werden soll. Des weiteren wird durch die Verwendung von verschachtelten \code{if-else} Anweisungen innerhalb einer \code{switch-case} Anweisung geprüft, ob die nachfolgenden Tokens den Regeln der Grammatik entsprechen. Bei einem Fehler wird die \code{errorParse()}-Funktion aufgerufen. In allen Funktionen, die für die Erzeugung des \code{Parse-Tree} aus dem Input Programm relevant sind wird am Anfang der Funktion der \code{RuleType} gesetzt und die entsprechende \code{Node} angelegt. Falls es hierbei einen echten $\epsilon$-Übergang gibt, also einen $\epsilon$-Übergang, der als solcher in den Regeln der Grammatik gekennzeichnet ist, wird diese \code{Node} in unserem Compiler Projekt wieder entfernt (z.B. DECLS mit $\epsilon$-Übergang). Dies führte allerdings im Nachhinein zu Kompilkationen in den Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}. Am Ende jeder Funktion, die zur Erzeugung des \code{Parse-Tree} relevant ist, wird die Funktion \code{nextToken()} aufgerufen.
+
+\subsubsection{Typ-check}
+Die Funktion \code{checkType(Node* node)} ist für den Typ-check zuständig. Hierbei wird der \code{Parse-Tree} vom Root Knoten ausgehend rekursiv durchlaufen. Auch in dieser Funktion wird mittels einer \code{switch-case} Anweisung entschieden, welcher Code ausgeführt werden soll. Die \code{switch-case} Anweisung ist in dieser Funktion abhängig vom \code{RuleType} der aktuellen \code{Node}.
+Durch die zuvor erwähnte Entfernung von Knoten mit einem echten $\epsilon$-Übergang mussten in unserer Version zusätzliche Prüfungen auf \code{NULL} eingebaut werden. Weiterhin mussten verschiedene Vorgehensweisen implementiert werden für den Fall, dass ein bestimmter Knoten existiert und für den Fall, dass er nicht existiert. Ein Beispiel hierfür wäre die Unterscheidung zwischen einer Variablen vom Typ \code{intType} und \code{intArrayType}, da die \code{checkType(Node* node)} Funktion für einen array Knoten aufgerufen wird und einen 
+\newline
+Typen \code{DataType} zugewiesen bekommt, bevor der zugehörige identifier einen Typen zugewiesen bekommt.
+
+\subsubsection{Codeerzeugung}
+Die Funktion \code{makeCode(Node* node)} ist für die Codeerzeugung zuständig. Auch in dieser Funktion wird der \code{Parse-Tree} vom Root Knoten ausgehend rekursiv durchlaufen. Genauso wie beim Typ-check wird in dieser Funktion über eine \code{switch-case} Anweisung, die vom \code{RuleType} der aktuellen \code{Node} abhängig ist, entschieden, welcher Code ausgeführt werden soll. Hierbei fiel ebenfalls durch die zuvor erwähnte Entfernung von Knoten mit einem echten $\epsilon$-Übergang einiges an Zusatzarbeit an. Es handelt sich dabei im Grunde um die selben Probleme, die auch beim Typ-check aufgetreten sind, welche auf die selbe Art und Weise gelöst wurden. Für die Vergabe einer eindeutigen Sprungmarke im erzeugten Code wurde die Hilfsmethode \code{makeLabel()} implementiert, die an das Wort ''label'' fortlaufend die Buchstaben ''a - z'' und anschließend ''A - Z'' anhängen sollte. Bei der Funktion \code{makeCode} handelt es sich des weiteren um eine überladene Funktion. Die Funktion \code{makeCode(char* inputFileName)} bekommt das Input Programm und erzeugt eine Output Datei mit dem selben Namen wie die Input Datei, allerdings mit der Dateinamenserweiterung ''.code'' statt ''.txt'' und ruft im Anschluss die Funktion \code{makeCode(Node* node)} mit dem Root Knoten auf.
+
+\subsection{Programmaufruf}
+Um den Compiler nutzen zu können, muss diesem nur eine Input Datei übergeben werden, die vom Scanner genutzt wird. Die Output Datei wird vom Compiler selbst erzeugt und erhält den Namen der Input Datei, allerdings mit der Dateiendung ''.code''. Ein genereller Aufruf des Compilers bzw. des ausführbaren Programms \code{ParserTest}:
+\newline
+pfad/zur/ausführbaren/datei/ParserTest pfad/zur/input/datei
+\newline
+Ein beispielhafter Aufruf des Compilers bzw. des ausführbaren Programms aus dem Ordner, in dem sich die ausführbare Datei \code{ParserTest} befindet:
+\newline
+./ParserTest ./test.txt
+
+\section{Tests}
+Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben. Für die Validierung haben wir uns unserer debug Funktionen bedient, welche in der Lage waren einen Parse-Tree mithilfe von Ascii-Zeichen auszugeben. Dadurch konnten wir relativ schnell sehen, wo der Fehler zu finden ist.
+
+\begin{description}
+\item{\texttt{parserTest.txt}} Das kleine Testprogramm auf Seite 16 der begleitenden Folien.
+
+\item{\texttt{declsOnly.txt}} Ein Besipielprogramm, das nur aus Deklarationen besteht. Diese wurde zu debugging Zwecken für den \code{DECLS} Pfad erstellt.
+
+\item{\texttt{statmtsOnly.txt}} Ein Beispielprogramm, das nur aus Anweisungen besteht. Diese wurde zu debugging Zwecken für den \code{STATEMENTS} Pfad erstellt.
+
+\item{\texttt{ruleIfElse.txt}} Ein Beispielprogramm, welches mehrere \code{if-else} Anweisungen, sowie \code{read} und \code{write} Anweisungen enthält. Ein Auszug findet sich in Quelltext \ref{lst:testIfElse}.
+
+\begin{lstlisting}[language=SysProgLang, caption={ruleIfElse.txt}, label=lst:testIfElse]
+if(abc[0])
+    write(0)
+else
+    write(-1)
+;
+if(7 * 7 =:= 56)
+    write(0)
+else {
+    write(1);
+    write(2);
+    write(3);
+}                   ;
+
+if(!1) {
+    x := 3;
 }
+else write(1) ;
 \end{lstlisting}
 
-\subsection{Bar im Wandel der Zeit}
-Auf nimmer Wiedersehen, du grausame Welt
+\item{\texttt{empty.txt}} Eine leere Eingabedatei. Diese Testdatei hat sehr bei der Überprüfung, ob leere Knoten wieder vom \code{Parse-Tree} entfernt werden geholfen.
 
-\section{XXX}
-In dem nun folgenden, zeigen wir $P=NP$.
+\item{\texttt{ruleExp.txt}} Eine kleine Beispieldatei, die aus verschiedenen aufeinanderfolgenden Ausdrücken besteht. Ein Auszug findet sich in Quelltext \ref{lst:testExp}.
 
-\subsection{Beweis} \label{subsec:aircontrol}
-Easy
+\begin{lstlisting}[language=SysProgLang, caption={ruleExp.txt}, label=lst:testExp]
+abc := (abc) + (abc - abc * abc) : abc < abc > abc = (abc =:= ((abc) \&\& abc));
 
-\begin{wrapfigure}[13]{Rth}{0.45\textwidth}
-    \centering
-    \includegraphics[width=0.45\textwidth]{./pics/pic.png}
-	\caption[format=plain]{Voll der Text XXX}
-	\label{fig:ref1}
-\end{wrapfigure}
+true := -!-!!!-!(!---7);
 
-Wie in Bild \ref{fig:ref1} gezeigt, ... XXX
+not := x =:= y;
+\end{lstlisting}
+
+\item{\texttt{ruleBrackets.txt}} Eine kleine Beispieldatei, die aus vielen Ausdrücken innerhalb von geschachtelten Klammern besteht. Ein Auszug findet sich in Quelltext \ref{lst:testBrackets}.
+
+\begin{lstlisting}[language=SysProgLang, caption={ruleBrackets.txt}, label=lst:testBrackets]
+write(
+  i[(abc[1]) + (abc - abc * abc) : 
+    abc < abc > abc = (abc =:=
+    ((abc) \&\& abc))]
+  : 2
+);
+\end{lstlisting}
+
+\item{\texttt{ruleWhile.txt}} Eine Beispieldatei, die sich hauptsächlich mit while-Schleifen beschäftigt.
+
+\item{\texttt{ruleRead.txt}} Eine kleine Beispieldatei, die verschiedene read-Anweisungen enthält. 
+
+\item{\texttt{ruleWrite.txt}} Eine kleine Beispieldatei, die verschiedene write-Anweisungen enthält.
+\end{description}
 
 \section{Schluss}
-Wie dieser Überblick dem Leser hoffentlich vermitteln konnte XXX
-
-
-
-% °_°_°_°_°_°_°_°_°_°_°_
-%    APPENDIX
-% °_°_°_°_°_°_°_°_°_°_°_
-\appendix
-
-\begin{description}
-\item{ABOUT}
-\begin{description}
-\item{Diese Arbeit} ist im Rahmen des Kurses „XXX“ an der Hochschule Karlsruhe im Wintersemester 2016/17 entstanden.
-
-\item{Der Autor} Arthur Jagiella studiert Informatik (B.Sc.) an o.g. Hochschule.
-\end{description}
-\end{description}
-
-\begin{thebibliography}{99}
-
-\bibitem{bestArticle}
-  \textsc{WIKIPEDIA}:
-  \emph{Hallo-Welt-Programm}.
-  https://de.wikipedia.org/wiki/Hallo-Welt-Programm.
-
-\end{thebibliography}
+Insgesammt hat uns die Arbeit am Compiler Projekt viel Spaß gemacht und wir haben sowohl die Verwendung als auch die Implementierung von Datenstrukturen weiter vertiefen können. Durch die großzügige Verwendung von Zeigern in diesem Projekt konnten wir auch unser Verständnis diesbezüglich erweitern und festigen. Es war auch spannend zu sehen, wie ein Compiler funktioniert und wie die beteiligten Module miteinander Verbunden sind und miteinander interagieren. Obwohl es sich bei diesem Projekt um einen eher einfachen und sehr abgespeckten Compiler handelt, hat dieser zum Ende trotzdem eine ordentlich Größe erreicht und besteht auch vielen verschiedenen Klassen, interfaces und Aufzählungstypen. Dadurch konnten wir wie zum Beispiel im Kapitel \ref{sec:node} beschrieben nocheinmal den Vererbungsmechanismus der Sprache C++ anwenden und vertiefen. Wir konnten uns im Rahmen dieser Arbeit auf jeden Fall vieles an praktischem Wissen aneignen und sind mit dem von uns erreichten Gesammtergebnis durchaus zufrieden. Nach diesem Labor wird es uns in Zukunft auch leichter fallen, die Ursachen für bestimmte Fehlermeldungen zu finden.
 
 \end{document}
