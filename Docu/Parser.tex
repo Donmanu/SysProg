@@ -438,7 +438,8 @@ else write(1) ;
 \item{\texttt{ruleExp.txt}} Eine kleine Beispieldatei, die aus verschiedenen aufeinanderfolgenden Ausdrücken besteht. Ein Auszug findet sich in Quelltext \ref{lst:testExp}.
 
 \begin{lstlisting}[language=SysProgLang, caption={ruleExp.txt}, label=lst:testExp]
-abc := (abc) + (abc - abc * abc) : abc < abc > abc = (abc =:= ((abc) \&\& abc));
+abc := (abc) + (abc - abc * abc) : abc < abc > 
+abc = (abc =:= ((abc) && abc));
 
 true := -!-!!!-!(!---7);
 
@@ -451,7 +452,7 @@ not := x =:= y;
 write(
   i[(abc[1]) + (abc - abc * abc) : 
     abc < abc > abc = (abc =:=
-    ((abc) \&\& abc))]
+    ((abc) && abc))]
   : 2
 );
 \end{lstlisting}
