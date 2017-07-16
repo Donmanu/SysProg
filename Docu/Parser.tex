@@ -80,7 +80,7 @@ final      %|draft,     wie Bilder eingebunden sind
                      \hbox{\scriptsize.}\hbox{\scriptsize.}}}
                      =}
 \lstset{
-  basicstyle=\small\ttfamily, % make monospac
+  basicstyle=\small\ttfamily, % make monospace
   backgroundcolor=\color{lightgray},
   columns=fixed,    % make monospace?
   keepspaces=true,
@@ -94,7 +94,7 @@ final      %|draft,     wie Bilder eingebunden sind
   showstringspaces=false,
   captionpos=b,     % bottom
   xleftmargin=2em,   % enough for 99 lines
-  escapechar=!     % LaTeX inside code segments
+  escapechar=!     % for LaTeX inside code segments
 }
 \renewcommand\lstlistingname{Quelltext} % Sag Babel, wie es das Label "Listing" übersetzen soll
 \renewcommand\lstlistlistingname{Quelltextverzeichnis} % Sag Babel, wie es den Titel "Listings" übersetzen soll
@@ -169,9 +169,9 @@ Der Aufzähltyp \code{DataType} besitzt die Werte \code{noType}, \code{intType},
 
 \section{Die Klasse Node} \label{sec:node}
 \subsection{Aufgabe der Node}
-Eine Node repräsentiert einen Knoten des Parse-Tree, weshalb für jedes terminal als auch jedes nicht-terminal ein Knoten angelegt wird. Ein Knoten enthält neben den oben genannten Aufzähltypen \code{RuleType} und \code{DataType} auch den Aufzähltypen \code{TokenType} aus dem Scanner Teil, sowie einen Zeiger zum Elternknoten, einen Zeiger auf seine Kindknoten als auch einen Zeiger auf seine Geschwisterknoten.
+Eine Node repräsentiert einen Knoten des Parse-Tree, weshalb für jedes terminal als auch jedes nicht-terminal ein Knoten angelegt wird. Ein Knoten enthält neben den oben genannten Aufzähltypen \code{RuleType} und \code{DataType} auch den Aufzähltypen \code{TokenType} aus dem Scanner Teil, sowie einen Zeiger zum Elternknoten, einen Zeiger auf seine Kindknoten als auch einen Zeiger auf seine Geschwisterknoten. Der Baum ist also als Liste von Listen implementiert.
 \newline
-Die terminale \code{identifier} und \code{integer} haben ihre eigene spezielle \code{Node} Klasse, die beide jewils von der Klasse \code{Node} erben. Die Klasse für \code{identifier} heißt \code{NodeId} und besitzt zusätzlich einen Zeiger auf den Informationscontainer des identifiers. Die Klasse für \code{integer} Werte heißt \code{NodeInt} und besitz an Stelle des Informationscontainers einen integer Wert.
+Die terminale \code{identifier} und \code{integer} haben ihre eigene spezielle \code{Node} Klasse, die beide jeweils von der Klasse \code{Node} erben. Die Klasse für \code{identifier} heißt \code{NodeId} und besitzt zusätzlich einen Zeiger auf den Informationscontainer des identifiers. Die Klasse für \code{integer} Werte heißt \code{NodeInt} und besitz an Stelle des Informationscontainers einen integer Wert.
 
 \subsection{Funktionen der Node}
 Sowohl die Klasse \code{Node}, als auch die abgeleiteten Klassen \code{NodeId} und \code{NodeInt} verfügen über alle relevanten \code{getter} und \code{setter} Methoden. Weiterhin können neue Kindknoten und Geschwisterknoten über die Funktionen addChild(Node* child) und addSibling(Node* sibling) hinzugefügt werden. Zusätzlich gibt es die Funktion removeNode(Node* node), mit der es möglich ist einen Knoten aus dem Parse-Tree zu entfernen. Diese Funktion wird in unserem Compiler Projekt dazu verwendet diejenigen nicht-terminalen Knoten zu entfernen, die einen $\epsilon$-Übergang gemäß der gegebenen Grammatik zulassen (z.B. DECLS) und einen solchen auch haben.
@@ -230,8 +230,8 @@ Diese Tabelle ist durch die Anwendung der Regeln zur Konstruktion von Follow$_1$
 \newpage
 
 \subsection{\"Ubergangstabellen}
-In diesem Abschnitt sind die Übergangstabellen für die einzenlen Regeln der Grammatik. Hierbei sind die daraus resultierenden abgeleiteten Regeln sowie die dafür zulässigen Tokens gegenübergestellt.
-Da eine große gemeinsame Tabelle zu viel Platz benötigt um anständig dargestellt zu werden, wurde für jede Regel eine eigene Tabelle angelegt.
+In diesem Abschnitt sind die Übergangstabellen für die einzenlen Regeln der Grammatik dargelegt. Hierbei sind die daraus resultierenden abgeleiteten Regeln sowie die dafür zulässigen Tokens gegenübergestellt.
+Da eine große gemeinsame Tabelle zu viel Platz benötigt um übersichtlich dargestellt zu werden, wurde für jede Regel eine eigene Tabelle angelegt.
 \newline
 
 \subsubsection{PROG}
@@ -376,14 +376,14 @@ Da eine große gemeinsame Tabelle zu viel Platz benötigt um anständig dargeste
 Der \code{Parser} ist die zentrale Einheit und führt die oben genannten Klassen zu einem Modul zusammen. Die Aufgabe des Parsers besteht darin, den \code{Parse-Tree} durch die Erzeugung neuer Knoten aufzubauen und anhand der Übergänge der \code{Parse-Tabelle} den gewünschten Code auszuführen. Weiterhin wird im Parser der Typ-check und die Erzeugung des Assembler Codes durchgeführt. Der Parser besitzt einen Zeiger auf den \code{Scanner} und initialisiert diesen mit dem übergebenen Input Programm. Er besitzt außerdem Variablen für den aktuellen \code{RuleType}, einen Zeiger auf die aktuelle \code{Node} sowie einen Zeiger auf den \code{Parse-Tree}.
 
 \subsection{Funktionen des Parsers}
-Der Parser verfügt über eine Funktion für jede Regel der gegebenen Grammatik (prog, decls, decl, usw.). Diese werden gemäß der Übergangstabellen aufgerufen und enthalten den Code zur Erzeugung der entsprechenden Knoten, welche dann zum \code{Parse-Tree} hinzugefügt werden. Hierfür gibt es Funktionen zum hinzufügen eines bestimmten Knotentyps (id, integer, terminal und nicht-terminal) zum \code{Parse-Tree} als auch zum Entfernen eines Knotens vom \code{Parse-Tree}. Der Parser verfügt außerdem über die beiden Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}, in denen der Typ-check und die Codeerzeugung gemäß der begleitenden Folien dieses Labors durchgeführt werden. Der Parser enthält auch die Funktionen \code{errorParse()} und \code{errorType(Node* node)}, welche bei einem Fehlerhaften Input Programm aufgerufen werden und eine Fehlernachricht ausgeben. Durch die Funktion \code{nextToken()} wird der Zeiger auf das aktuelle Token auf das nächste Token, durch den Aufruf der gleichnamigen Funktion des Scanners, gesetzt und die \code{freeToken()} Funktion des Scanners aufgerufen um den Speicher freizugeben. Dadurch wird stets nur ein einziges Token im Speicher gehalten.
+Der Parser verfügt für jede Regel der gegebenen Grammatik (prog, decls, decl, usw.) über eine entsprechende Funktion. Diese werden gemäß der Übergangstabellen aufgerufen und enthalten den Code zur Erzeugung der entsprechenden Knoten, welche dann zum \code{Parse-Tree} hinzugefügt werden. Hierfür gibt es Funktionen zum hinzufügen eines bestimmten Knotentyps (id, integer, terminal und nicht-terminal) zum \code{Parse-Tree} als auch zum Entfernen eines Knotens vom \code{Parse-Tree}. Der Parser verfügt außerdem über die beiden Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}, in denen der Typ-check und die Codeerzeugung gemäß der begleitenden Folien dieses Labors durchgeführt werden. Der Parser enthält auch die Funktionen \code{errorParse()} und \code{errorType(Node* node)}, welche bei einem Fehlerhaften Input Programm aufgerufen werden und eine Fehlernachricht ausgeben. Durch die Methode \code{Scanner::nextToken()} wird \code{Parser::currentToken} auf das nächste Token gesetzt und die \code{Scanner::freeToken()}-Funktion aufgerufen, um den Speicher freizugeben. Es wird also stets nur ein einziges Token im Speicher gehalten.
 
 \subsection{Implementierung}
 \subsubsection{Erstellung des Parse-Tree}
 Bei der Erstellung des \code{Parse-Tree} wird hauptsächlich durch den Einsatz von \code{switch-case}
-Anweisungen über den aktuellen \code{TokenType} entschieden, welcher Code ausgeführt werden soll. Des weiteren wird durch die Verwendung von verschachtelten \code{if-else} Anweisungen innerhalb einer \code{switch-case} Anweisung geprüft, ob die nachfolgenden Tokens den Regeln der Grammatik entsprechen. Bei einem Fehler wird die \code{errorParse()}-Funktion aufgerufen. In allen Funktionen, die für die Erzeugung des \code{Parse-Tree} aus dem Input Programm relevant sind wird am Anfang der Funktion der \code{RuleType} gesetzt und die entsprechende \code{Node} angelegt. Falls es hierbei einen echten $\epsilon$-Übergang gibt, also einen $\epsilon$-Übergang, der als solcher in den Regeln der Grammatik gekennzeichnet ist, wird diese \code{Node} in unserem Compiler Projekt wieder entfernt (z.B. DECLS mit $\epsilon$-Übergang). Dies führte allerdings im Nachhinein zu Kompilkationen in den Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}. Am Ende jeder Funktion, die zur Erzeugung des \code{Parse-Tree} relevant ist, wird die Funktion \code{nextToken()} aufgerufen.
+Anweisungen über den aktuellen \code{TokenType} entschieden, welcher Code ausgeführt werden soll. Des weiteren wird durch die Verwendung von verschachtelten \code{if-else} Anweisungen innerhalb einer \code{switch-case} Anweisung geprüft, ob die nachfolgenden Tokens den Regeln der Grammatik entsprechen. Bei einem Fehler wird die \code{errorParse()}-Funktion aufgerufen. In allen Funktionen, die für die Erzeugung des \code{Parse-Tree} aus dem Input Programm relevant sind wird am Anfang der Funktion der \code{RuleType} gesetzt und die entsprechende \code{Node} angelegt. Falls es hierbei einen echten $\epsilon$-Übergang gibt, also einen $\epsilon$-Übergang, der als solcher in den Regeln der Grammatik gekennzeichnet ist, wird diese \code{Node} in unserem Compiler Projekt wieder entfernt (z.B. DECLS mit $\epsilon$-Übergang). Dies führte allerdings im Nachhinein zu Komplikationen in den Funktionen \code{checkType(Node* node)} und \code{makeCode(Node* node)}. Näheres dazu in \ref{ssec:tCheck}. Am Ende jeder Funktion, die zur Erzeugung des \code{Parse-Tree} relevant ist, wird die Funktion \code{nextToken()} aufgerufen.
 
-\subsubsection{Typ-check}
+\subsubsection{Typ-check} \label{ssec:tCheck}
 Die Funktion \code{checkType(Node* node)} ist für den Typ-check zuständig. Hierbei wird der \code{Parse-Tree} vom Root Knoten ausgehend rekursiv durchlaufen. Auch in dieser Funktion wird mittels einer \code{switch-case} Anweisung entschieden, welcher Code ausgeführt werden soll. Die \code{switch-case} Anweisung ist in dieser Funktion abhängig vom \code{RuleType} der aktuellen \code{Node}.
 Durch die zuvor erwähnte Entfernung von Knoten mit einem echten $\epsilon$-Übergang mussten in unserer Version zusätzliche Prüfungen auf \code{NULL} eingebaut werden. Weiterhin mussten verschiedene Vorgehensweisen implementiert werden für den Fall, dass ein bestimmter Knoten existiert und für den Fall, dass er nicht existiert. Ein Beispiel hierfür wäre die Unterscheidung zwischen einer Variablen vom Typ \code{intType} und \code{intArrayType}, da die \code{checkType(Node* node)} Funktion für einen array Knoten aufgerufen wird und einen 
 \newline
@@ -394,15 +394,16 @@ Die Funktion \code{makeCode(Node* node)} ist für die Codeerzeugung zuständig. 
 
 \subsection{Programmaufruf}
 Um den Compiler nutzen zu können, muss diesem nur eine Input Datei übergeben werden, die vom Scanner genutzt wird. Die Output Datei wird vom Compiler selbst erzeugt und erhält den Namen der Input Datei, allerdings mit der Dateiendung ''.code''. Ein genereller Aufruf des Compilers bzw. des ausführbaren Programms \code{ParserTest}:
-\newline
-pfad/zur/ausführbaren/datei/ParserTest pfad/zur/input/datei
-\newline
+\begin{lstlisting}[language=PseudoCode, caption={}, label=lst:callParser1]
+pfad/zur/ausfuehrbaren/datei/ParserTest pfad/zur/input/datei
+\end{lstlisting}
 Ein beispielhafter Aufruf des Compilers bzw. des ausführbaren Programms aus dem Ordner, in dem sich die ausführbare Datei \code{ParserTest} befindet:
-\newline
+\begin{lstlisting}[language=PseudoCode, caption={}, label=lst:callParser2]
 ./ParserTest ./test.txt
+\end{lstlisting}
 
 \section{Tests}
-Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben. Für die Validierung haben wir uns unserer debug Funktionen bedient, welche in der Lage waren einen Parse-Tree mithilfe von Ascii-Zeichen auszugeben. Dadurch konnten wir relativ schnell sehen, wo der Fehler zu finden ist.
+Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Einige sind im Folgenden umschrieben. Für die Validierung haben wir uns unserer debug-Funktionen bedient, welche in der Lage waren einen Parse-Tree mithilfe von Ascii-Zeichen auszugeben. Dadurch konnten wir relativ schnell sehen, wo der Fehler zu finden ist.
 
 \begin{description}
 \item{\texttt{parserTest.txt}} Das kleine Testprogramm auf Seite 16 der begleitenden Folien.
@@ -413,7 +414,7 @@ Für diverse Szenarien haben wir eine ganze Reihe von Testdateien erstellt. Eini
 
 \item{\texttt{ruleIfElse.txt}} Ein Beispielprogramm, welches mehrere \code{if-else} Anweisungen, sowie \code{read} und \code{write} Anweisungen enthält. Ein Auszug findet sich in Quelltext \ref{lst:testIfElse}.
 
-\begin{lstlisting}[language=SysProgLang, caption={ruleIfElse.txt}, label=lst:testIfElse]
+\begin{lstlisting}[language=SysProgLang, firstnumber=16, caption={ruleIfElse.txt}, label=lst:testIfElse]
 if(abc[0])
     write(0)
 else
@@ -457,7 +458,7 @@ write(
 );
 \end{lstlisting}
 
-\item{\texttt{ruleWhile.txt}} Eine Beispieldatei, die sich hauptsächlich mit while-Schleifen beschäftigt.
+\item{\texttt{ruleWhile.txt}} Eine Beispieldatei, die sich hauptsächlich mit while-Schleifen beschäftigt. Z.B. deren Schachtelung.
 
 \item{\texttt{ruleRead.txt}} Eine kleine Beispieldatei, die verschiedene read-Anweisungen enthält. 
 
@@ -465,6 +466,6 @@ write(
 \end{description}
 
 \section{Schluss}
-Insgesammt hat uns die Arbeit am Compiler Projekt viel Spaß gemacht und wir haben sowohl die Verwendung als auch die Implementierung von Datenstrukturen weiter vertiefen können. Durch die großzügige Verwendung von Zeigern in diesem Projekt konnten wir auch unser Verständnis diesbezüglich erweitern und festigen. Es war auch spannend zu sehen, wie ein Compiler funktioniert und wie die beteiligten Module miteinander Verbunden sind und miteinander interagieren. Obwohl es sich bei diesem Projekt um einen eher einfachen und sehr abgespeckten Compiler handelt, hat dieser zum Ende trotzdem eine ordentlich Größe erreicht und besteht auch vielen verschiedenen Klassen, interfaces und Aufzählungstypen. Dadurch konnten wir wie zum Beispiel im Kapitel \ref{sec:node} beschrieben nocheinmal den Vererbungsmechanismus der Sprache C++ anwenden und vertiefen. Wir konnten uns im Rahmen dieser Arbeit auf jeden Fall vieles an praktischem Wissen aneignen und sind mit dem von uns erreichten Gesammtergebnis durchaus zufrieden. Nach diesem Labor wird es uns in Zukunft auch leichter fallen, die Ursachen für bestimmte Fehlermeldungen zu finden.
+Insgesamt hat uns die Arbeit am Compilerprojekt viel Spaß gemacht und wir haben sowohl die Verwendung als auch die Implementierung von Datenstrukturen weiter vertiefen können. Durch die großzügige Verwendung von Zeigern in diesem Projekt konnten wir auch unser Verständnis diesbezüglich erweitern und festigen. Des weiteren wir die Nützlichkeit von umfassenden und kleinteiligen Testfällen kennengelernt. Es war auch spannend zu sehen, wie ein Compiler funktioniert und wie die beteiligten Module miteinander verbunden sind und miteinander interagieren. Obwohl es sich bei diesem Projekt um einen eher einfachen und sehr abgespeckten Compiler handelt, hat dieser zum Ende trotzdem eine ordentlich Größe erreicht und besteht aus vielen verschiedenen Klassen, interfaces und Aufzählungstypen. Dadurch konnten wir wie zum Beispiel im Kapitel \ref{sec:node} beschrieben noch ein mal den Vererbungsmechanismus der Sprache C++ anwenden und vertiefen. Wir konnten uns im Rahmen dieser Arbeit auf jeden Fall vieles an praktischem Wissen aneignen und sind mit dem von uns erreichten Gesamtergebnis durchaus zufrieden. Nach diesem Labor wird es uns in Zukunft auch leichter fallen, die Ursachen für bestimmte Fehlermeldungen zu finden. Insbesondere wenn diese nicht durch die Logik des geschriebenen Codes selbst, sondern z.B. durch \emph{make} oder C-spezifische Paradigmen begründet sind.
 
 \end{document}
